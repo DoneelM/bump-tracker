@@ -76,7 +76,7 @@ function fakeStorage(initial: Record<string, string>, failOn?: string) {
 }
 
 describe('applyBackup', () => {
-  const backup = (accepted: Record<string, unknown>): ParsedBackup => ({ exportedAt: '', accepted, skipped: [], photos: [], photosSkipped: 0 });
+  const backup = (accepted: Record<string, unknown>): ParsedBackup => ({ exportedAt: '', accepted, skipped: [], photos: [], photosSkipped: 0, photoRejectedWeeks: [] });
   const original = { [STORAGE_KEYS.weightEntries]: '"old-weights"', [STORAGE_KEYS.journal]: '"old-journal"', [STORAGE_KEYS.birthPlan]: '"old-plan"' };
 
   it('writes backup keys and removes the registered keys it does not contain', async () => {
@@ -115,6 +115,19 @@ describe('applyBackup', () => {
     expect(r.backup.skipped.map((s) => s.key).sort()).toEqual([STORAGE_KEYS.journal, STORAGE_KEYS.profile].sort());
     expect(r.backup.accepted[STORAGE_KEYS.weightEntries]).toEqual([]); // a genuinely empty list is fine
   });
+
+  it('an all-invalid contraction log (nested in an object) keeps the existing log', async () => {
+    const existing = '{"contractions":[{"start":1790000000000,"end":1790000060000}],"activeStart":null}';
+    const r = parseBackup(make({ [STORAGE_KEYS.contractions]: { contractions: [{ start: 1e300, end: 1e300 }], activeStart: null }, [STORAGE_KEYS.weightEntries]: [] }));
+    if (!r.ok) throw new Error(r.error);
+    expect(r.backup.skipped.map((s) => s.key)).toEqual([STORAGE_KEYS.contractions]);
+    const { data, storage } = fakeStorage({ [STORAGE_KEYS.contractions]: existing });
+    expect(await applyBackup(r.backup, storage)).toEqual({ ok: true });
+    expect(data.get(STORAGE_KEYS.contractions)).toBe(existing);
+    // an empty log in the backup is still accepted
+    const empty = parseBackup(make({ [STORAGE_KEYS.contractions]: { contractions: [], activeStart: null } }));
+    expect(empty.ok && empty.backup.accepted[STORAGE_KEYS.contractions]).toEqual({ contractions: [], activeStart: null });
+  });
 });
 
 /** localStorage-like: one total byte budget across all keys. `stuck` keys always refuse writes. */
@@ -135,7 +148,7 @@ function quotaStorage(initial: Record<string, string>, budget: number, stuck?: s
 
 describe('applyBackup under a storage quota', () => {
   const accepted = { [STORAGE_KEYS.weightEntries]: 'w', [STORAGE_KEYS.scanEntries]: 's'.repeat(698), [STORAGE_KEYS.journal]: 'j'.repeat(2000) };
-  const b: ParsedBackup = { exportedAt: '', accepted, skipped: [], photos: [], photosSkipped: 0 };
+  const b: ParsedBackup = { exportedAt: '', accepted, skipped: [], photos: [], photosSkipped: 0, photoRejectedWeeks: [] };
   const existing = { [STORAGE_KEYS.weightEntries]: JSON.stringify('x'.repeat(898)) };
 
   it('keeps all existing data when a later key overflows the quota (reviewer’s 900-weights case)', async () => {

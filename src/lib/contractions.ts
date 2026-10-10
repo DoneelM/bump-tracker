@@ -93,6 +93,11 @@ export function isSessionLive(state: ContractionState, now: number): boolean {
   return state.activeStart !== null || (last !== undefined && now - last.end < PATTERN_MAX_GAP_MS);
 }
 
+/** Time since the last contraction: mm:ss while the session is live, else a fixed "over 7 min" (the clock no longer ticks). */
+export function formatSinceLast(ms: number, live: boolean): string {
+  return live ? formatMmSs(ms) : `over ${PATTERN_MAX_GAP_MS / 60_000} min`;
+}
+
 /** mm:ss (minutes may exceed 59). Null, negative or invalid input shows 00:00. */
 export function formatMmSs(ms: number | null): string {
   if (ms === null || !isFiniteNumber(ms) || ms < 0) return '00:00';

@@ -3,6 +3,7 @@ import {
   averagesLastHour,
   detect511,
   formatMmSs,
+  formatSinceLast,
   intervalsMs,
   isSessionLive,
   isValidContraction,
@@ -116,5 +117,13 @@ describe('isSessionLive', () => {
   it('is not live for an old session or an empty state', () => {
     expect(isSessionLive(ended(8 * M), T0)).toBe(false);
     expect(isSessionLive({ contractions: [], activeStart: null }, T0)).toBe(false);
+  });
+});
+
+describe('formatSinceLast', () => {
+  it('ticks while the session is live and says "over 7 min" once it is not (no frozen 07:01)', () => {
+    expect(formatSinceLast(65 * S, true)).toBe('01:05');
+    expect(formatSinceLast(7 * M + S, false)).toBe('over 7 min');
+    expect(formatSinceLast(20 * M, false)).toBe('over 7 min');
   });
 });

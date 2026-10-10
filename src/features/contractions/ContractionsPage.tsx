@@ -6,6 +6,7 @@ import {
   durationMs,
   EMPTY_STATE,
   formatMmSs,
+  formatSinceLast,
   intervalsMs,
   isSessionLive,
   isValidContraction,
@@ -144,7 +145,7 @@ export function ContractionsPage() {
         {stale && <p className="muted">This has run over 10 minutes and won’t be saved if you stop it. Tap Stop to reset.</p>}
         {sinceLast !== null && (
           <p className="muted">
-            {active ? 'Since the last one started' : 'Since the last one ended'}: {formatMmSs(sinceLast)}
+            {active ? 'Since the last one started' : 'Since the last one ended'}: {formatSinceLast(sinceLast, live)}
           </p>
         )}
         {wakeLockHeld && <p className="muted">Screen will stay on</p>}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { backupFilename, buildBackup, parseBackup } from './backup';
+import { backupFilename, buildBackup, parseBackup, safetyBackupFilename } from './backup';
 import { STORAGE_KEYS } from './storage';
 
 const profile = { dating: { method: 'lmp', lmp: '2026-03-01' }, dueDate: '2000-01-01', nickname: 'Bean', updatedAt: '' };
@@ -17,6 +17,7 @@ describe('buildBackup', () => {
     expect(buildBackup({}, new Date(), []).photos).toEqual([]);
   });
   it('names the file by date', () => expect(backupFilename('2026-10-11')).toBe('bump-tracker-backup-2026-10-11.json'));
+  it('names the safety backup differently', () => expect(safetyBackupFilename('2026-10-11')).toBe('bump-tracker-safety-backup-2026-10-11.json'));
 });
 
 describe('parseBackup', () => {
@@ -49,6 +50,15 @@ describe('parseBackup', () => {
     const r = parseBackup(make({ [STORAGE_KEYS.profile]: profile }, { photos }));
     expect(r.ok && r.backup.photos.length).toBe(0);
     expect(r.ok && r.backup.photosSkipped).toBe(1);
+  });
+  it('reports the weeks of photos rejected by the signature check (N4)', () => {
+    const photos = [
+      { week: 8, mime: 'image/png', dataUrl: 'data:image/png;base64,iVBORw0KGgo=' },
+      { week: 20, mime: 'image/png', dataUrl: `data:image/png;base64,${btoa('<svg/>')}` },
+    ];
+    const r = parseBackup(make({ [STORAGE_KEYS.profile]: profile }, { photos }));
+    expect(r.ok && r.backup.photos.map((p) => p.week)).toEqual([8]);
+    expect(r.ok && r.backup.photoRejectedWeeks).toEqual([20]);
   });
   it('accepts a valid photo', () => {
     const photos = [{ week: 12, mime: 'image/png', dataUrl: 'data:image/png;base64,iVBORw0KGgo=' }];

@@ -122,4 +122,20 @@ describe('parsePhotoExport', () => {
     ).toEqual([]);
     expect(parsePhotoExport('nope')).toEqual([]);
   });
+  it('reports weeks with no valid photo as rejected, but not weeks a later item fixed', () => {
+    const rejected = new Set<number>();
+    const out = parsePhotoExport(
+      [
+        { week: 20, mime: 'image/png', dataUrl: url('image/png', btoa('<svg/>')) },
+        { week: 8, mime: 'image/png', dataUrl: url('image/jpeg') },
+        { week: 8, mime: 'image/png', dataUrl: url('image/png') },
+        { week: 0, mime: 'image/png', dataUrl: url('image/png', btoa('<svg/>')) },
+      ],
+      rejected,
+    );
+    expect(out.map((p) => p.week)).toEqual([8]);
+    expect([...rejected]).toEqual([20]);
+    // N4: the device keeps its week 20 photo when the backup's week 20 photo was rejected
+    expect(planPhotoRestore([20], [8], [...rejected])).toEqual({ replace: true, keptWeeks: [20], finalCount: 2 });
+  });
 });

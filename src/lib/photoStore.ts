@@ -11,7 +11,7 @@ const DB_VERSION = 1;
 const STORE = 'photos';
 
 export const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
-export const MAX_PHOTO_BYTES = 15 * 1024 * 1024;
+export const MAX_PHOTO_BYTES = 30 * 1024 * 1024; // fits 48-50 MP phone JPEGs; the 50 MP pixel cap is the memory guard
 export const MIN_PHOTO_WEEK = 1;
 export const MAX_PHOTO_WEEK = 45;
 export const MAX_PHOTO_EDGE = 1280;
@@ -40,7 +40,7 @@ export function validatePhotoFile(file: { type: string; size: number }): PhotoVa
     return { ok: false, error: 'Please choose a JPEG, PNG or WebP image. (HEIC photos: set your camera to “Most compatible”.)' };
   }
   if (file.size <= 0) return { ok: false, error: 'This file is empty.' };
-  if (file.size > MAX_PHOTO_BYTES) return { ok: false, error: 'This photo is larger than 15 MB.' };
+  if (file.size > MAX_PHOTO_BYTES) return { ok: false, error: 'This photo is larger than 30 MB.' };
   return { ok: true };
 }
 
@@ -162,7 +162,7 @@ export function readImageSize(b: Uint8Array): { width: number; height: number } 
 export async function preparePhoto(file: File): Promise<Blob> {
   const check = validatePhotoFile(file);
   if (!check.ok) throw new Error(check.error);
-  // The whole file (max 15 MB) is scanned so header padding can't hide the size; an unreadable header fails closed.
+  // The whole file (max 30 MB) is scanned so header padding can't hide the size; an unreadable header fails closed.
   const size = readImageSize(new Uint8Array(await file.arrayBuffer()));
   if (!size) throw new Error('This image couldn’t be read.');
   if (exceedsPixelLimit(size.width, size.height)) throw new Error('This image is too large (over 50 megapixels).');
@@ -276,13 +276,18 @@ export async function exportPhotos(): Promise<PhotoExportItem[]> {
   return Promise.all(photos.map(async (p) => ({ week: p.week!, mime: p.type, dataUrl: await blobToDataUrl(p.blob), takenOn: p.takenOn })));
 }
 
-/** Validates an untrusted export list; invalid items are dropped, later duplicates of a week win. */
-export function parsePhotoExport(list: unknown): ImportedPhoto[] {
+/**
+ * Validates an untrusted export list; invalid items are dropped, later duplicates of a week win.
+ * Weeks whose only items were invalid are added to `rejectedWeeks`, so the device keeps its photo for them.
+ */
+export function parsePhotoExport(list: unknown, rejectedWeeks?: Set<number>): ImportedPhoto[] {
   if (!Array.isArray(list)) return [];
   const today = todayLocal();
   const byWeek = new Map<number, ImportedPhoto>();
+  const rejected: number[] = [];
   for (const item of list) {
     if (!isRecord(item) || !isIntInRange(item.week, MIN_PHOTO_WEEK, MAX_PHOTO_WEEK)) continue;
+    rejected.push(item.week); // ignored below if this week ends up with a valid photo
     if (typeof item.dataUrl !== 'string' || item.dataUrl.length > MAX_PHOTO_BYTES * 1.4) continue;
     const m = DATA_URL_RE.exec(item.dataUrl);
     if (!m || item.mime !== m[1]) continue;
@@ -298,6 +303,7 @@ export function parsePhotoExport(list: unknown): ImportedPhoto[] {
     const takenOn = isPlausibleDate(item.takenOn) ? item.takenOn : today;
     byWeek.set(item.week, { week: item.week, mime: m[1]!, blob: new Blob([bytes], { type: m[1]! }), takenOn });
   }
+  for (const w of rejected) if (!byWeek.has(w)) rejectedWeeks?.add(w);
   return [...byWeek.values()];
 }
 

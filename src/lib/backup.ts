@@ -35,6 +35,7 @@ export function buildBackup(data: Record<string, unknown>, exportedAt: Date, pho
 }
 
 export const backupFilename = (date: string): string => `bump-tracker-backup-${date}.json`;
+export const safetyBackupFilename = (date: string): string => `bump-tracker-safety-backup-${date}.json`;
 
 export interface ParsedBackup {
   exportedAt: string;
@@ -44,11 +45,19 @@ export interface ParsedBackup {
   photos: ImportedPhoto[];
   /** Photo entries in the file that were not valid images. */
   photosSkipped: number;
+  /** Weeks whose backup photo failed validation; the device photo for these weeks is kept. */
+  photoRejectedWeeks: number[];
 }
 
 export type ParseBackupResult = { ok: true; backup: ParsedBackup } | { ok: false; error: string };
 
 const fail = (error: string): ParseBackupResult => ({ ok: false, error });
+
+/** A non-empty list (top-level or nested, e.g. the contraction log) whose entries were ALL dropped is invalid, not empty. */
+function allDropped(raw: unknown, value: unknown): boolean {
+  if (Array.isArray(raw)) return raw.length > 0 && Array.isArray(value) && value.length === 0;
+  return isRecord(raw) && isRecord(value) && Object.keys(value).some((k) => allDropped(raw[k], value[k]));
+}
 
 export function parseBackup(text: string): ParseBackupResult {
   let json: unknown;
@@ -74,22 +83,21 @@ export function parseBackup(text: string): ParseBackupResult {
     }
     const raw = json.data[key];
     const value = entry.validate(raw);
-    // A non-empty list whose entries were ALL dropped is invalid, not an empty list.
-    const allDropped = Array.isArray(raw) && raw.length > 0 && Array.isArray(value) && value.length === 0;
-    if (value === null || allDropped) skipped.push({ key, reason: 'invalid data' });
+    if (value === null || allDropped(raw, value)) skipped.push({ key, reason: 'invalid data' });
     else accepted[key] = value;
   }
 
   let photos: ParsedBackup['photos'] = [];
   let photosSkipped = 0;
+  const rejected = new Set<number>();
   if (json.photos !== undefined) {
     if (Array.isArray(json.photos)) {
-      photos = parsePhotoExport(json.photos);
+      photos = parsePhotoExport(json.photos, rejected);
       photosSkipped = json.photos.length - photos.length;
     } else photosSkipped = 1;
   }
   if (Object.keys(accepted).length === 0 && photos.length === 0) return fail('Nothing in this file could be imported.');
-  return { ok: true, backup: { exportedAt, accepted, skipped, photos, photosSkipped } };
+  return { ok: true, backup: { exportedAt, accepted, skipped, photos, photosSkipped, photoRejectedWeeks: [...rejected] } };
 }
 
 /** The bits of storage applyBackup needs; `appStorage` is the real thing, tests pass a fake. */

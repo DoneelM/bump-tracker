@@ -99,3 +99,17 @@ Checked in review:
 - The diff was read through.
 - In a headless browser, the contraction clock ticks between contractions (01:00 → 01:03 after 3 s), and it stays still when the last contraction ended 14 minutes ago.
 - `npm run check:offline` passed.
+
+## Follow-ups after approval (by hand, no Claude Code run)
+
+These came from Iron Man's re-review 2 and Wolverine's recheck at `bfd546f`:
+
+- After 7 minutes, the "since last" line now reads "over 7 min" instead of freezing at 07:01.
+- The "1 photo … was skipped" plural is fixed.
+- The file input is cleared after every pick, so choosing the same file again works.
+- N4: weeks whose backup photo fails the signature check keep their device photo.
+- An all-invalid nested contraction log no longer wipes the existing log.
+- The safety backup file is named `bump-tracker-safety-backup-<date>.json`.
+- The photo file cap is now 30 MB.
+
+Checked in a headless browser: the contraction line reads "over 7 min" 14 minutes after the last contraction ended, and `check:offline` passes.

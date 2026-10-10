@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { navigate } from '../../app/router';
 import { Page } from '../../components/Page';
 import {
   applyBackup,
   appStorage,
   backupFilename,
+  safetyBackupFilename,
   buildBackup,
   keyLabel,
   MAX_IMPORT_BYTES,
@@ -64,16 +65,12 @@ function ExportSection() {
 }
 
 function ImportSection() {
-  const input = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<ParsedBackup | null>(null);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [safety, setSafety] = useState<BackupEnvelope | null>(null);
 
-  const reset = () => {
-    setPending(null);
-    if (input.current) input.current.value = '';
-  };
+  const reset = () => setPending(null);
 
   const choose = async (file: File | undefined) => {
     setPending(null);
@@ -105,14 +102,16 @@ function ImportSection() {
       if (pending.photos.length > 0) {
         const prepared = await importPhotos(pending.photos);
         const existing = await listPhotos();
-        const plan = planPhotoRestore(existing.map((p) => p.week!), prepared.ready.map((p) => p.week), prepared.skippedWeeks);
+        // Weeks rejected while parsing count the same as photos that fail to decode: the device photo is kept.
+        const skippedWeeks = [...pending.photoRejectedWeeks, ...prepared.skippedWeeks];
+        const plan = planPhotoRestore(existing.map((p) => p.week!), prepared.ready.map((p) => p.week), skippedWeeks);
         photoCount = prepared.ready.length;
-        photoSkipped = prepared.skippedWeeks.length;
+        photoSkipped = skippedWeeks.length;
         if (plan.replace) {
           if (
             photoSkipped > 0 &&
             !window.confirm(
-              `${photoSkipped} of ${pending.photos.length} photos in this backup can’t be read. Your ${existing.length} current photos will be replaced by ${plan.finalCount} (weeks whose backup photo couldn’t be read keep their current photo). Continue?`,
+              `${photoSkipped} of ${photoCount + photoSkipped} photos in this backup can’t be read. Your ${existing.length} current photos will be replaced by ${plan.finalCount} (weeks whose backup photo couldn’t be read keep their current photo). Continue?`,
             )
           )
             return;
@@ -123,7 +122,7 @@ function ImportSection() {
       const result = await applyBackup(pending, appStorage, commit);
       reset();
       const skippedNote = photoSkipped
-        ? ` ${count(photoSkipped, 'photo')} could not be read and ${photoCount ? 'were skipped' : 'were skipped; your current photos were left as they are'}.`
+        ? ` ${count(photoSkipped, 'photo')} could not be read and ${photoSkipped === 1 ? 'was' : 'were'} skipped${photoCount ? '' : '; your current photos were left as they are'}.`
         : '';
       if (!result.ok) setSafety(safetyBackup);
       setMessage(
@@ -146,7 +145,16 @@ function ImportSection() {
         <label className="field__label" htmlFor="import-file">
           Backup file (.json, up to {MAX_IMPORT_MB} MB)
         </label>
-        <input id="import-file" ref={input} type="file" accept=".json,application/json" onChange={(e) => void choose(e.target.files?.[0])} />
+        <input
+          id="import-file"
+          type="file"
+          accept=".json,application/json"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            e.target.value = ''; // so picking the same file again still fires change
+            void choose(file);
+          }}
+        />
       </div>
       {message && (
         <p className={message.ok ? 'card card--success' : 'field__error'} role={message.ok ? 'status' : 'alert'}>
@@ -155,8 +163,8 @@ function ImportSection() {
       )}
       {safety && (
         <div className="button-row">
-          <button type="button" className="btn btn--primary" onClick={() => download(backupFilename(todayLocal()), JSON.stringify(safety))}>
-            Download safety backup
+          <button type="button" className="btn btn--primary" onClick={() => download(safetyBackupFilename(todayLocal()), JSON.stringify(safety))}>
+            Download safety backup (details only)
           </button>
         </div>
       )}
