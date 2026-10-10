@@ -13,9 +13,10 @@ Keep in sync with `src/data/sources.ts`.
 | [Methods for estimating the due date](https://www.acog.org/clinical/clinical-guidance/committee-opinion/articles/2017/05/methods-for-estimating-the-due-date) | ACOG | Due date and gestational age calculations. |
 | [Pregnancy and maternity](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity) | Health NZ | NZ context: working with your midwife/LMC. |
 | [Pregnancy and your baby's movements](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/having-a-healthy-pregnancy/pregnancy-and-your-babys-movements) | Health NZ | Baby movement guidance (kick counter). |
-| [Going into labour](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/labour-and-birth/going-into-labour) | Health NZ | Labour signs and when to call (contraction timer). Note: Health NZ's threshold (contractions every 5 min, lasting >50 s, getting stronger for 2-3 hours) differs from the generic 5-1-1 rule; the app shows both. |
+| [Going into labour](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/labour-and-birth/going-into-labour) | Health NZ | Labour signs and when to call (contraction timer). Note: Health NZ's threshold (contractions every 5 min, lasting >50 s, getting stronger for 2-3 hours) differs from the generic 5-1-1 rule; the app shows both, and the 5-1-1 note follows its advice to call your midwife/LMC or maternity unit. Accessed 11 Oct 2026. |
 | [Your baby's movements](https://www.nhs.uk/pregnancy/keeping-well/your-babys-movements/) | NHS | Baby movement guidance (kick counter). |
 | [Weight Gain During Pregnancy: Reexamining the Guidelines](https://www.nationalacademies.org/read/12584/chapter/2) | Institute of Medicine (2009) | Total gain ranges by pre-pregnancy BMI (Table S-1, singleton pregnancy). The weekly band in the chart is an approximation (0.5-2 kg by week 13, then linear to the total range at week 40). |
+| [Guidance for Healthy Weight Gain in Pregnancy](https://thehub.sia.govt.nz/assets/documents/41637_guidance-for-healthy-weight-gain-in-pregnancy-jun14_0.pdf) | Ministry of Health (June 2014) | NZ guidance cited in the weight tracker's BMI text: Table 1 total gain ranges by pre-pregnancy BMI (same values as IOM/NRC 2009). |
 
 ## Notes
 

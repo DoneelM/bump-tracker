@@ -3,7 +3,8 @@
  * Pure: no React, no clock (today is passed in).
  *
  * Gain ranges: Institute of Medicine (National Academies) 2009, "Weight Gain During
- * Pregnancy: Reexamining the Guidelines", Table S-1. SINGLETON pregnancies only.
+ * Pregnancy: Reexamining the Guidelines", Table S-1. SINGLETON pregnancies only. Same values as the
+ * Ministry of Health "Guidance for Healthy Weight Gain in Pregnancy" (June 2014), Table 1, cited in the UI.
  * BMI categories use the WHO cut-offs.
  */
 import { diffDays, isLocalDate, isPlausibleDate, type LocalDate } from './dates';

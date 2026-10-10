@@ -81,7 +81,7 @@ export const SOURCES: readonly Source[] = [
     title: 'Going into labour',
     publisher: 'Health NZ',
     url: 'https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/labour-and-birth/going-into-labour',
-    usedFor: 'Labour signs and when to call (contraction timer).',
+    usedFor: 'Labour signs and when to call your midwife/LMC (contraction timer and its 5-1-1 note).',
   },
   {
     id: 'nhs-movements',
@@ -96,5 +96,12 @@ export const SOURCES: readonly Source[] = [
     publisher: 'Institute of Medicine (2009)',
     url: 'https://www.nationalacademies.org/read/12584/chapter/2',
     usedFor: 'Pregnancy weight gain ranges (weight tracker).',
+  },
+  {
+    id: 'moh-weight-gain',
+    title: 'Guidance for Healthy Weight Gain in Pregnancy',
+    publisher: 'Ministry of Health (June 2014)',
+    url: 'https://thehub.sia.govt.nz/assets/documents/41637_guidance-for-healthy-weight-gain-in-pregnancy-jun14_0.pdf',
+    usedFor: 'NZ total weight gain ranges by pre-pregnancy BMI (Table 1, based on IOM/NRC 2009), quoted in the weight tracker.',
   },
 ];
