@@ -146,14 +146,66 @@
   font-size: 3rem;
 }
 
+.app-main--standalone {
+  padding-bottom: var(--space-6);
+}
+
+/* Print: black on white, no navigation or buttons, cards never split across pages. */
+.print-only {
+  display: none;
+}
+
 @media print {
   .tabbar,
   .skip-link,
-  .app-header {
-    display: none;
+  .app-header,
+  .back-link,
+  .no-print,
+  .btn,
+  button,
+  .page__icon {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block;
+  }
+
+  body,
+  .app {
+    background: #fff;
+    color: #000;
   }
 
   .app-main {
+    max-width: none;
     padding: 0;
+  }
+
+  .card,
+  .disclaimer {
+    background: #fff !important;
+    color: #000 !important;
+    border: 1px solid #000;
+    box-shadow: none;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 0.5rem;
+  }
+
+  .muted,
+  .details dt {
+    color: #000;
+  }
+
+  .details {
+    margin-bottom: 0;
+  }
+
+  /* Show the address of external links only. */
+  a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.85em;
+    overflow-wrap: anywhere;
   }
 }

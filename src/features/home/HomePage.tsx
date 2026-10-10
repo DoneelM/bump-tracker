@@ -14,7 +14,15 @@ import {
   trimester,
 } from '../../lib/pregnancy';
 import type { PregnancyProfile } from '../../lib/profile';
+import { KICKS_UNLOCK_WEEK } from '../../lib/kicks';
+import { nextAppointment, parseScanEntries, scanTypeLabel, type ScanEntry } from '../../lib/scans';
+import { STORAGE_KEYS } from '../../lib/storage';
+import { useStoredState } from '../../lib/useStoredState';
 import { useToday } from '../../lib/useToday';
+import { parseWeightEntries, sortByDate, type WeightEntry } from '../../lib/weightGain';
+
+const NO_WEIGHTS: WeightEntry[] = [];
+const NO_SCANS: ScanEntry[] = [];
 
 export function HomePage({ profile }: { profile: PregnancyProfile }) {
   const today = useToday();
@@ -26,6 +34,10 @@ export function HomePage({ profile }: { profile: PregnancyProfile }) {
   const guideWeek = clampGuideWeek(ga.weeks);
   const weekInfo = getWeekInfo(guideWeek);
   const name = profile.nickname || 'Baby';
+  const [weights] = useStoredState<WeightEntry[]>(STORAGE_KEYS.weightEntries, NO_WEIGHTS, parseWeightEntries);
+  const [scans] = useStoredState<ScanEntry[]>(STORAGE_KEYS.scanEntries, NO_SCANS, parseScanEntries);
+  const latestWeight = sortByDate(weights).at(-1);
+  const next = nextAppointment(scans, today);
 
   return (
     <Page title="Home" icon="🏡">
@@ -83,6 +95,48 @@ export function HomePage({ profile }: { profile: PregnancyProfile }) {
           ›
         </span>
       </Link>
+
+      <div className="summary-grid">
+        <Link to="/tools/weight" className="card card--link summary-tile">
+          <span className="summary-tile__label">Latest weight</span>
+          {latestWeight ? (
+            <>
+              <span className="summary-tile__value">{Math.round(latestWeight.weightKg * 10) / 10} kg</span>
+              <span className="muted">{formatDisplayDate(latestWeight.date)}</span>
+            </>
+          ) : (
+            <span className="muted">Nothing logged yet</span>
+          )}
+        </Link>
+        <Link to="/tools/scans" className="card card--link summary-tile">
+          <span className="summary-tile__label">Next appointment</span>
+          {next ? (
+            <>
+              <span className="summary-tile__value">{scanTypeLabel(next.type)}</span>
+              <span className="muted">{formatDisplayDate(next.date)}</span>
+            </>
+          ) : (
+            <span className="muted">None planned. Add one in your scans log.</span>
+          )}
+        </Link>
+      </div>
+
+      <section className="card" aria-labelledby="quick-heading">
+        <h2 id="quick-heading">Quick actions</h2>
+        <div className="button-row">
+          <Link to="/tools/contractions" className="btn btn--ghost">
+            Start contraction timer
+          </Link>
+          <Link to="/journal" className="btn btn--ghost">
+            Log symptom
+          </Link>
+          {ga.weeks >= KICKS_UNLOCK_WEEK && (
+            <Link to="/tools/kicks" className="btn btn--ghost">
+              Kick counter
+            </Link>
+          )}
+        </div>
+      </section>
     </Page>
   );
 }

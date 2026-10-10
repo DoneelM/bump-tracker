@@ -1,6 +1,7 @@
 import { BottomNav } from '../components/BottomNav';
 import { OnboardingPage } from '../features/onboarding/OnboardingPage';
 import { NotFoundPage } from '../features/notfound/NotFoundPage';
+import { PartnerViewPage } from '../features/partner/PartnerViewPage';
 import { useProfile } from '../lib/useProfile';
 import { useToday } from '../lib/useToday';
 import { useRoutePath } from './router';
@@ -10,6 +11,17 @@ export function App() {
   const [profile] = useProfile();
   const path = useRoutePath();
   const today = useToday();
+
+  // Read-only shared snapshot: works without a profile and never writes to storage.
+  if (path === '/partner-view') {
+    return (
+      <div className="app">
+        <main id="main" className="app-main app-main--standalone">
+          <PartnerViewPage />
+        </main>
+      </div>
+    );
+  }
 
   if (!profile) return <OnboardingPage />;
 

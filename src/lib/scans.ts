@@ -81,3 +81,10 @@ export function parseScanEntries(value: unknown): ScanEntry[] | null {
   if (!Array.isArray(value)) return null;
   return value.map(parseScanEntry).filter((e): e is ScanEntry => e !== null);
 }
+
+/** Earliest entry dated today or later, or null. */
+export function nextAppointment(entries: readonly ScanEntry[], today: LocalDate): ScanEntry | null {
+  let next: ScanEntry | null = null;
+  for (const e of entries) if (e.date >= today && (next === null || e.date < next.date)) next = e;
+  return next;
+}
