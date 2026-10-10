@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BAG_SECTIONS, PLAN_SECTIONS } from '../data/checklists';
-import { buildBackup, parseBackup, type BackupEnvelope } from './backup';
+import { buildBackup, MAX_IMPORT_BYTES, parseBackup, type BackupEnvelope } from './backup';
 import {
   decryptVault,
   deriveRecoveryKek,
@@ -284,4 +284,24 @@ describe('max-cap vault sizing', () => {
       console.log(`vault sizing ${worst ? 'worst' : 'realistic'}: raw=${raw} gzip=${gz} ${outcome}`);
     }, 60_000);
   }
+});
+
+describe('gunzip cap', () => {
+  it('rejects a small gzip bomb that inflates past MAX_IMPORT_BYTES, quickly', async () => {
+    const dek = await generateDek();
+    const zeros = new Uint8Array(MAX_IMPORT_BYTES + 4 * 1024 * 1024); // ~30 MB of zeros, ~30 KB of gzip
+    const gz = new Uint8Array(await new Response(new Blob([zeros]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer());
+    expect(gz.length).toBeLessThan(64 * 1024);
+    const padded = new Uint8Array(65536);
+    padded.set(gz);
+    padded[gz.length] = 0x80;
+    const iv = new Uint8Array(12);
+    const ct = new Uint8Array(
+      await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: new TextEncoder().encode(`${USER}|vault|1`) }, dek, padded),
+    );
+    const wire = new Uint8Array([1, ...iv, ...ct]);
+    const t0 = performance.now();
+    await expect(decryptVault(dek, USER, wire)).rejects.toThrow('too large');
+    expect(performance.now() - t0).toBeLessThan(2000);
+  });
 });

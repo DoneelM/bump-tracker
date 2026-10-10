@@ -1,5 +1,5 @@
 /** Vault crypto (WebCrypto + native gzip only): DEK, padded AES-GCM vault blobs, recovery-code codec and key wrapping. */
-import type { BackupEnvelope } from './backup';
+import { MAX_IMPORT_BYTES, type BackupEnvelope } from './backup';
 
 type Bytes = Uint8Array<ArrayBuffer>; // what WebCrypto's BufferSource accepts
 const VERSION = 1;
@@ -39,15 +39,41 @@ export const unwrapDek = (wrapped: Bytes, kek: CryptoKey): Promise<CryptoKey> =>
 // ---------------------------------------------------------------------------
 // Vault
 
-async function pipe(data: Bytes, stream: CompressionStream | DecompressionStream): Promise<Bytes> {
-  const out = new Blob([data]).stream().pipeThrough(stream);
-  return new Uint8Array(await new Response(out).arrayBuffer());
+async function gzip(data: Bytes): Promise<Bytes> {
+  return new Uint8Array(await new Response(new Blob([data]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer());
+}
+
+/** Gunzip with an output cap. 4 KiB input slices, because WebKit inflates a whole-buffer input before the counter sees a byte. */
+async function gunzipCapped(gz: Bytes, max = MAX_IMPORT_BYTES): Promise<Bytes> {
+  let off = 0;
+  let n = 0;
+  const src = new ReadableStream<Bytes>({
+    pull(c) {
+      if (off >= gz.length) return c.close();
+      c.enqueue(gz.slice(off, off + 4096));
+      off += 4096;
+    },
+  });
+  const cap = new TransformStream<Uint8Array, Uint8Array>({
+    transform(chunk, c) {
+      n += chunk.length;
+      if (n > max) throw new Error('cap');
+      c.enqueue(chunk);
+    },
+  });
+  try {
+    return new Uint8Array(await new Response(src.pipeThrough(new DecompressionStream('gzip')).pipeThrough(cap)).arrayBuffer());
+  } catch (e) {
+    // Engines report the abort with different errors, so check the counter.
+    if (n > max) throw new Error('Vault data is too large.');
+    throw e;
+  }
 }
 
 const aad = (userId: string) => enc.encode(`${userId}|vault|${VERSION}`);
 
 export async function encryptVault(dek: CryptoKey, userId: string, envelope: BackupEnvelope): Promise<Bytes> {
-  const gz = await pipe(enc.encode(JSON.stringify(envelope)), new CompressionStream('gzip'));
+  const gz = await gzip(enc.encode(JSON.stringify(envelope)));
   if (gz.length + 1 > MAX_BUCKET) throw new VaultTooLargeError();
   let bucket = MIN_BUCKET;
   while (bucket < gz.length + 1) bucket *= 2;
@@ -83,7 +109,7 @@ export async function decryptVault(dek: CryptoKey, userId: string, wire: Bytes):
   while (end > 0 && padded[end - 1] === 0) end--;
   if (end === 0 || padded[end - 1] !== 0x80) throw new Error('Vault padding is invalid.');
   const gz = padded.subarray(0, end - 1);
-  return new TextDecoder('utf-8', { fatal: true }).decode(await pipe(gz, new DecompressionStream('gzip')));
+  return new TextDecoder('utf-8', { fatal: true }).decode(await gunzipCapped(gz));
 }
 
 // ---------------------------------------------------------------------------
