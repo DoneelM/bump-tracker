@@ -22,6 +22,7 @@ import { MAX_EVENTS_PER_SESSION, MAX_STORED_SESSIONS } from './kicks';
 import { MAX_SCAN_ENTRIES, MAX_SCAN_NOTES_LENGTH } from './scans';
 import { MAX_WEIGHT_ENTRIES, MAX_WEIGHT_NOTE_LENGTH } from './weightGain';
 import { MAX_STORED_CONTRACTIONS } from './contractions';
+import KAT from './crypto.vectors.json';
 import { MAX_JOURNAL_ENTRIES, MAX_NOTES_LENGTH, SYMPTOMS } from './journal';
 import { MAX_NICKNAME_LENGTH } from './profile';
 
@@ -141,6 +142,27 @@ describe('key derivation and wrapping', () => {
     const wire = await encryptVault(dek, USER, smallEnvelope());
     expect(parseBackup(await decryptVault(back, USER, wire)).ok).toBe(true);
     await expect(unwrapDek(wrapped, await derivePrfKek(globalThis.crypto.getRandomValues(new Uint8Array(32))))).rejects.toThrow();
+  });
+});
+
+describe('known-answer vectors (scripts/crypto-vectors.py, independent of crypto.ts)', () => {
+  const hex = (h: string) => Uint8Array.from(h.match(/../g)!, (b) => parseInt(b, 16));
+  const toHex = (b: Uint8Array) => Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('');
+  const rawKey = (h: string) => crypto.subtle.importKey('raw', hex(h), 'AES-GCM', true, ['encrypt', 'decrypt']);
+  const wrapWith = async (kek: CryptoKey) => toHex(new Uint8Array(await crypto.subtle.wrapKey('raw', await rawKey(KAT.dek), kek, 'AES-KW')));
+
+  it('decodes the code and derives the same wraps and auth hash', async () => {
+    const bytes = parseRecoveryCode(KAT.code)!;
+    expect(toHex(bytes)).toBe(KAT.codeBytes);
+    expect(await wrapWith(await deriveRecoveryKek(bytes))).toBe(KAT.wrapRc);
+    expect(await wrapWith(await derivePrfKek(hex(KAT.prf)))).toBe(KAT.wrapPk);
+    expect(toHex(await recoveryAuthHash(bytes))).toBe(KAT.authHash);
+  });
+
+  it('opens the frozen vault through the frozen recovery wrap', async () => {
+    const dek = await unwrapDek(hex(KAT.wrapRc), await deriveRecoveryKek(parseRecoveryCode(KAT.code)!));
+    const wire = Uint8Array.from(atob(KAT.vault), (c) => c.charCodeAt(0));
+    expect(await decryptVault(dek, KAT.userId, wire)).toBe(KAT.envJson);
   });
 });
 
