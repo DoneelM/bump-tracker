@@ -38,41 +38,50 @@ describe('vault', () => {
   it('round-trips the JSON text and parseBackup accepts it', async () => {
     const dek = await newDek();
     const env = smallEnvelope();
-    const text = await decryptVault(dek, USER, await encryptVault(dek, USER, env));
+    const text = await decryptVault(dek, USER, 1, await encryptVault(dek, USER, 1, env));
     expect(text).toBe(JSON.stringify(env));
     expect(parseBackup(text).ok).toBe(true);
   });
 
   it('uses a fresh IV each time', async () => {
     const dek = await newDek();
-    const a = await encryptVault(dek, USER, smallEnvelope());
-    const b = await encryptVault(dek, USER, smallEnvelope());
+    const a = await encryptVault(dek, USER, 1, smallEnvelope());
+    const b = await encryptVault(dek, USER, 1, smallEnvelope());
     expect(a.subarray(1, 13)).not.toEqual(b.subarray(1, 13));
     expect(a).not.toEqual(b);
   });
 
   it('rejects wrong user, tampering, wrong version, wrong key and short input', async () => {
     const dek = await newDek();
-    const wire = await encryptVault(dek, USER, smallEnvelope());
-    await expect(decryptVault(dek, 'user-2', wire)).rejects.toThrow();
-    await expect(decryptVault(dek, USER, flipped(wire, 40))).rejects.toThrow('decrypt');
-    await expect(decryptVault(dek, USER, flipped(wire, 5))).rejects.toThrow('decrypt'); // IV
-    await expect(decryptVault(dek, USER, flipped(wire, wire.length - 1))).rejects.toThrow('decrypt'); // tag
-    await expect(decryptVault(dek, USER, wire.subarray(0, wire.length - 1))).rejects.toThrow('decrypt'); // truncated
-    await expect(decryptVault(dek, USER, Uint8Array.from(wire, (b, j) => (j === 0 ? 2 : b)))).rejects.toThrow('version');
-    await expect(decryptVault(await newDek(), USER, wire)).rejects.toThrow();
-    await expect(decryptVault(dek, USER, wire.subarray(0, 20))).rejects.toThrow('short');
+    const wire = await encryptVault(dek, USER, 1, smallEnvelope());
+    await expect(decryptVault(dek, 'user-2', 1, wire)).rejects.toThrow();
+    await expect(decryptVault(dek, USER, 1, flipped(wire, 40))).rejects.toThrow('decrypt');
+    await expect(decryptVault(dek, USER, 1, flipped(wire, 5))).rejects.toThrow('decrypt'); // IV
+    await expect(decryptVault(dek, USER, 1, flipped(wire, wire.length - 1))).rejects.toThrow('decrypt'); // tag
+    await expect(decryptVault(dek, USER, 1, wire.subarray(0, wire.length - 1))).rejects.toThrow('decrypt'); // truncated
+    await expect(decryptVault(dek, USER, 1, Uint8Array.from(wire, (b, j) => (j === 0 ? 2 : b)))).rejects.toThrow('format');
+    await expect(decryptVault(await newDek(), USER, 1, wire)).rejects.toThrow();
+    await expect(decryptVault(dek, USER, 1, wire.subarray(0, 20))).rejects.toThrow('short');
+  });
+
+  it('binds the vault version and refuses rollbacks', async () => {
+    const dek = await newDek();
+    const v3 = await encryptVault(dek, USER, 3, smallEnvelope());
+    await expect(decryptVault(dek, USER, 4, v3)).rejects.toThrow('decrypt'); // server relabels the blob
+    await expect(decryptVault(dek, USER, 3, v3, 4)).rejects.toThrow('older'); // device has seen 4
+    expect(parseBackup(await decryptVault(dek, USER, 3, v3, 3)).ok).toBe(true);
+    for (const bad of [0, -1, 1.5, NaN]) await expect(encryptVault(dek, USER, bad, smallEnvelope())).rejects.toThrow('positive integer');
   });
 
   it('pads small vaults to the 16 KiB bucket', async () => {
-    const wire = await encryptVault(await newDek(), USER, smallEnvelope());
+    const wire = await encryptVault(await newDek(), USER, 1, smallEnvelope());
     expect(wire.length).toBe(1 + 12 + 16384 + 16);
     expect(MAX_VAULT_BYTES).toBe(1_048_605);
   });
 
   it('pads to power-of-two buckets', async () => {
     const dek = await newDek();
-    const wire = await encryptVault(dek, USER, { ...smallEnvelope(), data: { x: randomText(60_000, B32) } });
+    const wire = await encryptVault(dek, USER, 1, { ...smallEnvelope(), data: { x: randomText(60_000, B32) } });
     const bucket = wire.length - 1 - 12 - 16;
     expect(bucket & (bucket - 1)).toBe(0);
     expect(bucket).toBeGreaterThan(16384);
@@ -80,7 +89,7 @@ describe('vault', () => {
 
   it('throws VaultTooLargeError over 1 MiB', async () => {
     const env = { ...smallEnvelope(), data: { x: randomText(2_000_000, B32) } };
-    const err = await encryptVault(await newDek(), USER, env).catch((e: unknown) => e);
+    const err = await encryptVault(await newDek(), USER, 1, env).catch((e: unknown) => e);
     expect(err).toBeInstanceOf(VaultTooLargeError);
     expect(err).toMatchObject({ name: 'VaultTooLargeError', message: SYNC_PAUSED_TOO_LARGE });
   });
@@ -109,9 +118,9 @@ describe('padding', () => {
     const dek = await newDek();
     const iv = new Uint8Array(12);
     const ct = new Uint8Array(
-      await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: new TextEncoder().encode(`${USER}|vault|1`) }, dek, new Uint8Array(16384)),
+      await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: new TextEncoder().encode(`${USER}|vault|1|1`) }, dek, new Uint8Array(16384)),
     );
-    await expect(decryptVault(dek, USER, new Uint8Array([1, ...iv, ...ct]))).rejects.toThrow('padding');
+    await expect(decryptVault(dek, USER, 1, new Uint8Array([1, ...iv, ...ct]))).rejects.toThrow('padding');
   });
 });
 
@@ -148,12 +157,12 @@ describe('key derivation and wrapping', () => {
     const { dek, wraps } = await createDek([await deriveRecoveryKek(bytes), await derivePrfKek(prf)]);
     expect(dek.extractable).toBe(false);
     expect(wraps.map((w) => w.length)).toEqual([40, 40]);
-    const wire = await encryptVault(dek, USER, smallEnvelope());
+    const wire = await encryptVault(dek, USER, 1, smallEnvelope());
     const viaCode = await unwrapDek(wraps[0]!, await deriveRecoveryKek(parseRecoveryCode(formatRecoveryCode(code))!));
     const viaPrf = await unwrapDek(wraps[1]!, await derivePrfKek(prf));
     for (const k of [viaCode, viaPrf]) {
       expect(k.extractable).toBe(false);
-      expect(parseBackup(await decryptVault(k, USER, wire)).ok).toBe(true);
+      expect(parseBackup(await decryptVault(k, USER, 1, wire)).ok).toBe(true);
     }
   });
 
@@ -190,7 +199,7 @@ describe('known-answer vectors (scripts/crypto-vectors.py, independent of crypto
   it('opens the frozen vault through the frozen recovery wrap', async () => {
     const dek = await unwrapDek(hex(KAT.wrapRc), await deriveRecoveryKek(parseRecoveryCode(KAT.code)!));
     const wire = Uint8Array.from(atob(KAT.vault), (c) => c.charCodeAt(0));
-    expect(await decryptVault(dek, KAT.userId, wire)).toBe(KAT.envJson);
+    expect(await decryptVault(dek, KAT.userId, 1, wire)).toBe(KAT.envJson);
   });
 });
 
@@ -323,9 +332,9 @@ describe('max-cap vault sizing', () => {
       const dek = await newDek();
       let outcome: string;
       try {
-        const wire = await encryptVault(dek, USER, env);
+        const wire = await encryptVault(dek, USER, 1, env);
         expect(wire.length).toBeLessThanOrEqual(MAX_VAULT_BYTES);
-        expect(await decryptVault(dek, USER, wire)).toBe(json);
+        expect(await decryptVault(dek, USER, 1, wire)).toBe(json);
         outcome = `bucket=${wire.length - 29} wire=${wire.length}`;
       } catch (e) {
         expect(e).toBeInstanceOf(VaultTooLargeError);
@@ -347,11 +356,11 @@ describe('gunzip cap', () => {
     padded[gz.length] = 0x80;
     const iv = new Uint8Array(12);
     const ct = new Uint8Array(
-      await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: new TextEncoder().encode(`${USER}|vault|1`) }, dek, padded),
+      await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: new TextEncoder().encode(`${USER}|vault|1|1`) }, dek, padded),
     );
     const wire = new Uint8Array([1, ...iv, ...ct]);
     const t0 = performance.now();
-    await expect(decryptVault(dek, USER, wire)).rejects.toThrow('too large');
+    await expect(decryptVault(dek, USER, 1, wire)).rejects.toThrow('too large');
     expect(performance.now() - t0).toBeLessThan(2000);
   });
 });

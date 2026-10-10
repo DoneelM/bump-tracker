@@ -93,14 +93,23 @@ export function unpad(padded: Bytes): Bytes {
   return padded.subarray(0, end - 1);
 }
 
-const aad = (userId: string) => enc.encode(`${userId}|vault|${VERSION}`);
+/**
+ * Binds user, purpose, wire format and the vault's server version (the If-Match/ETag counter), so the server can't
+ * relabel an older blob as newer. A brand-new device can't detect a rollback; that limit is inherent.
+ */
+function aad(userId: string, version: number): Bytes {
+  if (!Number.isSafeInteger(version) || version < 1) throw new Error('Vault version must be a positive integer.');
+  return enc.encode(`${userId}|vault|${VERSION}|${version}`);
+}
 
-export async function encryptVault(dek: CryptoKey, userId: string, envelope: BackupEnvelope): Promise<Bytes> {
+/** `version` is the one this push creates (current + 1, sent with If-Match). */
+export async function encryptVault(dek: CryptoKey, userId: string, version: number, envelope: BackupEnvelope): Promise<Bytes> {
+  const additionalData = aad(userId, version);
   const padded = pad(await gzip(enc.encode(JSON.stringify(envelope))));
 
   const iv = globalThis.crypto.getRandomValues(new Uint8Array(IV_BYTES));
   const ct = new Uint8Array(
-    await subtle.encrypt({ name: 'AES-GCM', iv, tagLength: TAG_BYTES * 8, additionalData: aad(userId) }, dek, padded),
+    await subtle.encrypt({ name: 'AES-GCM', iv, tagLength: TAG_BYTES * 8, additionalData }, dek, padded),
   );
   const wire = new Uint8Array(1 + IV_BYTES + ct.length);
   wire[0] = VERSION;
@@ -109,15 +118,20 @@ export async function encryptVault(dek: CryptoKey, userId: string, envelope: Bac
   return wire;
 }
 
-/** Returns the envelope's JSON text; the caller feeds it to parseBackup. */
-export async function decryptVault(dek: CryptoKey, userId: string, wire: Bytes): Promise<string> {
+/**
+ * Returns the envelope's JSON text; the caller feeds it to parseBackup. `version` is the server's for this blob;
+ * `highestSeen` is the highest this device has accepted, so an older (rolled-back) vault is refused.
+ */
+export async function decryptVault(dek: CryptoKey, userId: string, version: number, wire: Bytes, highestSeen = 0): Promise<string> {
+  const additionalData = aad(userId, version);
+  if (version < highestSeen) throw new Error('This vault is older than one this device has already seen.');
   if (wire.length < 1 + IV_BYTES + TAG_BYTES + 1) throw new Error('Vault data is too short.');
-  if (wire[0] !== VERSION) throw new Error('Unsupported vault version.');
+  if (wire[0] !== VERSION) throw new Error('Unsupported vault format.');
   const iv = wire.subarray(1, 1 + IV_BYTES);
   let padded: Bytes;
   try {
     padded = new Uint8Array(
-      await subtle.decrypt({ name: 'AES-GCM', iv, tagLength: TAG_BYTES * 8, additionalData: aad(userId) }, dek, wire.subarray(1 + IV_BYTES)),
+      await subtle.decrypt({ name: 'AES-GCM', iv, tagLength: TAG_BYTES * 8, additionalData }, dek, wire.subarray(1 + IV_BYTES)),
     );
   } catch {
     throw new Error('Could not decrypt the vault (wrong key, wrong account or damaged data).');
