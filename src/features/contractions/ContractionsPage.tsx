@@ -116,16 +116,19 @@ export function ContractionsPage() {
       {pattern && (
         <div className="alert-banner" role="alert">
           <p className="alert-banner__title">
-            Your contractions look like the 5-1-1 pattern (about every 5 minutes, lasting about 1 minute, for an hour).
-            Contact your midwife/LMC or maternity unit now.
+            Your timings match the 5-1-1 pattern (about every 5 minutes, lasting about 1 minute, for an hour). Many
+            midwives use this pattern as a rough guide. If you are worried or unsure, contact your midwife/LMC or
+            maternity unit.
           </p>
           <p>
             Health NZ advises calling your midwife when contractions are coming every 5 minutes, lasting longer than 50
             seconds and have been getting stronger for at least 2 to 3 hours - or sooner if your waters break, you have
             bleeding, your baby’s movements change, or you are under 37 weeks.
           </p>
-          <p>This app alerts a little earlier than Health NZ’s guidance on purpose, so you are told sooner rather than later.</p>
-          <p>Always follow your midwife’s advice. In an emergency call 111.</p>
+          <p>
+            This is general information, not medical advice. The timer only shows the times you entered and can’t tell
+            whether you are in labour. Always follow your midwife’s advice. In an emergency call 111.
+          </p>
         </div>
       )}
 

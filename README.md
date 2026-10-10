@@ -8,7 +8,7 @@ A privacy-first pregnancy tracker demo for Aotearoa New Zealand (Vite + React + 
   <img src="docs/screenshots/02-home.png" width="200" alt="Home dashboard">
   <img src="docs/screenshots/03-week-guide.png" width="200" alt="Week 24 guide with size comparison">
   <img src="docs/screenshots/05b-weight-chart.png" width="200" alt="Weight gain chart with IOM range">
-  <img src="docs/screenshots/07-contractions.png" width="200" alt="Contraction timer with 5-1-1 alert">
+  <img src="docs/screenshots/07-contractions.png" width="200" alt="Contraction timer with 5-1-1 pattern note">
 </p>
 
 More screens are in [`docs/screenshots/`](docs/screenshots/) (390 px mobile viewport, demo data).
@@ -18,7 +18,7 @@ More screens are in [`docs/screenshots/`](docs/screenshots/) (390 px mobile view
 - **Due date calculator / onboarding**: from last menstrual period (Naegele, +280 days) or a dating scan (date + gestational age). Home shows week + day, trimester, progress and countdown.
 - **Week-by-week guide (weeks 4-40)**: what's developing, what you might notice, typical length and weight, and a size comparison to an everyday object, with a stylised baby illustration.
 - **Weight tracker**: weekly log and chart; with optional *before pregnancy* height/weight it shades the IOM 2009 recommended gain range for your pre-pregnancy BMI (singleton pregnancies).
-- **Contraction timer**: big start/stop button, duration/interval history, last-hour averages, 5-1-1 alert banner, screen wake lock while timing.
+- **Contraction timer**: big start/stop button, duration/interval history, last-hour averages, 5-1-1 pattern note (general guidance), screen wake lock while timing.
 - **Scans & appointments**: log with notes and measurements; estimated fetal weight plotted against the WHO fetal growth chart median and 10th-90th percentile band.
 - **Baby movements (kick counter)**: from 28 weeks, with Health NZ / NHS guidance that any reduction in movements means calling your midwife straight away.
 - **Bump photo timeline**: one photo per week, stored in IndexedDB (downscaled, metadata stripped), with slideshow.

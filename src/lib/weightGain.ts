@@ -13,10 +13,10 @@ import type { ValidationResult } from './pregnancy';
 export type BmiCategory = 'underweight' | 'normal' | 'overweight' | 'obese';
 
 export const BMI_CATEGORY_LABEL: Record<BmiCategory, string> = {
-  underweight: 'in the underweight range',
-  normal: 'in the typical range',
-  overweight: 'in the overweight range',
-  obese: 'in the obese range',
+  underweight: 'BMI under 18.5',
+  normal: 'BMI 18.5 to 24.9',
+  overweight: 'BMI 25 to 29.9',
+  obese: 'BMI 30 or more',
 };
 
 export const HEIGHT_MIN_CM = 120;

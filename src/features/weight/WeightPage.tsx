@@ -163,11 +163,12 @@ function PrePregnancySection({ pre, onSave }: { pre: PrePregnancy | null; onSave
       {pre && b !== null && cat && !open && (
         <>
           <p>
-            Before pregnancy: {pre.heightCm} cm, {pre.weightKg} kg. BMI {formatBmi(b)}, which is {BMI_CATEGORY_LABEL[cat]}.
+            Before pregnancy: {pre.heightCm} cm, {pre.weightKg} kg. BMI {formatBmi(b)}, so the guide uses its group for{' '}
+            {BMI_CATEGORY_LABEL[cat]}.
           </p>
           <p className="muted">
-            For this range, the recommended total gain is about {rangeText(TOTAL_GAIN_KG[cat])}. BMI is only a rough
-            guide and doesn’t describe your health.
+            For that group, the Institute of Medicine’s general guide for total gain is about {rangeText(TOTAL_GAIN_KG[cat])}.
+            BMI is only a rough guide and doesn’t describe your health. Your midwife/LMC can tell you what suits you.
           </p>
           <div className="button-row">
             <button type="button" className="btn btn--ghost" onClick={() => setOpen(true)}>
