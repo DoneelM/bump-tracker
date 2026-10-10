@@ -9,11 +9,12 @@ import {
   keyLabel,
   MAX_IMPORT_BYTES,
   parseBackup,
+  type BackupEnvelope,
   type ParsedBackup,
 } from '../../lib/backup';
 import { todayLocal } from '../../lib/dates';
 import { download } from '../../lib/download';
-import { clearPhotos, exportPhotos, importPhotos } from '../../lib/photoStore';
+import { clearPhotos, exportPhotos, importPhotos, listPhotos, planPhotoRestore, replaceAllPhotos } from '../../lib/photoStore';
 import { clearAllStored, exportAll } from '../../lib/storage';
 
 const DELETE_WORD = 'DELETE';
@@ -67,6 +68,7 @@ function ImportSection() {
   const [pending, setPending] = useState<ParsedBackup | null>(null);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [safety, setSafety] = useState<BackupEnvelope | null>(null);
 
   const reset = () => {
     setPending(null);
@@ -93,25 +95,48 @@ function ImportSection() {
   const apply = async () => {
     if (!pending) return;
     setBusy(true);
-    let photoSkipped = 0;
-    let photoCount = 0;
-    let commit: (() => Promise<void>) | undefined;
-    if (pending.photos.length > 0) {
-      const prepared = await importPhotos(pending.photos);
-      photoCount = prepared.count;
-      photoSkipped = prepared.skipped;
-      commit = prepared.commit;
+    setSafety(null);
+    // In-memory copy of the current details, offered for download if the import fails.
+    const safetyBackup = buildBackup(exportAll(), new Date());
+    try {
+      let photoCount = 0;
+      let photoSkipped = 0;
+      let commit: (() => Promise<void>) | undefined;
+      if (pending.photos.length > 0) {
+        const prepared = await importPhotos(pending.photos);
+        const existing = await listPhotos();
+        const plan = planPhotoRestore(existing.map((p) => p.week!), prepared.ready.map((p) => p.week), prepared.skippedWeeks);
+        photoCount = prepared.ready.length;
+        photoSkipped = prepared.skippedWeeks.length;
+        if (plan.replace) {
+          if (
+            photoSkipped > 0 &&
+            !window.confirm(
+              `${photoSkipped} of ${pending.photos.length} photos in this backup can’t be read. Your ${existing.length} current photos will be replaced by ${plan.finalCount} (weeks whose backup photo couldn’t be read keep their current photo). Continue?`,
+            )
+          )
+            return;
+          const kept = existing.filter((p) => plan.keptWeeks.includes(p.week!)).map((p) => ({ blob: p.blob, week: p.week!, takenOn: p.takenOn }));
+          commit = () => replaceAllPhotos([...prepared.ready, ...kept]);
+        }
+      }
+      const result = await applyBackup(pending, appStorage, commit);
+      reset();
+      const skippedNote = photoSkipped
+        ? ` ${count(photoSkipped, 'photo')} could not be read and ${photoCount ? 'were skipped' : 'were skipped; your current photos were left as they are'}.`
+        : '';
+      if (!result.ok) setSafety(safetyBackup);
+      setMessage(
+        result.ok
+          ? { ok: true, text: `Imported ${count(Object.keys(pending.accepted).length, 'item')}${photoCount ? ` and ${count(photoCount, 'photo')}` : ''}.${skippedNote}` }
+          : { ok: false, text: result.error },
+      );
+    } catch {
+      setSafety(safetyBackup);
+      setMessage({ ok: false, text: 'The import failed unexpectedly. Your data may be unchanged; download the safety backup to be sure.' });
+    } finally {
+      setBusy(false);
     }
-    const result = await applyBackup(pending, appStorage, commit);
-    setBusy(false);
-    reset();
-    const itemCount = Object.keys(pending.accepted).length;
-    const skippedNote = photoSkipped ? ` ${count(photoSkipped, 'photo')} could not be read and were skipped.` : '';
-    setMessage(
-      result.ok
-        ? { ok: true, text: `Imported ${count(itemCount, 'item')}${photoCount ? ` and ${count(photoCount, 'photo')}` : ''}.${skippedNote}` }
-        : { ok: false, text: result.error },
-    );
   };
 
   return (
@@ -127,6 +152,13 @@ function ImportSection() {
         <p className={message.ok ? 'card card--success' : 'field__error'} role={message.ok ? 'status' : 'alert'}>
           {message.text}
         </p>
+      )}
+      {safety && (
+        <div className="button-row">
+          <button type="button" className="btn btn--primary" onClick={() => download(backupFilename(todayLocal()), JSON.stringify(safety))}>
+            Download safety backup
+          </button>
+        </div>
       )}
       {pending && (
         <div className="card card--warning" role="group" aria-label="Confirm import">
@@ -144,8 +176,8 @@ function ImportSection() {
             </p>
           )}
           <p>
-            <strong>This will replace the data on this device.</strong> Anything not in the backup will be removed. Photos on this device are kept unless the backup includes
-            photos.
+            <strong>This will replace the data on this device.</strong> Anything not in the backup will be removed, except skipped items above, which keep
+            their current data. Photos on this device are kept unless the backup includes photos.
           </p>
           <div className="button-row">
             <button type="button" className="btn btn--primary" onClick={() => void apply()} disabled={busy}>

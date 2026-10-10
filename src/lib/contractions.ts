@@ -87,6 +87,12 @@ export function detect511(list: readonly Contraction[], now?: number): boolean {
   );
 }
 
+/** True while a contraction is being timed or the last one ended within the 7-minute gap (old sessions are not live). */
+export function isSessionLive(state: ContractionState, now: number): boolean {
+  const last = validSorted(state.contractions).at(-1);
+  return state.activeStart !== null || (last !== undefined && now - last.end < PATTERN_MAX_GAP_MS);
+}
+
 /** mm:ss (minutes may exceed 59). Null, negative or invalid input shows 00:00. */
 export function formatMmSs(ms: number | null): string {
   if (ms === null || !isFiniteNumber(ms) || ms < 0) return '00:00';

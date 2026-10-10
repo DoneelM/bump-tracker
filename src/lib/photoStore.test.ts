@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { exceedsPixelLimit, fitWithin, parsePhotoExport, readImageSize, sniffImageType } from './photoStore';
+import { exceedsPixelLimit, fitWithin, parsePhotoExport, planPhotoRestore, preparePhoto, readImageSize, sniffImageType } from './photoStore';
 
 const MAGIC: Record<string, number[]> = {
   'image/jpeg': [0xff, 0xd8, 0xff],
@@ -43,6 +43,32 @@ describe('readImageSize', () => {
     expect(readImageSize(bytes(1, 2, 3))).toBeNull();
     expect(readImageSize(bytes(0xff, 0xd8, 0xff, 0xe0, 0, 4, 0, 0))).toBeNull();
     expect(readImageSize(new Uint8Array(0))).toBeNull();
+  });
+});
+
+describe('preparePhoto header guard', () => {
+  const seg = (marker: number, len: number) => [0xff, marker, len >> 8, len & 0xff, ...Array<number>(len - 2).fill(0)];
+  const sof = (w: number, h: number) => [0xff, 0xc0, 0, 11, 8, h >> 8, h & 0xff, w >> 8, w & 0xff, 3, 0, 0];
+  const jpeg = (...parts: number[][]) => new File([Uint8Array.from([0xff, 0xd8, ...parts.flat()])], 'x.jpg', { type: 'image/jpeg' });
+
+  it('rejects a 9000x6000 JPEG whose SOF is pushed past 64 KB, before decoding', async () => {
+    const f = jpeg(seg(0xe9, 65535), seg(0xe9, 65535), sof(9000, 6000));
+    await expect(preparePhoto(f)).rejects.toThrow('too large');
+  });
+  it('rejects a file whose size cannot be read from the header', async () => {
+    await expect(preparePhoto(jpeg([1, 2, 3, 4]))).rejects.toThrow('couldn’t be read');
+  });
+});
+
+describe('planPhotoRestore', () => {
+  it('leaves device photos alone when no backup photo decoded', () => {
+    expect(planPhotoRestore([3, 20], [], [3, 20])).toEqual({ replace: false, keptWeeks: [], finalCount: 2 });
+  });
+  it('replaces with decoded photos plus device photos for weeks that failed to decode', () => {
+    expect(planPhotoRestore([3, 10, 20], [10, 12], [3])).toEqual({ replace: true, keptWeeks: [3], finalCount: 3 });
+  });
+  it('replaces everything when nothing was skipped', () => {
+    expect(planPhotoRestore([3, 10], [12], [])).toEqual({ replace: true, keptWeeks: [], finalCount: 1 });
   });
 });
 

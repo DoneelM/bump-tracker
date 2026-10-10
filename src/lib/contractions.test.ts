@@ -4,6 +4,7 @@ import {
   detect511,
   formatMmSs,
   intervalsMs,
+  isSessionLive,
   isValidContraction,
   parseContractionState,
   type Contraction,
@@ -103,5 +104,17 @@ describe('parseContractionState', () => {
   it('drops out-of-range timestamps', () => {
     const bad = { contractions: [{ start: 1, end: 2 }, { start: 1e300, end: 1e300 + 1 }], activeStart: 1e300 };
     expect(parseContractionState(bad)).toEqual({ contractions: [], activeStart: null });
+  });
+});
+
+describe('isSessionLive', () => {
+  const ended = (ago: number) => ({ contractions: [{ start: T0 - ago - 60 * S, end: T0 - ago }], activeStart: null });
+  it('is live while timing, or within the gap after the last contraction ended', () => {
+    expect(isSessionLive({ contractions: [], activeStart: T0 - S }, T0)).toBe(true);
+    expect(isSessionLive(ended(M), T0)).toBe(true);
+  });
+  it('is not live for an old session or an empty state', () => {
+    expect(isSessionLive(ended(8 * M), T0)).toBe(false);
+    expect(isSessionLive({ contractions: [], activeStart: null }, T0)).toBe(false);
   });
 });

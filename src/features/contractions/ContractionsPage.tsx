@@ -7,6 +7,7 @@ import {
   EMPTY_STATE,
   formatMmSs,
   intervalsMs,
+  isSessionLive,
   isValidContraction,
   MAX_CONTRACTION_MS,
   MAX_STORED_CONTRACTIONS,
@@ -74,9 +75,10 @@ export function ContractionsPage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
   const active = state.activeStart !== null;
-  // The 1 s timer and wake lock run only while a contraction is being timed; when idle, "now" refreshes on render.
-  const now = useNow(active);
-  const wakeLockHeld = useWakeLock(active);
+  // The 1 s timer and wake lock run while a session is live; the tick re-renders and switches them off after the gap.
+  const live = isSessionLive(state, Date.now());
+  const now = useNow(live);
+  const wakeLockHeld = useWakeLock(live);
 
   const update = (next: ContractionState | ((prev: ContractionState) => ContractionState)) => {
     const r = setState(next);

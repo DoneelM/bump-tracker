@@ -162,18 +162,15 @@ export function readImageSize(b: Uint8Array): { width: number; height: number } 
 export async function preparePhoto(file: File): Promise<Blob> {
   const check = validatePhotoFile(file);
   if (!check.ok) throw new Error(check.error);
-  const size = readImageSize(new Uint8Array(await file.slice(0, 65536).arrayBuffer()));
-  if (size && exceedsPixelLimit(size.width, size.height)) throw new Error('This image is too large (over 50 megapixels).');
+  // The whole file (max 15 MB) is scanned so header padding can't hide the size; an unreadable header fails closed.
+  const size = readImageSize(new Uint8Array(await file.arrayBuffer()));
+  if (!size) throw new Error('This image couldn’t be read.');
+  if (exceedsPixelLimit(size.width, size.height)) throw new Error('This image is too large (over 50 megapixels).');
   let bitmap: ImageBitmap;
   try {
     bitmap = await createImageBitmap(file);
   } catch {
     throw new Error('This image could not be read. Please try a JPEG, PNG or WebP photo.');
-  }
-  // Fallback for files whose header could not be parsed above.
-  if (exceedsPixelLimit(bitmap.width, bitmap.height)) {
-    bitmap.close();
-    throw new Error('This image is too large (over 50 megapixels).');
   }
   const { width, height } = fitWithin(bitmap.width, bitmap.height);
   const canvas = document.createElement('canvas');
@@ -304,19 +301,26 @@ export function parsePhotoExport(list: unknown): ImportedPhoto[] {
   return [...byWeek.values()];
 }
 
+/** What a restore does to device photos: nothing if no backup photo decoded, else backup photos plus kept weeks. */
+export function planPhotoRestore(existingWeeks: readonly number[], decodedWeeks: readonly number[], skippedWeeks: readonly number[]) {
+  if (decodedWeeks.length === 0) return { replace: false, keptWeeks: [] as number[], finalCount: existingWeeks.length };
+  const keptWeeks = existingWeeks.filter((w) => skippedWeeks.includes(w));
+  return { replace: true, keptWeeks, finalCount: decodedWeeks.length + keptWeeks.length };
+}
+
 /**
  * Runs imported photos through the same pipeline as uploads (decode, downscale, re-encode, which strips
- * EXIF/GPS and rejects non-images). Photos that fail are dropped. Nothing is stored until `commit()`,
- * which replaces all photos in one transaction.
+ * EXIF/GPS and rejects non-images). Photos that fail are dropped and their weeks reported. Nothing is stored here.
  */
-export async function importPhotos(items: readonly ImportedPhoto[]): Promise<{ count: number; skipped: number; commit: () => Promise<void> }> {
+export async function importPhotos(items: readonly ImportedPhoto[]) {
   const ready: { blob: Blob; week: number; takenOn: LocalDate }[] = [];
+  const skippedWeeks: number[] = [];
   for (const p of items) {
     try {
       ready.push({ blob: await preparePhoto(new File([p.blob], 'import', { type: p.mime })), week: p.week, takenOn: p.takenOn });
     } catch {
-      // not a decodable image: dropped and counted
+      skippedWeeks.push(p.week); // not a decodable image
     }
   }
-  return { count: ready.length, skipped: items.length - ready.length, commit: () => replaceAllPhotos(ready) };
+  return { ready, skippedWeeks };
 }

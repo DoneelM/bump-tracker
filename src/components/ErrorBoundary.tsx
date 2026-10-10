@@ -19,7 +19,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { failed: 
   backup = () => {
     try {
       download(backupFilename(todayLocal()), JSON.stringify(buildBackup(exportAll(), new Date())));
-      this.setState({ notice: 'Backup downloaded.' });
+      this.setState({ notice: 'Backup downloaded (details only, photos are not included).' });
     } catch {
       this.setState({ notice: 'Could not create a backup.' });
     }
@@ -48,7 +48,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { failed: 
               Reload
             </button>
             <button type="button" className="btn btn--ghost" onClick={this.backup}>
-              Download a backup
+              Download a backup (details only, no photos)
             </button>
             <button type="button" className="btn btn--danger" onClick={() => void this.wipe()}>
               Delete all my data

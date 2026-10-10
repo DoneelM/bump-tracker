@@ -72,8 +72,11 @@ export function parseBackup(text: string): ParseBackupResult {
       skipped.push({ key, reason: 'unknown item' });
       continue;
     }
-    const value = entry.validate(json.data[key]);
-    if (value === null) skipped.push({ key, reason: 'invalid data' });
+    const raw = json.data[key];
+    const value = entry.validate(raw);
+    // A non-empty list whose entries were ALL dropped is invalid, not an empty list.
+    const allDropped = Array.isArray(raw) && raw.length > 0 && Array.isArray(value) && value.length === 0;
+    if (value === null || allDropped) skipped.push({ key, reason: 'invalid data' });
     else accepted[key] = value;
   }
 
@@ -101,32 +104,35 @@ export const appStorage: BackupStorage = { read: readRaw, write: writeRaw, remov
 export type ApplyResult = { ok: true } | { ok: false; error: string };
 
 /**
- * Replaces every registered key with the backup's value (keys not in the backup are removed), then runs
- * `commitPhotos` if given. If any write fails, everything is rolled back to the values from before.
+ * Replaces every registered key with the backup's value, then runs `commitPhotos` if given. Keys absent from the
+ * backup are removed; keys present but invalid (in `skipped`) keep their current value. On any failure everything
+ * is rolled back, and the error says so honestly if some of it could not be restored.
  */
 export async function applyBackup(backup: ParsedBackup, storage: BackupStorage, commitPhotos?: () => Promise<void>): Promise<ApplyResult> {
   const snapshot = STORAGE_TABLE.map((e) => [e.key, storage.read(e.key)] as const);
-  const rollback = () => {
-    for (const [key, raw] of snapshot) {
-      if (raw === null) storage.remove(key);
-      else storage.write(key, raw);
-    }
+  const keep = new Set(backup.skipped.map((s) => s.key));
+  // Remove everything first so half-written new values can't block restoring the old ones (which fitted before).
+  const failWith = (what: string): ApplyResult => {
+    for (const { key } of STORAGE_TABLE) storage.remove(key);
+    const lost = snapshot.filter(([k, raw]) => raw !== null && !storage.write(k, raw).ok).map(([k]) => keyLabel(k));
+    return {
+      ok: false,
+      error: lost.length
+        ? `The import failed and some of your existing data could not be restored: ${lost.join(', ')}. Download the safety backup now.`
+        : `${what}, so nothing was changed.`,
+    };
   };
   for (const { key, label } of STORAGE_TABLE) {
     if (!Object.hasOwn(backup.accepted, key)) {
-      storage.remove(key);
+      if (!keep.has(key)) storage.remove(key);
       continue;
     }
-    if (!storage.write(key, JSON.stringify(backup.accepted[key])).ok) {
-      rollback();
-      return { ok: false, error: `Could not save ${label}, so nothing was changed.` };
-    }
+    if (!storage.write(key, JSON.stringify(backup.accepted[key])).ok) return failWith(`Could not save ${label}`);
   }
   try {
     await commitPhotos?.();
   } catch {
-    rollback();
-    return { ok: false, error: 'Could not save the bump photos, so nothing was changed.' };
+    return failWith('Could not save the bump photos');
   }
   return { ok: true };
 }
