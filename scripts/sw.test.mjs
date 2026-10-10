@@ -67,6 +67,16 @@ describe('service worker', () => {
     expect(readFileSync(join(dir, 'sw.js'), 'utf8')).toContain('"./assets/index-aaa.js"');
   });
 
+  it('hashes _headers into the version but never precaches it', () => {
+    const a = fakeDist('index-aaa.js');
+    const b = fakeDist('index-aaa.js');
+    writeFileSync(join(a, '_headers'), '/*\n  X-Test: 1\n');
+    writeFileSync(join(b, '_headers'), '/*\n  X-Test: 2\n');
+    const ra = injectPrecache(a);
+    expect(ra.list).not.toContain('./_headers');
+    expect(injectPrecache(b).version).not.toBe(ra.version);
+  });
+
   it('works offline after one online visit, and after a redeploy', async () => {
     const storage = new Map();
     const net = { online: true };

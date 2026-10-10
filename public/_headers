@@ -1,6 +1,6 @@
 # Security headers from the backend design v3, §3. Cloudflare `_headers` syntax.
-# The one source of truth until H1 moves this file to public/_headers (and the Worker reuses the set for /api).
-# scripts/offline-check.mjs serves dist/ with exactly these headers and fails on any CSP or Trusted Types violation.
+# Vite copies it to dist/_headers; Cloudflare static assets apply it and don't serve it as a file. H1's Worker reuses the set for /api.
+# scripts/offline-check.mjs serves dist/ with exactly dist/_headers and fails on any CSP or Trusted Types violation.
 /*
   Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob:; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; require-trusted-types-for 'script'
   Strict-Transport-Security: max-age=31536000; includeSubDomains

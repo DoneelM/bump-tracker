@@ -12,7 +12,8 @@ export function injectPrecache(dist) {
   const hash = createHash('sha256');
   for (const f of files) hash.update(f).update(readFileSync(join(dist, f)));
   const version = hash.digest('hex').slice(0, 12);
-  const list = files.map((f) => './' + f);
+  // _headers is hashed (a header-only change ships a new SW) but not precached: Cloudflare 404s it, which would fail cache.addAll.
+  const list = files.filter((f) => f !== '_headers').map((f) => './' + f);
   const swPath = join(dist, 'sw.js');
   const sw = readFileSync(swPath, 'utf8')
     .replace(/const VERSION = '[^']*';/, `const VERSION = '${version}';`)

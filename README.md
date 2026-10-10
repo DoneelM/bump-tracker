@@ -91,4 +91,4 @@ public/
 
 ### Security notes
 - No `dangerouslySetInnerHTML`. All stored and imported data passes through validators in `src/lib`.
-- The Content-Security-Policy is sent as a header only ([`scripts/_headers`](scripts/_headers), backend design §3); there is no `<meta>` CSP, so a host that can't send headers runs without one. React `style={...}` props are fine because they set styles through the CSSOM. If a library injects `<style>` tags, it will need a `style-src` change.
+- The Content-Security-Policy is sent as a header only ([`public/_headers`](public/_headers), copied to `dist/_headers`; backend design §3); there is no `<meta>` CSP, so a host that can't send headers runs without one. React `style={...}` props are fine because they set styles through the CSSOM. If a library injects `<style>` tags, it will need a `style-src` change.

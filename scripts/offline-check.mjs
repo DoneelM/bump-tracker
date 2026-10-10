@@ -1,4 +1,4 @@
-// Headless end-to-end check of the built app, served with the §3 security headers (scripts/_headers):
+// Headless end-to-end check of the built app, served with the §3 security headers (dist/_headers, from public/_headers):
 // no CSP or Trusted Types violation on any screen (incl. the Recharts charts and bump photos),
 // and it opens offline after a first visit and after a redeploy.
 // Usage: npm run build && npm i --no-save playwright && npx playwright install chromium && npm run check:offline
@@ -26,7 +26,7 @@ injectPrecache(v2);
 
 // Cloudflare `_headers` subset: a path line (exact, or a prefix ending in *), then indented `Name: value` lines.
 const RULES = [];
-for (const line of readFileSync(new URL('./_headers', import.meta.url), 'utf8').split('\n')) {
+for (const line of readFileSync(join(process.env.DIST ?? 'dist', '_headers'), 'utf8').split('\n')) {
   if (!line.trim() || line.startsWith('#')) continue;
   if (!/^\s/.test(line)) RULES.push({ path: line.trim(), headers: {} });
   else {
@@ -34,7 +34,7 @@ for (const line of readFileSync(new URL('./_headers', import.meta.url), 'utf8').
     RULES.at(-1).headers[line.slice(0, i).trim()] = line.slice(i + 1).trim();
   }
 }
-if (!RULES[0]?.headers['Content-Security-Policy']) throw new Error('scripts/_headers has no CSP for /*');
+if (!RULES[0]?.headers['Content-Security-Policy']) throw new Error('dist/_headers has no CSP for /*');
 const headersFor = (pathname) =>
   Object.assign({}, ...RULES.filter(({ path }) => (path.endsWith('*') ? pathname.startsWith(path.slice(0, -1)) : pathname === path)).map((r) => r.headers));
 
