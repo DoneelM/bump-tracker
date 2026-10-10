@@ -116,9 +116,9 @@ export function ContractionsPage() {
       {pattern && (
         <div className="alert-banner" role="alert">
           <p className="alert-banner__title">
-            Your timings match the 5-1-1 pattern (about every 5 minutes, lasting about 1 minute, for an hour). Many
-            midwives use this pattern as a rough guide. If you are worried or unsure, contact your midwife/LMC or
-            maternity unit.
+            Your timings match the 5-1-1 pattern (about every 5 minutes, lasting about 1 minute, for an hour). This is a
+            good time to call your midwife/LMC or maternity unit for advice. Call straight away if you are less than 37
+            weeks pregnant, your waters have broken, you have bleeding, or you are worried.
           </p>
           <p>
             Health NZ advises calling your midwife when contractions are coming every 5 minutes, lasting longer than 50
@@ -126,8 +126,9 @@ export function ContractionsPage() {
             bleeding, your baby’s movements change, or you are under 37 weeks.
           </p>
           <p>
-            This is general information, not medical advice. The timer only shows the times you entered and can’t tell
-            whether you are in labour. Always follow your midwife’s advice. In an emergency call 111.
+            This is general information, not medical advice. The timer only shows the times you entered. It can’t tell
+            whether you are in labour or how strong your contractions are. Always follow your midwife’s advice. In an
+            emergency call 111.
           </p>
         </div>
       )}

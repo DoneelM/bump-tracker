@@ -32,6 +32,12 @@ describe('bmiCategory boundaries', () => {
     [30.0, 'obese'],
     [45, 'obese'],
     [15, 'underweight'],
+    // review boundaries: no value may fall between the labelled groups
+    [18.49, 'underweight'],
+    [24.95, 'normal'],
+    [25, 'overweight'],
+    [29.95, 'overweight'],
+    [30, 'obese'],
   ] as const)('%s -> %s', (v, cat) => expect(bmiCategory(v)).toBe(cat));
 
   it('formatBmi truncates so a shown value never implies a higher category', () => {

@@ -158,7 +158,7 @@ export function PrintPage({ profile, today }: { profile: PregnancyProfile; today
                 <p>
                   {avgs.count} contractions in the hour to {dateTimeFmt.format(lastStart)}; average length {formatMmSs(avgs.avgDurationMs)}, average gap{' '}
                   {formatMmSs(avgs.avgIntervalMs)} (mm:ss).
-                  {detect511(timed) && ' These timings matched the 5-1-1 pattern, a rough guide many midwives use.'}
+                  {detect511(timed) && ' These timings matched the 5-1-1 pattern (about every 5 minutes, lasting about 1 minute, for an hour). Times were entered by the user.'}
                 </p>
               </>
             )}
