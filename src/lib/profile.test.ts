@@ -46,6 +46,10 @@ describe('profile', () => {
     });
 
     it.each([
+      { dating: { method: 'lmp', lmp: '2200-12-31' } },
+      { dating: { method: 'lmp', lmp: '1999-12-31' } },
+      { dating: { method: 'scan', scanDate: '1900-01-05', gaWeeks: 45, gaDays: 6 } },
+      { dating: { method: 'scan', scanDate: '2100-01-01', gaWeeks: 12, gaDays: 0 } },
       null,
       'string',
       [],

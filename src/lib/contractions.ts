@@ -1,5 +1,5 @@
 /** Contraction timer: durations, intervals, averages and the 5-1-1 pattern. Pure. */
-import { isFiniteNumber, isRecord } from './validate';
+import { isEpochMs, isFiniteNumber, isRecord } from './validate';
 
 export interface Contraction {
   /** Epoch ms. */
@@ -99,8 +99,8 @@ export function parseContractionState(value: unknown): ContractionState | null {
   const contractions = value.contractions
     .filter(isRecord)
     .map((c) => ({ start: c.start as number, end: c.end as number }))
-    .filter(isValidContraction)
+    .filter((c) => isEpochMs(c.start) && isEpochMs(c.end) && isValidContraction(c))
     .slice(-MAX_STORED_CONTRACTIONS);
   const a = value.activeStart;
-  return { contractions, activeStart: isFiniteNumber(a) && a > 0 ? a : null };
+  return { contractions, activeStart: isEpochMs(a) ? a : null };
 }

@@ -1,5 +1,41 @@
 import { describe, expect, it } from 'vitest';
-import { MEASUREMENTS, nextAppointment, parseMeasurement, parseScanEntries, validateScanNotes } from './scans';
+import {
+  MEASUREMENTS,
+  nextAppointment,
+  parseMeasurement,
+  parseScanEntries,
+  validateMeasurementsDate,
+  validateScanDate,
+  validateScanNotes,
+} from './scans';
+
+describe('validateScanDate', () => {
+  const lmp = '2026-03-01';
+  const due = '2026-12-06';
+  it('allows past, present and future dates up to due date + 6 weeks', () => {
+    for (const d of ['2026-03-01', '2026-10-11', '2026-10-20', '2026-12-06', '2027-01-17']) expect(validateScanDate(d, lmp, due).ok).toBe(true);
+  });
+  it('rejects blank, invalid, before-LMP and too-far-future dates', () => {
+    for (const d of ['', 'nope', '2026-02-28', '2027-01-18']) expect(validateScanDate(d, lmp, due).ok).toBe(false);
+  });
+});
+
+describe('validateMeasurementsDate', () => {
+  it('rejects measurements on future-dated entries only', () => {
+    expect(validateMeasurementsDate('2026-10-20', '2026-10-11', true).ok).toBe(false);
+    expect(validateMeasurementsDate('2026-10-20', '2026-10-11', false).ok).toBe(true);
+    expect(validateMeasurementsDate('2026-10-11', '2026-10-11', true).ok).toBe(true);
+    expect(validateMeasurementsDate('2026-10-01', '2026-10-11', true).ok).toBe(true);
+  });
+});
+
+describe('parseScanEntries caps', () => {
+  it('drops long ids and keeps at most 1000 entries', () => {
+    const e = (id: string) => ({ id, date: '2026-10-01', type: 'growth', notes: '' });
+    expect(parseScanEntries([e('x'.repeat(101))])).toEqual([]);
+    expect(parseScanEntries(Array.from({ length: 1200 }, (_, i) => e(`id${i}`)))).toHaveLength(1000);
+  });
+});
 
 describe('nextAppointment', () => {
   const e = (id: string, date: string) => parseScanEntries([{ id, date, type: 'growth', notes: '' }])![0]!;

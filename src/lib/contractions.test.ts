@@ -9,6 +9,7 @@ import {
   type Contraction,
 } from './contractions';
 
+const T0 = Date.UTC(2026, 9, 11);
 const S = 1000;
 const M = 60 * S;
 /** n contractions every `every` ms, each `dur` ms long. */
@@ -95,8 +96,12 @@ describe('parseContractionState', () => {
     expect(parseContractionState(null)).toBeNull();
     expect(parseContractionState({ contractions: 'x' })).toBeNull();
     expect(
-      parseContractionState({ contractions: [{ start: 1, end: 2 }, { start: 'a', end: 2 }, 5, { start: 3, end: 2 }], activeStart: 'z' }),
-    ).toEqual({ contractions: [{ start: 1, end: 2 }], activeStart: null });
-    expect(parseContractionState({ contractions: [], activeStart: 123 })?.activeStart).toBe(123);
+      parseContractionState({ contractions: [{ start: T0, end: T0 + 1 }, { start: 'a', end: 2 }, 5, { start: T0 + 3, end: T0 + 2 }], activeStart: 'z' }),
+    ).toEqual({ contractions: [{ start: T0, end: T0 + 1 }], activeStart: null });
+    expect(parseContractionState({ contractions: [], activeStart: T0 })?.activeStart).toBe(T0);
+  });
+  it('drops out-of-range timestamps', () => {
+    const bad = { contractions: [{ start: 1, end: 2 }, { start: 1e300, end: 1e300 + 1 }], activeStart: 1e300 };
+    expect(parseContractionState(bad)).toEqual({ contractions: [], activeStart: null });
   });
 });

@@ -6,7 +6,7 @@
  * Pregnancy: Reexamining the Guidelines", Table S-1. SINGLETON pregnancies only.
  * BMI categories use the WHO cut-offs.
  */
-import { diffDays, isLocalDate, type LocalDate } from './dates';
+import { diffDays, isLocalDate, isPlausibleDate, type LocalDate } from './dates';
 import { cleanString, isNumberInRange, isRecord, parseNumberInput } from './validate';
 import type { ValidationResult } from './pregnancy';
 
@@ -24,6 +24,7 @@ export const HEIGHT_MAX_CM = 220;
 export const WEIGHT_MIN_KG = 30;
 export const WEIGHT_MAX_KG = 250;
 export const MAX_WEIGHT_NOTE_LENGTH = 200;
+export const MAX_WEIGHT_ENTRIES = 1000;
 
 export function bmi(heightCm: number, weightKg: number): number {
   const m = heightCm / 100;
@@ -136,8 +137,8 @@ export function parsePrePregnancy(value: unknown): PrePregnancy | null {
 }
 
 function parseWeightEntry(value: unknown): WeightEntry | null {
-  if (!isRecord(value) || typeof value.id !== 'string' || !value.id) return null;
-  if (!isLocalDate(value.date) || !isNumberInRange(value.weightKg, WEIGHT_MIN_KG, WEIGHT_MAX_KG)) return null;
+  if (!isRecord(value) || typeof value.id !== 'string' || !value.id || value.id.length > 100) return null;
+  if (!isPlausibleDate(value.date) || !isNumberInRange(value.weightKg, WEIGHT_MIN_KG, WEIGHT_MAX_KG)) return null;
   const note = cleanString(value.note ?? '', MAX_WEIGHT_NOTE_LENGTH);
   if (note === null) return null;
   return { id: value.id, date: value.date, weightKg: value.weightKg, note };
@@ -145,7 +146,7 @@ function parseWeightEntry(value: unknown): WeightEntry | null {
 
 export function parseWeightEntries(value: unknown): WeightEntry[] | null {
   if (!Array.isArray(value)) return null;
-  return value.map(parseWeightEntry).filter((e): e is WeightEntry => e !== null);
+  return value.map(parseWeightEntry).filter((e): e is WeightEntry => e !== null).slice(-MAX_WEIGHT_ENTRIES);
 }
 
 /** Oldest first; same-day entries keep insertion order. */

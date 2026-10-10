@@ -17,4 +17,7 @@ createRoot(root).render(
   </StrictMode>,
 );
 
+// Ask the browser not to evict our data when storage runs low (best effort; the answer is ignored).
+void navigator.storage?.persist?.();
+
 registerServiceWorker();

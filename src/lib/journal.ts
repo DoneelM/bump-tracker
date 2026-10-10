@@ -1,5 +1,5 @@
 /** Symptom & mood journal: entry model, storage parsing and selectors. Pure. */
-import { isLocalDate, type LocalDate } from './dates';
+import { isPlausibleDate, type LocalDate } from './dates';
 import { cleanString, isIntInRange, isRecord } from './validate';
 
 export const MAX_NOTES_LENGTH = 2000;
@@ -41,7 +41,7 @@ export interface JournalEntry {
 
 function parseEntry(value: unknown): JournalEntry | null {
   if (!isRecord(value) || typeof value.id !== 'string' || !value.id || value.id.length > 100) return null;
-  if (!isLocalDate(value.date) || !isIntInRange(value.mood, 1, 5)) return null;
+  if (!isPlausibleDate(value.date) || !isIntInRange(value.mood, 1, 5)) return null;
   const notes = cleanString(value.notes, MAX_NOTES_LENGTH);
   if (notes === null || !Array.isArray(value.symptoms)) return null;
   const symptoms = SYMPTOMS.filter((s) => (value.symptoms as unknown[]).includes(s));

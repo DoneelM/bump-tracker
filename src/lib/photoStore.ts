@@ -3,7 +3,7 @@
  * One photo per gestational week (record id is derived from the week). Blobs and their small metadata
  * (week, date added) live together so they can never get out of sync. Nothing is uploaded anywhere.
  */
-import { isLocalDate, type LocalDate } from './dates';
+import { isPlausibleDate, todayLocal, type LocalDate } from './dates';
 import { cleanString, isIntInRange, isRecord } from './validate';
 
 const DB_NAME = 'bump-tracker';
@@ -16,6 +16,7 @@ export const MAX_CAPTION_LENGTH = 200;
 export const MIN_PHOTO_WEEK = 1;
 export const MAX_PHOTO_WEEK = 45;
 export const MAX_PHOTO_EDGE = 1280;
+export const MAX_PHOTO_PIXELS = 50_000_000;
 export const PHOTO_QUALITY = 0.82;
 
 export interface PhotoMeta {
@@ -50,7 +51,7 @@ export function parsePhotoRecord(value: unknown): PhotoRecord | null {
   if (!isRecord(value)) return null;
   const { id, takenOn, week, caption, type, size, createdAt, blob } = value;
   if (typeof id !== 'string' || id.length === 0 || id.length > 100) return null;
-  if (!isLocalDate(takenOn)) return null;
+  if (!isPlausibleDate(takenOn)) return null;
   if (week !== null && !isIntInRange(week, 0, 45)) return null;
   const cleanCaption = cleanString(caption, MAX_CAPTION_LENGTH);
   if (cleanCaption === null) return null;
@@ -103,15 +104,18 @@ function requestToPromise<T>(req: IDBRequest<T>): Promise<T> {
   });
 }
 
-async function withStore<T>(mode: IDBTransactionMode, fn: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {
-  const db = await openDb();
-  const tx = db.transaction(STORE, mode);
-  const result = requestToPromise(fn(tx.objectStore(STORE)));
-  await new Promise<void>((resolve, reject) => {
+const txDone = (tx: IDBTransaction) =>
+  new Promise<void>((resolve, reject) => {
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error ?? new Error('Photo storage transaction failed.'));
     tx.onabort = () => reject(tx.error ?? new Error('Photo storage transaction aborted.'));
   });
+
+async function withStore<T>(mode: IDBTransactionMode, fn: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {
+  const db = await openDb();
+  const tx = db.transaction(STORE, mode);
+  const result = requestToPromise(fn(tx.objectStore(STORE)));
+  await txDone(tx);
   return result;
 }
 
@@ -122,6 +126,9 @@ export function fitWithin(width: number, height: number, maxEdge = MAX_PHOTO_EDG
   const scale = Math.min(1, maxEdge / Math.max(width, height));
   return { width: Math.max(1, Math.round(width * scale)), height: Math.max(1, Math.round(height * scale)) };
 }
+
+/** True when an image is too many pixels to decode safely (decompression-bomb guard). */
+export const exceedsPixelLimit = (width: number, height: number): boolean => width * height > MAX_PHOTO_PIXELS;
 
 /**
  * Validates, downscales (max 1280 px) and re-encodes as JPEG. Re-encoding through a canvas drops all
@@ -135,6 +142,11 @@ export async function preparePhoto(file: File): Promise<Blob> {
     bitmap = await createImageBitmap(file);
   } catch {
     throw new Error('This image could not be read. Please try a JPEG, PNG or WebP photo.');
+  }
+  // shortcut: the full decode has already happened by now, so this stops the canvas work, not the allocation; upgrade by parsing header sizes first.
+  if (exceedsPixelLimit(bitmap.width, bitmap.height)) {
+    bitmap.close();
+    throw new Error('This image is too large (over 50 megapixels).');
   }
   const { width, height } = fitWithin(bitmap.width, bitmap.height);
   const canvas = document.createElement('canvas');
@@ -150,7 +162,7 @@ export async function preparePhoto(file: File): Promise<Blob> {
 }
 
 /** Stores (or replaces) the single photo for a gestational week. `takenOn` is the date added. */
-export async function putWeekPhoto(blob: Blob, week: number, takenOn: LocalDate): Promise<void> {
+function makeRecord(blob: Blob, week: number, takenOn: LocalDate): PhotoRecord {
   const record = parsePhotoRecord({
     id: weekId(week),
     takenOn,
@@ -162,7 +174,23 @@ export async function putWeekPhoto(blob: Blob, week: number, takenOn: LocalDate)
     blob,
   });
   if (!record || !isIntInRange(week, MIN_PHOTO_WEEK, MAX_PHOTO_WEEK)) throw new Error('Invalid photo details.');
+  return record;
+}
+
+export async function putWeekPhoto(blob: Blob, week: number, takenOn: LocalDate): Promise<void> {
+  const record = makeRecord(blob, week, takenOn);
   await withStore('readwrite', (s) => s.put(record));
+}
+
+/** Replaces every photo in ONE transaction: on any failure the old photos stay as they were. */
+export async function replaceAllPhotos(list: readonly { blob: Blob; week: number; takenOn: LocalDate }[]): Promise<void> {
+  const records = list.map((p) => makeRecord(p.blob, p.week, p.takenOn));
+  const db = await openDb();
+  const tx = db.transaction(STORE, 'readwrite');
+  const store = tx.objectStore(STORE);
+  store.clear();
+  for (const r of records) store.put(r);
+  await txDone(tx);
 }
 
 /** All valid week photos, sorted by week. */
@@ -188,6 +216,24 @@ export interface PhotoExportItem {
   week: number;
   mime: string;
   dataUrl: string;
+  /** Date the photo was added (optional in older backups). */
+  takenOn?: LocalDate;
+}
+
+export interface ImportedPhoto {
+  week: number;
+  mime: string;
+  blob: Blob;
+  takenOn: LocalDate;
+}
+
+/** Image type from the first bytes (JPEG, PNG or WebP), or null. */
+export function sniffImageType(b: Uint8Array): (typeof ALLOWED_PHOTO_TYPES)[number] | null {
+  const at = (i: number, s: string) => [...s].every((c, k) => b[i + k] === c.charCodeAt(0));
+  if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return 'image/jpeg';
+  if (b[0] === 0x89 && at(1, 'PNG')) return 'image/png';
+  if (at(0, 'RIFF') && at(8, 'WEBP')) return 'image/webp';
+  return null;
 }
 
 const DATA_URL_RE = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]+={0,2})$/;
@@ -204,13 +250,14 @@ function blobToDataUrl(blob: Blob): Promise<string> {
 /** Photos as base64 data URLs. Only call this when the user ticked "include photos". */
 export async function exportPhotos(): Promise<PhotoExportItem[]> {
   const photos = await listPhotos();
-  return Promise.all(photos.map(async (p) => ({ week: p.week!, mime: p.type, dataUrl: await blobToDataUrl(p.blob) })));
+  return Promise.all(photos.map(async (p) => ({ week: p.week!, mime: p.type, dataUrl: await blobToDataUrl(p.blob), takenOn: p.takenOn })));
 }
 
 /** Validates an untrusted export list; invalid items are dropped, later duplicates of a week win. */
-export function parsePhotoExport(list: unknown): { week: number; mime: string; blob: Blob }[] {
+export function parsePhotoExport(list: unknown): ImportedPhoto[] {
   if (!Array.isArray(list)) return [];
-  const byWeek = new Map<number, { week: number; mime: string; blob: Blob }>();
+  const today = todayLocal();
+  const byWeek = new Map<number, ImportedPhoto>();
   for (const item of list) {
     if (!isRecord(item) || !isIntInRange(item.week, MIN_PHOTO_WEEK, MAX_PHOTO_WEEK)) continue;
     if (typeof item.dataUrl !== 'string' || item.dataUrl.length > MAX_PHOTO_BYTES * 1.4) continue;
@@ -224,14 +271,26 @@ export function parsePhotoExport(list: unknown): { week: number; mime: string; b
     }
     if (bin.length === 0 || bin.length > MAX_PHOTO_BYTES) continue;
     const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
-    byWeek.set(item.week, { week: item.week, mime: m[1]!, blob: new Blob([bytes], { type: m[1]! }) });
+    if (sniffImageType(bytes) !== m[1]) continue;
+    const takenOn = isPlausibleDate(item.takenOn) ? item.takenOn : today;
+    byWeek.set(item.week, { week: item.week, mime: m[1]!, blob: new Blob([bytes], { type: m[1]! }), takenOn });
   }
   return [...byWeek.values()];
 }
 
-/** Imports validated photos (replacing any for the same week). Returns how many were stored. */
-export async function importPhotos(list: unknown, takenOn: LocalDate): Promise<number> {
-  const items = parsePhotoExport(list);
-  for (const p of items) await putWeekPhoto(p.blob, p.week, takenOn);
-  return items.length;
+/**
+ * Runs imported photos through the same pipeline as uploads (decode, downscale, re-encode, which strips
+ * EXIF/GPS and rejects non-images). Photos that fail are dropped. Nothing is stored until `commit()`,
+ * which replaces all photos in one transaction.
+ */
+export async function importPhotos(items: readonly ImportedPhoto[]): Promise<{ count: number; skipped: number; commit: () => Promise<void> }> {
+  const ready: { blob: Blob; week: number; takenOn: LocalDate }[] = [];
+  for (const p of items) {
+    try {
+      ready.push({ blob: await preparePhoto(new File([p.blob], 'import', { type: p.mime })), week: p.week, takenOn: p.takenOn });
+    } catch {
+      // not a decodable image: dropped and counted
+    }
+  }
+  return { count: ready.length, skipped: items.length - ready.length, commit: () => replaceAllPhotos(ready) };
 }

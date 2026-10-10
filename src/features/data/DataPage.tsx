@@ -1,30 +1,24 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { navigate } from '../../app/router';
 import { Page } from '../../components/Page';
 import {
-  BACKUP_KEY_LABELS,
+  applyBackup,
+  appStorage,
   backupFilename,
   buildBackup,
-  KEY_VALIDATORS,
+  keyLabel,
   MAX_IMPORT_BYTES,
   parseBackup,
   type ParsedBackup,
 } from '../../lib/backup';
 import { todayLocal } from '../../lib/dates';
-import { clearPhotos, exportPhotos, putWeekPhoto } from '../../lib/photoStore';
-import { clearAllStored, exportAll, removeStored, writeStored } from '../../lib/storage';
+import { download } from '../../lib/download';
+import { clearPhotos, exportPhotos, importPhotos } from '../../lib/photoStore';
+import { clearAllStored, exportAll } from '../../lib/storage';
 
 const DELETE_WORD = 'DELETE';
+const MAX_IMPORT_MB = MAX_IMPORT_BYTES / (1024 * 1024);
 const count = (n: number, noun: string) => `${n} ${noun}${n === 1 ? '' : 's'}`;
-
-function download(filename: string, text: string): void {
-  const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
 
 function ExportSection() {
   const [withPhotos, setWithPhotos] = useState(false);
@@ -84,7 +78,7 @@ function ImportSection() {
     setMessage(null);
     if (!file) return;
     if (!file.name.toLowerCase().endsWith('.json')) return setMessage({ ok: false, text: 'Please choose a .json backup file.' });
-    if (file.size > MAX_IMPORT_BYTES) return setMessage({ ok: false, text: 'This file is larger than 50 MB.' });
+    if (file.size > MAX_IMPORT_BYTES) return setMessage({ ok: false, text: `This file is larger than ${MAX_IMPORT_MB} MB.` });
     let text: string;
     try {
       text = await file.text();
@@ -99,32 +93,24 @@ function ImportSection() {
   const apply = async () => {
     if (!pending) return;
     setBusy(true);
-    const failures: string[] = [];
-    for (const key of Object.keys(KEY_VALIDATORS)) {
-      if (key in pending.accepted) {
-        const r = writeStored(key, pending.accepted[key]);
-        if (!r.ok) failures.push(BACKUP_KEY_LABELS[key] ?? key);
-      } else removeStored(key);
-    }
+    let photoSkipped = 0;
     let photoCount = 0;
+    let commit: (() => Promise<void>) | undefined;
     if (pending.photos.length > 0) {
-      try {
-        await clearPhotos();
-        const today = todayLocal();
-        for (const p of pending.photos) {
-          await putWeekPhoto(p.blob, p.week, today);
-          photoCount++;
-        }
-      } catch {
-        failures.push('Bump photos');
-      }
+      const prepared = await importPhotos(pending.photos);
+      photoCount = prepared.count;
+      photoSkipped = prepared.skipped;
+      commit = prepared.commit;
     }
+    const result = await applyBackup(pending, appStorage, commit);
     setBusy(false);
     reset();
+    const itemCount = Object.keys(pending.accepted).length;
+    const skippedNote = photoSkipped ? ` ${count(photoSkipped, 'photo')} could not be read and were skipped.` : '';
     setMessage(
-      failures.length
-        ? { ok: false, text: `Imported, but these could not be saved: ${failures.join(', ')}.` }
-        : { ok: true, text: `Imported ${count(Object.keys(pending.accepted).length, 'item')}${photoCount ? ` and ${count(photoCount, 'photo')}` : ''}.` },
+      result.ok
+        ? { ok: true, text: `Imported ${count(itemCount, 'item')}${photoCount ? ` and ${count(photoCount, 'photo')}` : ''}.${skippedNote}` }
+        : { ok: false, text: result.error },
     );
   };
 
@@ -133,7 +119,7 @@ function ImportSection() {
       <h2 id="import-heading">Restore from a backup</h2>
       <div className="field">
         <label className="field__label" htmlFor="import-file">
-          Backup file (.json, up to 50 MB)
+          Backup file (.json, up to {MAX_IMPORT_MB} MB)
         </label>
         <input id="import-file" ref={input} type="file" accept=".json,application/json" onChange={(e) => void choose(e.target.files?.[0])} />
       </div>
@@ -148,17 +134,18 @@ function ImportSection() {
           {pending.exportedAt && <p className="muted">Backup made {new Date(pending.exportedAt).toLocaleString()}.</p>}
           <ul className="bullets">
             {Object.keys(pending.accepted).map((k) => (
-              <li key={k}>{BACKUP_KEY_LABELS[k] ?? k}</li>
+              <li key={k}>{keyLabel(k) ?? k}</li>
             ))}
             {pending.photos.length > 0 && <li>{count(pending.photos.length, 'bump photo')}</li>}
           </ul>
           {(pending.skipped.length > 0 || pending.photosSkipped > 0) && (
             <p className="muted">
-              Skipped: {[...pending.skipped.map((s) => `${BACKUP_KEY_LABELS[s.key] ?? 'unrecognised item'} (${s.reason})`), ...(pending.photosSkipped ? [`${count(pending.photosSkipped, 'invalid photo')}`] : [])].join('; ')}.
+              Skipped: {[...pending.skipped.map((s) => `${keyLabel(s.key) ?? 'unrecognised item'} (${s.reason})`), ...(pending.photosSkipped ? [`${count(pending.photosSkipped, 'invalid photo')}`] : [])].join('; ')}.
             </p>
           )}
           <p>
-            <strong>This will replace the data on this device.</strong> Anything not in the backup will be removed.
+            <strong>This will replace the data on this device.</strong> Anything not in the backup will be removed. Photos on this device are kept unless the backup includes
+            photos.
           </p>
           <div className="button-row">
             <button type="button" className="btn btn--primary" onClick={() => void apply()} disabled={busy}>
@@ -220,6 +207,10 @@ function DeleteSection() {
 }
 
 export function DataPage() {
+  const [unprotected, setUnprotected] = useState(false);
+  useEffect(() => {
+    void navigator.storage?.persisted?.().then((p) => setUnprotected(p === false));
+  }, []);
   return (
     <Page title="Your data" icon="💾" back={{ to: '/more', label: 'More' }} health={false}>
       <section className="card card--soft" aria-label="Privacy">
@@ -228,6 +219,9 @@ export function DataPage() {
           you clear your browser data, so keep a backup.
         </p>
       </section>
+      {unprotected && (
+        <p className="muted">Tip: this browser may clear your data when space runs low, so keep regular backups.</p>
+      )}
       <ExportSection />
       <ImportSection />
       <DeleteSection />

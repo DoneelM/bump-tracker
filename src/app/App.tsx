@@ -1,4 +1,5 @@
 import { BottomNav } from '../components/BottomNav';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 import { OnboardingPage } from '../features/onboarding/OnboardingPage';
 import { NotFoundPage } from '../features/notfound/NotFoundPage';
 import { PartnerViewPage } from '../features/partner/PartnerViewPage';
@@ -8,6 +9,14 @@ import { useRoutePath } from './router';
 import { resolveRoute } from './routes';
 
 export function App() {
+  return (
+    <ErrorBoundary>
+      <AppContent />
+    </ErrorBoundary>
+  );
+}
+
+function AppContent() {
   const [profile] = useProfile();
   const path = useRoutePath();
   const today = useToday();

@@ -2,7 +2,7 @@
  * The pregnancy profile set up during onboarding: how the due date was worked
  * out, the due date itself, and an optional baby nickname.
  */
-import { isLocalDate, type LocalDate } from './dates';
+import { isPlausibleDate, type LocalDate } from './dates';
 import { dueDateFromLMP, dueDateFromScan, validateLMP, validateScan, type ValidationResult } from './pregnancy';
 import { cleanString, isIntInRange, isRecord } from './validate';
 
@@ -43,10 +43,10 @@ export function createProfile(dating: DatingInput, nickname: string, now: Date =
 
 function parseDating(value: unknown): DatingInput | null {
   if (!isRecord(value)) return null;
-  if (value.method === 'lmp' && isLocalDate(value.lmp)) return { method: 'lmp', lmp: value.lmp };
+  if (value.method === 'lmp' && isPlausibleDate(value.lmp)) return { method: 'lmp', lmp: value.lmp };
   if (
     value.method === 'scan' &&
-    isLocalDate(value.scanDate) &&
+    isPlausibleDate(value.scanDate) &&
     isIntInRange(value.gaWeeks, 0, 45) &&
     isIntInRange(value.gaDays, 0, 6)
   ) {
@@ -58,7 +58,8 @@ function parseDating(value: unknown): DatingInput | null {
 /**
  * Validator for stored profiles. Structural checks only (not "is the LMP in the
  * future", which depends on today). The due date is recomputed from the dating
- * input so the two can never disagree.
+ * input so the two can never disagree. Dating dates are bounded to 2000-2099, so the derived
+ * due date (at most ~46 weeks away) is always a valid LocalDate.
  */
 export function parseProfile(value: unknown): PregnancyProfile | null {
   if (!isRecord(value)) return null;

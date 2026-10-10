@@ -6,12 +6,15 @@ import { describeEfw } from '../../lib/fetalGrowth';
 import { formatWeeksDays, gestationalAge, lmpFromDueDate } from '../../lib/pregnancy';
 import type { PregnancyProfile } from '../../lib/profile';
 import {
+  latestScanDate,
   MAX_SCAN_NOTES_LENGTH,
   MEASUREMENTS,
   parseMeasurement,
   parseScanEntries,
   SCAN_TYPES,
   scanTypeLabel,
+  validateMeasurementsDate,
+  validateScanDate,
   validateScanNotes,
   type MeasurementKey,
   type ScanEntry,
@@ -20,7 +23,6 @@ import {
 import { STORAGE_KEYS } from '../../lib/storage';
 import { useStoredState } from '../../lib/useStoredState';
 import { newId } from '../../lib/validate';
-import { validateEntryDate } from '../../lib/weightGain';
 
 // Recharts is large, so the chart loads as its own chunk.
 const ScanChart = lazy(() => import('./ScanChart').then((m) => ({ default: m.ScanChart })));
@@ -29,7 +31,6 @@ const NO_ENTRIES: ScanEntry[] = [];
 const byDate = (a: ScanEntry, b: ScanEntry) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
 
 export function ScansPage({ profile, today }: { profile: PregnancyProfile; today: LocalDate }) {
-  const lmp = lmpFromDueDate(profile.dueDate);
   const [stored, setEntries] = useStoredState<ScanEntry[]>(STORAGE_KEYS.scanEntries, NO_ENTRIES, parseScanEntries);
   const entries = [...stored].sort(byDate);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -76,7 +77,7 @@ export function ScansPage({ profile, today }: { profile: PregnancyProfile; today
 
       {adding ? (
         <ScanForm
-          lmp={lmp}
+          dueDate={profile.dueDate}
           today={today}
           onSave={(e) => report(setEntries((prev) => [...prev, e])) && setAdding(false)}
           onCancel={() => setAdding(false)}
@@ -101,7 +102,6 @@ export function ScansPage({ profile, today }: { profile: PregnancyProfile; today
                   key={e.id}
                   entry={e}
                   profile={profile}
-                  lmp={lmp}
                   today={today}
                   onSave={(next) => report(setEntries((prev) => prev.map((p) => (p.id === e.id ? next : p))))}
                   onDelete={() => report(setEntries((prev) => prev.filter((p) => p.id !== e.id)))}
@@ -121,7 +121,7 @@ function efwSummary(e: ScanEntry, profile: PregnancyProfile): string {
 
 interface ScanFormProps {
   initial?: ScanEntry;
-  lmp: LocalDate;
+  dueDate: LocalDate;
   today: LocalDate;
   onSave: (e: ScanEntry) => void;
   onCancel?: () => void;
@@ -129,7 +129,7 @@ interface ScanFormProps {
 
 type Errors = Partial<Record<'date' | 'notes' | MeasurementKey, string>>;
 
-function ScanForm({ initial, lmp, today, onSave, onCancel }: ScanFormProps) {
+function ScanForm({ initial, dueDate, today, onSave, onCancel }: ScanFormProps) {
   const [date, setDate] = useState(initial?.date ?? today);
   const [type, setType] = useState<ScanType>(initial?.type ?? 'growth');
   const [notes, setNotes] = useState(initial?.notes ?? '');
@@ -144,7 +144,8 @@ function ScanForm({ initial, lmp, today, onSave, onCancel }: ScanFormProps) {
   function submit(e: FormEvent) {
     e.preventDefault();
     const errs: Errors = {};
-    const d = validateEntryDate(date, lmp, today);
+    const lmp = lmpFromDueDate(dueDate);
+    const d = validateScanDate(date, lmp, dueDate);
     if (!d.ok) errs.date = d.error;
     const n = validateScanNotes(notes);
     if (!n.ok) errs.notes = n.error;
@@ -153,6 +154,10 @@ function ScanForm({ initial, lmp, today, onSave, onCancel }: ScanFormProps) {
       const p = parseMeasurement(meas[m.key], m);
       if (p.error) errs[m.key] = p.error;
       values[m.key] = p.value;
+    }
+    if (d.ok) {
+      const f = validateMeasurementsDate(date, today, MEASUREMENTS.some((m) => values[m.key] !== null || meas[m.key].trim() !== ''));
+      if (!f.ok) errs.date = f.error;
     }
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
@@ -167,7 +172,7 @@ function ScanForm({ initial, lmp, today, onSave, onCancel }: ScanFormProps) {
     <form className={initial ? 'form' : 'card form'} onSubmit={submit} noValidate>
       {!initial && <h2>Add a scan or appointment</h2>}
       <FormField id={`s-date-${id}`} label="Date" error={errors.date}>
-        {(aria) => <input {...aria} type="date" className="input" value={date} min={lmp} max={today} onChange={(e) => setDate(e.target.value)} />}
+        {(aria) => <input {...aria} type="date" className="input" value={date} min={lmpFromDueDate(dueDate)} max={latestScanDate(dueDate)} onChange={(e) => setDate(e.target.value)} />}
       </FormField>
       <FormField id={`s-type-${id}`} label="Type">
         {(aria) => (
@@ -211,13 +216,12 @@ function ScanForm({ initial, lmp, today, onSave, onCancel }: ScanFormProps) {
 interface ScanRowProps {
   entry: ScanEntry;
   profile: PregnancyProfile;
-  lmp: LocalDate;
   today: LocalDate;
   onSave: (e: ScanEntry) => void;
   onDelete: () => void;
 }
 
-function ScanRow({ entry, profile, lmp, today, onSave, onDelete }: ScanRowProps) {
+function ScanRow({ entry, profile, today, onSave, onDelete }: ScanRowProps) {
   const [editing, setEditing] = useState(false);
   const ga = gestationalAge(profile.dueDate, entry.date);
 
@@ -226,7 +230,7 @@ function ScanRow({ entry, profile, lmp, today, onSave, onDelete }: ScanRowProps)
       <li className="card entry">
         <ScanForm
           initial={entry}
-          lmp={lmp}
+          dueDate={profile.dueDate}
           today={today}
           onSave={(e) => {
             onSave(e);

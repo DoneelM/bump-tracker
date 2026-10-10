@@ -1,5 +1,5 @@
 /** Baby movement log: session model, formatting and storage parsing. Pure. A personal log, not a safety tool. */
-import { isFiniteNumber, isRecord } from './validate';
+import { isEpochMs, isRecord } from './validate';
 
 export interface KickSession {
   id: string;
@@ -35,12 +35,12 @@ export function formatDuration(ms: number): string {
 }
 
 function parseSession(value: unknown): KickSession | null {
-  if (!isRecord(value) || typeof value.id !== 'string' || !value.id) return null;
-  if (!isFiniteNumber(value.start) || value.start <= 0 || !Array.isArray(value.events)) return null;
-  const events = value.events.filter(isFiniteNumber).slice(0, MAX_EVENTS_PER_SESSION);
+  if (!isRecord(value) || typeof value.id !== 'string' || !value.id || value.id.length > 100) return null;
+  if (!isEpochMs(value.start) || !Array.isArray(value.events)) return null;
+  const events = value.events.filter(isEpochMs).slice(0, MAX_EVENTS_PER_SESSION);
   const s: KickSession = { id: value.id, start: value.start, count: events.length, events };
   if (value.end !== undefined) {
-    if (!isFiniteNumber(value.end) || value.end < value.start) return null;
+    if (!isEpochMs(value.end) || value.end < value.start) return null;
     s.end = value.end;
   }
   return s;

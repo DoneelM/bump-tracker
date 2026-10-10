@@ -21,6 +21,10 @@ export function isNumberInRange(value: unknown, min: number, max: number): value
   return isFiniteNumber(value) && value >= min && value <= max;
 }
 
+/** Epoch-ms bounds [2000-01-01, 2100-01-01) for stored timestamps, so Intl formatting can't throw. */
+export const isEpochMs = (value: unknown): value is number =>
+  isFiniteNumber(value) && value >= Date.UTC(2000, 0, 1) && value < Date.UTC(2100, 0, 1);
+
 /** Trimmed string of at most `maxLength` characters, or null. */
 export function cleanString(value: unknown, maxLength: number): string | null {
   if (typeof value !== 'string') return null;

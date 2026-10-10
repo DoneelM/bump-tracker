@@ -1,46 +1,16 @@
 /** JSON backup envelope: build, and strictly parse untrusted import files. Pure (photos aside, which are passed in). */
-import { BAG_SECTIONS, PLAN_SECTIONS } from '../data/checklists';
-import { parseChecklist } from './checklists';
-import { parseContractionState } from './contractions';
-import { parseJournalEntries } from './journal';
-import { parseKickSessions } from './kicks';
-import { parsePhotoExport, type PhotoExportItem } from './photoStore';
-import { parseProfile } from './profile';
-import { parseScanEntries } from './scans';
-import { STORAGE_KEYS } from './storage';
-import { isRecord, type Validator } from './validate';
-import { parsePrePregnancy, parseWeightEntries } from './weightGain';
+import { parsePhotoExport, type ImportedPhoto, type PhotoExportItem } from './photoStore';
+import { readRaw, removeStored, STORAGE_TABLE, writeRaw, type WriteResult } from './storage';
+import { isEpochMs, isRecord } from './validate';
 
 export const BACKUP_APP = 'bump-tracker';
 export const BACKUP_SCHEMA_VERSION = 1;
-export const MAX_IMPORT_BYTES = 50 * 1024 * 1024;
+export const MAX_IMPORT_BYTES = 25 * 1024 * 1024;
 
-/** Every registered storage key and the validator its data must pass. Keep in step with STORAGE_KEYS. */
-export const KEY_VALIDATORS: Record<(typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS], Validator<unknown>> = {
-  [STORAGE_KEYS.profile]: parseProfile,
-  [STORAGE_KEYS.prePregnancy]: parsePrePregnancy,
-  [STORAGE_KEYS.weightEntries]: parseWeightEntries,
-  [STORAGE_KEYS.scanEntries]: parseScanEntries,
-  [STORAGE_KEYS.contractions]: parseContractionState,
-  [STORAGE_KEYS.kickSessions]: parseKickSessions,
-  [STORAGE_KEYS.journal]: parseJournalEntries,
-  [STORAGE_KEYS.bagChecklist]: parseChecklist(BAG_SECTIONS),
-  [STORAGE_KEYS.birthPlan]: parseChecklist(PLAN_SECTIONS),
-};
+const entryFor = (key: string) => STORAGE_TABLE.find((e) => e.key === key);
 
-const isKnownKey = (k: string): k is keyof typeof KEY_VALIDATORS => Object.hasOwn(KEY_VALIDATORS, k);
-
-export const BACKUP_KEY_LABELS: Record<string, string> = {
-  [STORAGE_KEYS.profile]: 'Pregnancy details',
-  [STORAGE_KEYS.prePregnancy]: 'Pre-pregnancy height and weight',
-  [STORAGE_KEYS.weightEntries]: 'Weight entries',
-  [STORAGE_KEYS.scanEntries]: 'Scans and appointments',
-  [STORAGE_KEYS.contractions]: 'Contraction timer',
-  [STORAGE_KEYS.kickSessions]: 'Baby movement sessions',
-  [STORAGE_KEYS.journal]: 'Journal entries',
-  [STORAGE_KEYS.bagChecklist]: 'Hospital bag checklist',
-  [STORAGE_KEYS.birthPlan]: 'Birth plan',
-};
+/** Human label for a registered storage key, or undefined if unknown. */
+export const keyLabel = (key: string): string | undefined => entryFor(key)?.label;
 
 export interface BackupEnvelope {
   app: typeof BACKUP_APP;
@@ -53,7 +23,7 @@ export interface BackupEnvelope {
 /** Only registered keys are exported, even if `data` holds more. */
 export function buildBackup(data: Record<string, unknown>, exportedAt: Date, photos?: PhotoExportItem[]): BackupEnvelope {
   const known: Record<string, unknown> = {};
-  for (const k of Object.keys(data)) if (isKnownKey(k)) known[k] = data[k];
+  for (const k of Object.keys(data)) if (entryFor(k)) known[k] = data[k];
   const envelope: BackupEnvelope = {
     app: BACKUP_APP,
     schemaVersion: BACKUP_SCHEMA_VERSION,
@@ -71,7 +41,7 @@ export interface ParsedBackup {
   /** Validated (cleaned) values keyed by logical storage name. */
   accepted: Record<string, unknown>;
   skipped: { key: string; reason: string }[];
-  photos: { week: number; mime: string; blob: Blob }[];
+  photos: ImportedPhoto[];
   /** Photo entries in the file that were not valid images. */
   photosSkipped: number;
 }
@@ -92,16 +62,17 @@ export function parseBackup(text: string): ParseBackupResult {
     return fail('This backup was made by a different version of the app and can’t be imported.');
   }
   if (!isRecord(json.data)) return fail('This backup has no data in it.');
-  const exportedAt = typeof json.exportedAt === 'string' && !Number.isNaN(Date.parse(json.exportedAt)) ? json.exportedAt : '';
+  const exportedAt = typeof json.exportedAt === 'string' && isEpochMs(Date.parse(json.exportedAt)) ? json.exportedAt : '';
 
   const accepted: Record<string, unknown> = {};
   const skipped: ParsedBackup['skipped'] = [];
   for (const key of Object.keys(json.data)) {
-    if (!isKnownKey(key)) {
+    const entry = entryFor(key);
+    if (!entry) {
       skipped.push({ key, reason: 'unknown item' });
       continue;
     }
-    const value = KEY_VALIDATORS[key](json.data[key]);
+    const value = entry.validate(json.data[key]);
     if (value === null) skipped.push({ key, reason: 'invalid data' });
     else accepted[key] = value;
   }
@@ -116,4 +87,46 @@ export function parseBackup(text: string): ParseBackupResult {
   }
   if (Object.keys(accepted).length === 0 && photos.length === 0) return fail('Nothing in this file could be imported.');
   return { ok: true, backup: { exportedAt, accepted, skipped, photos, photosSkipped } };
+}
+
+/** The bits of storage applyBackup needs; `appStorage` is the real thing, tests pass a fake. */
+export interface BackupStorage {
+  read(name: string): string | null;
+  write(name: string, raw: string): WriteResult;
+  remove(name: string): void;
+}
+
+export const appStorage: BackupStorage = { read: readRaw, write: writeRaw, remove: removeStored };
+
+export type ApplyResult = { ok: true } | { ok: false; error: string };
+
+/**
+ * Replaces every registered key with the backup's value (keys not in the backup are removed), then runs
+ * `commitPhotos` if given. If any write fails, everything is rolled back to the values from before.
+ */
+export async function applyBackup(backup: ParsedBackup, storage: BackupStorage, commitPhotos?: () => Promise<void>): Promise<ApplyResult> {
+  const snapshot = STORAGE_TABLE.map((e) => [e.key, storage.read(e.key)] as const);
+  const rollback = () => {
+    for (const [key, raw] of snapshot) {
+      if (raw === null) storage.remove(key);
+      else storage.write(key, raw);
+    }
+  };
+  for (const { key, label } of STORAGE_TABLE) {
+    if (!Object.hasOwn(backup.accepted, key)) {
+      storage.remove(key);
+      continue;
+    }
+    if (!storage.write(key, JSON.stringify(backup.accepted[key])).ok) {
+      rollback();
+      return { ok: false, error: `Could not save ${label}, so nothing was changed.` };
+    }
+  }
+  try {
+    await commitPhotos?.();
+  } catch {
+    rollback();
+    return { ok: false, error: 'Could not save the bump photos, so nothing was changed.' };
+  }
+  return { ok: true };
 }

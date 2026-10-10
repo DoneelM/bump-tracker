@@ -1,5 +1,5 @@
 /** Scan & appointment log: data model, validation and storage parsing. Pure. */
-import { isLocalDate, type LocalDate } from './dates';
+import { addDays, diffDays, isLocalDate, isPlausibleDate, type LocalDate } from './dates';
 import type { ValidationResult } from './pregnancy';
 import { cleanString, isNumberInRange, isRecord, parseNumberInput } from './validate';
 
@@ -17,6 +17,9 @@ export type ScanType = (typeof SCAN_TYPES)[number]['value'];
 export const scanTypeLabel = (t: ScanType): string => SCAN_TYPES.find((s) => s.value === t)?.label ?? 'Other';
 
 export const MAX_SCAN_NOTES_LENGTH = 1000;
+export const MAX_SCAN_ENTRIES = 1000;
+/** Appointments can be booked ahead, up to this long after the due date. */
+export const MAX_DAYS_AFTER_DUE = 6 * 7;
 
 /** Optional measurements and their plausible ranges (EFW in grams, the rest in mm). */
 export const MEASUREMENTS = [
@@ -47,6 +50,25 @@ export function validateScanNotes(notes: string): ValidationResult {
     : { ok: true };
 }
 
+/** Latest date a scan or appointment can be logged (due date + 6 weeks). */
+export const latestScanDate = (dueDate: LocalDate): LocalDate => addDays(dueDate, MAX_DAYS_AFTER_DUE);
+
+/** Scans may be in the future (upcoming appointments), but not before the LMP or long after the due date. */
+export function validateScanDate(date: unknown, lmp: LocalDate, dueDate: LocalDate): ValidationResult {
+  if (date === '' || date == null) return { ok: false, error: 'Please enter a date.' };
+  if (!isLocalDate(date)) return { ok: false, error: 'Please enter a valid date.' };
+  if (diffDays(lmp, date) < 0) return { ok: false, error: 'The date can’t be before the start of your pregnancy.' };
+  if (date > latestScanDate(dueDate)) return { ok: false, error: 'The date is too far after your due date.' };
+  return { ok: true };
+}
+
+/** Measurements come from a scan that has already happened. */
+export function validateMeasurementsDate(date: LocalDate, today: LocalDate, hasMeasurements: boolean): ValidationResult {
+  return hasMeasurements && date > today
+    ? { ok: false, error: 'Measurements can only be added once the scan has happened. Clear them, or change the date.' }
+    : { ok: true };
+}
+
 /** Parses an optional measurement field: blank is fine (null); otherwise must be in range. */
 export function parseMeasurement(
   raw: string,
@@ -63,8 +85,8 @@ export function parseMeasurement(
 const isScanType = (v: unknown): v is ScanType => SCAN_TYPES.some((s) => s.value === v);
 
 function parseScanEntry(value: unknown): ScanEntry | null {
-  if (!isRecord(value) || typeof value.id !== 'string' || !value.id) return null;
-  if (!isLocalDate(value.date) || !isScanType(value.type)) return null;
+  if (!isRecord(value) || typeof value.id !== 'string' || !value.id || value.id.length > 100) return null;
+  if (!isPlausibleDate(value.date) || !isScanType(value.type)) return null;
   const notes = cleanString(value.notes ?? '', MAX_SCAN_NOTES_LENGTH);
   if (notes === null) return null;
   const entry: ScanEntry = { id: value.id, date: value.date, type: value.type, notes, efwG: null, bpdMm: null, hcMm: null, acMm: null, flMm: null };
@@ -79,7 +101,7 @@ function parseScanEntry(value: unknown): ScanEntry | null {
 
 export function parseScanEntries(value: unknown): ScanEntry[] | null {
   if (!Array.isArray(value)) return null;
-  return value.map(parseScanEntry).filter((e): e is ScanEntry => e !== null);
+  return value.map(parseScanEntry).filter((e): e is ScanEntry => e !== null).slice(-MAX_SCAN_ENTRIES);
 }
 
 /** Earliest entry dated today or later, or null. */

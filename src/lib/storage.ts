@@ -6,23 +6,43 @@
  * Every read goes through a Validator, so corrupt or tampered data falls back to
  * a default instead of crashing the UI.
  */
+import { BAG_SECTIONS, PLAN_SECTIONS } from '../data/checklists';
+import { parseChecklist } from './checklists';
+import { parseContractionState } from './contractions';
+import { parseJournalEntries } from './journal';
+import { parseKickSessions } from './kicks';
+import { parseProfile } from './profile';
+import { parseScanEntries } from './scans';
 import type { Validator } from './validate';
+import { parsePrePregnancy, parseWeightEntries } from './weightGain';
 
 export const KEY_PREFIX = 'bt:';
 export const SCHEMA_VERSION = 1;
 
-/** Logical keys used by the app. Add new ones here so backup/delete can find them. */
-export const STORAGE_KEYS = {
-  profile: 'profile',
-  prePregnancy: 'weight-pre-pregnancy',
-  weightEntries: 'weight-entries',
-  scanEntries: 'scan-entries',
-  contractions: 'contractions',
-  kickSessions: 'kick-sessions',
-  journal: 'journal-entries',
-  bagChecklist: 'checklist-bag',
-  birthPlan: 'checklist-birth-plan',
+/** The one registry of stored data: logical key, backup label and validator. Add new keys here only. */
+const REGISTRY = {
+  profile: { key: 'profile', label: 'Pregnancy details', validate: parseProfile },
+  prePregnancy: { key: 'weight-pre-pregnancy', label: 'Pre-pregnancy height and weight', validate: parsePrePregnancy },
+  weightEntries: { key: 'weight-entries', label: 'Weight entries', validate: parseWeightEntries },
+  scanEntries: { key: 'scan-entries', label: 'Scans and appointments', validate: parseScanEntries },
+  contractions: { key: 'contractions', label: 'Contraction timer', validate: parseContractionState },
+  kickSessions: { key: 'kick-sessions', label: 'Baby movement sessions', validate: parseKickSessions },
+  journal: { key: 'journal-entries', label: 'Journal entries', validate: parseJournalEntries },
+  bagChecklist: { key: 'checklist-bag', label: 'Hospital bag checklist', validate: parseChecklist(BAG_SECTIONS) },
+  birthPlan: { key: 'checklist-birth-plan', label: 'Birth plan', validate: parseChecklist(PLAN_SECTIONS) },
 } as const;
+
+export interface StorageEntry {
+  key: string;
+  label: string;
+  validate: Validator<unknown>;
+}
+
+export const STORAGE_TABLE: readonly StorageEntry[] = Object.values(REGISTRY);
+
+export const STORAGE_KEYS = Object.fromEntries(Object.entries(REGISTRY).map(([name, e]) => [name, e.key])) as {
+  [N in keyof typeof REGISTRY]: (typeof REGISTRY)[N]['key'];
+};
 
 /** Event fired on `window` when this tab writes a key, so hooks in the same tab re-read. */
 export const STORAGE_EVENT = 'bt:storage';
@@ -76,17 +96,19 @@ function notify(name: string): void {
   }
 }
 
-export function writeStored(name: string, value: unknown): WriteResult {
+export function writeRaw(name: string, raw: string): WriteResult {
   const storage = getStorage();
   if (!storage) return { ok: false, error: 'Browser storage is not available.' };
   try {
-    storage.setItem(fullKey(name), JSON.stringify(value));
+    storage.setItem(fullKey(name), raw);
   } catch {
     return { ok: false, error: 'Could not save. Your browser storage may be full.' };
   }
   notify(name);
   return { ok: true };
 }
+
+export const writeStored = (name: string, value: unknown): WriteResult => writeRaw(name, JSON.stringify(value));
 
 export function removeStored(name: string): void {
   try {

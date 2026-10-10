@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { addMovement, endSession, formatDuration, MAX_EVENTS_PER_SESSION, parseKickSessions, sessionDurationMs } from './kicks';
 
+const T0 = Date.UTC(2026, 9, 11);
 const base = { id: 'a', start: 1000, count: 0, events: [] as number[] };
 
 describe('kick sessions', () => {
@@ -24,15 +25,24 @@ describe('kick sessions', () => {
   });
   it('parses defensively and recomputes count', () => {
     expect(parseKickSessions({})).toBeNull();
+    const t = T0;
     const out = parseKickSessions([
-      { id: 'a', start: 10, end: 20, count: 99, events: [11, 'x', 12] },
-      { id: '', start: 10, events: [] },
-      { id: 'b', start: 10, end: 5, events: [] },
-      { id: 'c', start: 10, events: [] },
+      { id: 'a', start: t, end: t + 10, count: 99, events: [t + 1, 'x', t + 2] },
+      { id: '', start: t, events: [] },
+      { id: 'b', start: t, end: t - 5, events: [] },
+      { id: 'c', start: t, events: [] },
     ]);
     expect(out).toEqual([
-      { id: 'a', start: 10, end: 20, count: 2, events: [11, 12] },
-      { id: 'c', start: 10, count: 0, events: [] },
+      { id: 'a', start: t, end: t + 10, count: 2, events: [t + 1, t + 2] },
+      { id: 'c', start: t, count: 0, events: [] },
     ]);
+  });
+  it('drops out-of-range timestamps', () => {
+    const out = parseKickSessions([
+      { id: 'a', start: 1e300, events: [] },
+      { id: 'b', start: T0, end: 1e300, events: [] },
+      { id: 'c', start: T0, events: [T0 + 1, 1e300, 5] },
+    ]);
+    expect(out).toEqual([{ id: 'c', start: T0, count: 1, events: [T0 + 1] }]);
   });
 });

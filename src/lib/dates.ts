@@ -50,6 +50,13 @@ export function isLocalDate(value: unknown): value is LocalDate {
   return parseLocalDate(value) !== null;
 }
 
+/** Bounds for stored/imported dates, so derived dates and formatting can never go out of range. */
+export const MIN_PLAUSIBLE_DATE: LocalDate = '2000-01-01';
+export const MAX_PLAUSIBLE_DATE: LocalDate = '2099-12-31';
+
+export const isPlausibleDate = (value: unknown): value is LocalDate =>
+  isLocalDate(value) && value >= MIN_PLAUSIBLE_DATE && value <= MAX_PLAUSIBLE_DATE;
+
 function pad(n: number, width: number): string {
   return String(n).padStart(width, '0');
 }
