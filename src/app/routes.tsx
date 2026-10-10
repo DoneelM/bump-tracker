@@ -66,7 +66,7 @@ export const ROUTES: readonly RouteDef[] = [
   { pattern: '/tools/contractions', tab: 'tools', render: () => <ContractionsPage /> },
   { pattern: '/tools/scans', tab: 'tools', render: ({ profile, today }) => <ScansPage profile={profile} today={today} /> },
   { pattern: '/tools/kicks', tab: 'tools', render: ({ profile, today }) => <KicksPage profile={profile} today={today} /> },
-  { pattern: '/tools/photos', tab: 'tools', render: () => <PhotosPage /> },
+  { pattern: '/tools/photos', tab: 'tools', render: ({ profile, today }) => <PhotosPage profile={profile} today={today} /> },
   { pattern: '/tools/checklists', tab: 'tools', render: () => <ChecklistsPage /> },
   { pattern: '/journal', tab: 'journal', render: () => <JournalPage /> },
   { pattern: '/more', tab: 'more', render: () => <MorePage /> },

@@ -1,6 +1,7 @@
 /**
  * Bump-photo storage in IndexedDB (raw API, no wrapper library).
- * Blobs stay on this device; nothing is uploaded anywhere.
+ * One photo per gestational week (record id is derived from the week). Blobs and their small metadata
+ * (week, date added) live together so they can never get out of sync. Nothing is uploaded anywhere.
  */
 import { isLocalDate, type LocalDate } from './dates';
 import { cleanString, isIntInRange, isRecord } from './validate';
@@ -12,12 +13,16 @@ const STORE = 'photos';
 export const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
 export const MAX_PHOTO_BYTES = 15 * 1024 * 1024;
 export const MAX_CAPTION_LENGTH = 200;
+export const MIN_PHOTO_WEEK = 1;
+export const MAX_PHOTO_WEEK = 45;
+export const MAX_PHOTO_EDGE = 1280;
+export const PHOTO_QUALITY = 0.82;
 
 export interface PhotoMeta {
   id: string;
-  /** Calendar date the photo was taken (user-editable). */
+  /** Calendar date the photo was added. */
   takenOn: LocalDate;
-  /** Completed pregnancy week at `takenOn`, if known. */
+  /** Completed pregnancy week the photo belongs to. */
   week: number | null;
   caption: string;
   type: string;
@@ -33,7 +38,7 @@ export type PhotoValidation = { ok: true } | { ok: false; error: string };
 
 export function validatePhotoFile(file: { type: string; size: number }): PhotoValidation {
   if (!(ALLOWED_PHOTO_TYPES as readonly string[]).includes(file.type)) {
-    return { ok: false, error: 'Please choose a JPEG, PNG or WebP image.' };
+    return { ok: false, error: 'Please choose a JPEG, PNG or WebP image. (HEIC photos: set your camera to “Most compatible”.)' };
   }
   if (file.size <= 0) return { ok: false, error: 'This file is empty.' };
   if (file.size > MAX_PHOTO_BYTES) return { ok: false, error: 'This photo is larger than 15 MB.' };
@@ -110,60 +115,123 @@ async function withStore<T>(mode: IDBTransactionMode, fn: (store: IDBObjectStore
   return result;
 }
 
-function newId(): string {
-  return typeof crypto !== 'undefined' && 'randomUUID' in crypto
-    ? crypto.randomUUID()
-    : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+const weekId = (week: number) => `week-${week}`;
+
+/** Target size so the long edge is at most `maxEdge` (never upscales). */
+export function fitWithin(width: number, height: number, maxEdge = MAX_PHOTO_EDGE): { width: number; height: number } {
+  const scale = Math.min(1, maxEdge / Math.max(width, height));
+  return { width: Math.max(1, Math.round(width * scale)), height: Math.max(1, Math.round(height * scale)) };
 }
 
-export async function addPhoto(
-  blob: Blob,
-  meta: { takenOn: LocalDate; week: number | null; caption: string },
-): Promise<PhotoMeta> {
-  const check = validatePhotoFile(blob);
+/**
+ * Validates, downscales (max 1280 px) and re-encodes as JPEG. Re-encoding through a canvas drops all
+ * metadata, including location EXIF.
+ */
+export async function preparePhoto(file: File): Promise<Blob> {
+  const check = validatePhotoFile(file);
   if (!check.ok) throw new Error(check.error);
-  const record: PhotoRecord = {
-    id: newId(),
-    takenOn: meta.takenOn,
-    week: meta.week,
-    caption: meta.caption.trim().slice(0, MAX_CAPTION_LENGTH),
+  let bitmap: ImageBitmap;
+  try {
+    bitmap = await createImageBitmap(file);
+  } catch {
+    throw new Error('This image could not be read. Please try a JPEG, PNG or WebP photo.');
+  }
+  const { width, height } = fitWithin(bitmap.width, bitmap.height);
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Could not process this image.');
+  ctx.drawImage(bitmap, 0, 0, width, height);
+  bitmap.close();
+  const out = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', PHOTO_QUALITY));
+  if (!out) throw new Error('Could not process this image.');
+  return out;
+}
+
+/** Stores (or replaces) the single photo for a gestational week. `takenOn` is the date added. */
+export async function putWeekPhoto(blob: Blob, week: number, takenOn: LocalDate): Promise<void> {
+  const record = parsePhotoRecord({
+    id: weekId(week),
+    takenOn,
+    week,
+    caption: '',
     type: blob.type,
     size: blob.size,
     createdAt: new Date().toISOString(),
     blob,
-  };
-  if (!parsePhotoRecord(record)) throw new Error('Invalid photo details.');
+  });
+  if (!record || !isIntInRange(week, MIN_PHOTO_WEEK, MAX_PHOTO_WEEK)) throw new Error('Invalid photo details.');
   await withStore('readwrite', (s) => s.put(record));
-  const { blob: _blob, ...rest } = record;
-  return rest;
 }
 
-export async function getPhoto(id: string): Promise<PhotoRecord | null> {
-  const value = await withStore('readonly', (s) => s.get(id) as IDBRequest<unknown>);
-  return parsePhotoRecord(value);
-}
-
-/** All valid photos, oldest first. */
+/** All valid week photos, sorted by week. */
 export async function listPhotos(): Promise<PhotoRecord[]> {
-  const values = await withStore('readonly', (s) => s.index('takenOn').getAll() as IDBRequest<unknown[]>);
-  return values.map(parsePhotoRecord).filter((p): p is PhotoRecord => p !== null);
-}
-
-export async function updatePhotoMeta(
-  id: string,
-  changes: Partial<Pick<PhotoMeta, 'takenOn' | 'week' | 'caption'>>,
-): Promise<void> {
-  const existing = await getPhoto(id);
-  if (!existing) throw new Error('Photo not found.');
-  const updated = parsePhotoRecord({ ...existing, ...changes });
-  if (!updated) throw new Error('Invalid photo details.');
-  await withStore('readwrite', (s) => s.put(updated));
+  const values = await withStore('readonly', (s) => s.getAll() as IDBRequest<unknown[]>);
+  return values
+    .map(parsePhotoRecord)
+    .filter((p): p is PhotoRecord => p !== null && p.week !== null)
+    .sort((a, b) => a.week! - b.week!);
 }
 
 export async function deletePhoto(id: string): Promise<void> {
   await withStore('readwrite', (s) => s.delete(id));
 }
 
+export const deleteWeekPhoto = (week: number) => deletePhoto(weekId(week));
+
 export async function clearPhotos(): Promise<void> {
   await withStore('readwrite', (s) => s.clear());
+}
+
+export interface PhotoExportItem {
+  week: number;
+  mime: string;
+  dataUrl: string;
+}
+
+const DATA_URL_RE = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]+={0,2})$/;
+
+function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result));
+    r.onerror = () => reject(r.error ?? new Error('Could not read photo.'));
+    r.readAsDataURL(blob);
+  });
+}
+
+/** Photos as base64 data URLs. Only call this when the user ticked "include photos". */
+export async function exportPhotos(): Promise<PhotoExportItem[]> {
+  const photos = await listPhotos();
+  return Promise.all(photos.map(async (p) => ({ week: p.week!, mime: p.type, dataUrl: await blobToDataUrl(p.blob) })));
+}
+
+/** Validates an untrusted export list; invalid items are dropped, later duplicates of a week win. */
+export function parsePhotoExport(list: unknown): { week: number; mime: string; blob: Blob }[] {
+  if (!Array.isArray(list)) return [];
+  const byWeek = new Map<number, { week: number; mime: string; blob: Blob }>();
+  for (const item of list) {
+    if (!isRecord(item) || !isIntInRange(item.week, MIN_PHOTO_WEEK, MAX_PHOTO_WEEK)) continue;
+    if (typeof item.dataUrl !== 'string' || item.dataUrl.length > MAX_PHOTO_BYTES * 1.4) continue;
+    const m = DATA_URL_RE.exec(item.dataUrl);
+    if (!m || item.mime !== m[1]) continue;
+    let bin: string;
+    try {
+      bin = atob(m[2]!);
+    } catch {
+      continue;
+    }
+    if (bin.length === 0 || bin.length > MAX_PHOTO_BYTES) continue;
+    const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+    byWeek.set(item.week, { week: item.week, mime: m[1]!, blob: new Blob([bytes], { type: m[1]! }) });
+  }
+  return [...byWeek.values()];
+}
+
+/** Imports validated photos (replacing any for the same week). Returns how many were stored. */
+export async function importPhotos(list: unknown, takenOn: LocalDate): Promise<number> {
+  const items = parsePhotoExport(list);
+  for (const p of items) await putWeekPhoto(p.blob, p.week, takenOn);
+  return items.length;
 }

@@ -19,7 +19,9 @@ export const STORAGE_KEYS = {
   scanEntries: 'scan-entries',
   contractions: 'contractions',
   kickSessions: 'kick-sessions',
-  // TODO(features): journal, checklists, ...
+  journal: 'journal-entries',
+  bagChecklist: 'checklist-bag',
+  birthPlan: 'checklist-birth-plan',
 } as const;
 
 /** Event fired on `window` when this tab writes a key, so hooks in the same tab re-read. */
