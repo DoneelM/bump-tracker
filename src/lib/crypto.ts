@@ -70,16 +70,29 @@ async function gunzipCapped(gz: Bytes, max = MAX_IMPORT_BYTES): Promise<Bytes> {
   }
 }
 
-const aad = (userId: string) => enc.encode(`${userId}|vault|${VERSION}`);
-
-export async function encryptVault(dek: CryptoKey, userId: string, envelope: BackupEnvelope): Promise<Bytes> {
-  const gz = await gzip(enc.encode(JSON.stringify(envelope)));
+/** ISO/IEC 7816-4 padding (0x80, then zeros) to a power-of-two bucket, 16 KiB to 1 MiB. */
+export function pad(gz: Bytes): Bytes {
   if (gz.length + 1 > MAX_BUCKET) throw new VaultTooLargeError();
   let bucket = MIN_BUCKET;
   while (bucket < gz.length + 1) bucket *= 2;
-  const padded = new Uint8Array(bucket); // zeros after the 0x80 marker (ISO/IEC 7816-4)
+  const padded = new Uint8Array(bucket);
   padded.set(gz);
   padded[gz.length] = 0x80;
+  return padded;
+}
+
+/** The last non-zero byte must be the 0x80 marker. Data may itself end in zeros (every gzip trailer can). */
+export function unpad(padded: Bytes): Bytes {
+  let end = padded.length;
+  while (end > 0 && padded[end - 1] === 0) end--;
+  if (end === 0 || padded[end - 1] !== 0x80) throw new Error('Vault padding is invalid.');
+  return padded.subarray(0, end - 1);
+}
+
+const aad = (userId: string) => enc.encode(`${userId}|vault|${VERSION}`);
+
+export async function encryptVault(dek: CryptoKey, userId: string, envelope: BackupEnvelope): Promise<Bytes> {
+  const padded = pad(await gzip(enc.encode(JSON.stringify(envelope))));
 
   const iv = globalThis.crypto.getRandomValues(new Uint8Array(IV_BYTES));
   const ct = new Uint8Array(
@@ -105,11 +118,7 @@ export async function decryptVault(dek: CryptoKey, userId: string, wire: Bytes):
   } catch {
     throw new Error('Could not decrypt the vault (wrong key, wrong account or damaged data).');
   }
-  let end = padded.length;
-  while (end > 0 && padded[end - 1] === 0) end--;
-  if (end === 0 || padded[end - 1] !== 0x80) throw new Error('Vault padding is invalid.');
-  const gz = padded.subarray(0, end - 1);
-  return new TextDecoder('utf-8', { fatal: true }).decode(await gunzipCapped(gz));
+  return new TextDecoder('utf-8', { fatal: true }).decode(await gunzipCapped(unpad(padded)));
 }
 
 // ---------------------------------------------------------------------------

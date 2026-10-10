@@ -10,6 +10,8 @@ import {
   generateDek,
   generateRecoveryCode,
   MAX_VAULT_BYTES,
+  pad,
+  unpad,
   SYNC_PAUSED_TOO_LARGE,
   parseRecoveryCode,
   recoveryAuthHash,
@@ -53,7 +55,10 @@ describe('vault', () => {
     const dek = await generateDek();
     const wire = await encryptVault(dek, USER, smallEnvelope());
     await expect(decryptVault(dek, 'user-2', wire)).rejects.toThrow();
-    await expect(decryptVault(dek, USER, flipped(wire, 40))).rejects.toThrow();
+    await expect(decryptVault(dek, USER, flipped(wire, 40))).rejects.toThrow('decrypt');
+    await expect(decryptVault(dek, USER, flipped(wire, 5))).rejects.toThrow('decrypt'); // IV
+    await expect(decryptVault(dek, USER, flipped(wire, wire.length - 1))).rejects.toThrow('decrypt'); // tag
+    await expect(decryptVault(dek, USER, wire.subarray(0, wire.length - 1))).rejects.toThrow('decrypt'); // truncated
     await expect(decryptVault(dek, USER, Uint8Array.from(wire, (b, j) => (j === 0 ? 2 : b)))).rejects.toThrow('version');
     await expect(decryptVault(await generateDek(), USER, wire)).rejects.toThrow();
     await expect(decryptVault(dek, USER, wire.subarray(0, 20))).rejects.toThrow('short');
@@ -78,6 +83,35 @@ describe('vault', () => {
     const err = await encryptVault(await generateDek(), USER, env).catch((e: unknown) => e);
     expect(err).toBeInstanceOf(VaultTooLargeError);
     expect(err).toMatchObject({ name: 'VaultTooLargeError', message: SYNC_PAUSED_TOO_LARGE });
+  });
+});
+
+describe('padding', () => {
+  const bucketFor = (n: number) => pad(new Uint8Array(n).fill(7)).length;
+  it('fills buckets exactly at the edges', () => {
+    expect(bucketFor(0)).toBe(16384);
+    expect(bucketFor(16383)).toBe(16384); // marker is the last byte, no zeros left
+    expect(bucketFor(16384)).toBe(32768);
+    expect(bucketFor(1_048_575)).toBe(1_048_576);
+    expect(() => pad(new Uint8Array(1_048_576))).toThrow(VaultTooLargeError);
+  });
+  it('round-trips data that ends in zero bytes, and at the full-bucket edge', () => {
+    const tail = Uint8Array.from([1, 2, 0x80, 0, 0]);
+    expect(unpad(pad(tail))).toEqual(tail);
+    const full = new Uint8Array(16383).fill(9);
+    expect(unpad(pad(full))).toEqual(full);
+  });
+  it('rejects all-zero and marker-less padding', () => {
+    expect(() => unpad(new Uint8Array(16384))).toThrow('padding');
+    expect(() => unpad(Uint8Array.from([1, 2, 3, 0, 0]))).toThrow('padding');
+  });
+  it('rejects a validly encrypted blob with bad padding', async () => {
+    const dek = await generateDek();
+    const iv = new Uint8Array(12);
+    const ct = new Uint8Array(
+      await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: new TextEncoder().encode(`${USER}|vault|1`) }, dek, new Uint8Array(16384)),
+    );
+    await expect(decryptVault(dek, USER, new Uint8Array([1, ...iv, ...ct]))).rejects.toThrow('padding');
   });
 });
 
