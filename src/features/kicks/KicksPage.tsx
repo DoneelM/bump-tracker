@@ -69,8 +69,9 @@ export function KicksPage({ profile, today }: { profile: PregnancyProfile; today
         <p>
           <strong>
             Get to know your baby’s usual pattern of movements. If you think your baby’s movements have slowed down,
-            stopped or changed, contact your midwife/LMC or maternity unit straight away - day or night. Do not wait until
-            the next day, and do not rely on counting to 10 or using a home heartbeat monitor.
+            stopped or changed, contact your midwife/LMC or birthing centre or hospital straight away - day or night. Do not
+            wait until the next day. The NHS says there’s no set number of movements to count, and not to use a home
+            heartbeat monitor to check on your baby.
           </strong>
         </p>
         <p>

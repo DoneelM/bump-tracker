@@ -28,6 +28,9 @@ export const SYMPTOMS = [
   'breathlessness',
   'itching',
   'vision changes',
+  'pain below ribs',
+  'vomiting',
+  'difficulty breathing',
   'other',
 ] as const;
 
@@ -42,8 +45,9 @@ export interface JournalEntry {
 }
 
 /** Symptoms that can be pre-eclampsia warning signs, so the entry shows guidance. */
+const PRE_ECLAMPSIA_SIGNS: readonly string[] = ['headache', 'swelling', 'vision changes', 'pain below ribs', 'vomiting', 'difficulty breathing'];
 export const hasPreEclampsiaSigns = (symptoms: readonly string[]): boolean =>
-  symptoms.some((s) => s === 'headache' || s === 'swelling' || s === 'vision changes');
+  symptoms.some((s) => PRE_ECLAMPSIA_SIGNS.includes(s));
 
 export function validateJournalDate(date: string, today: LocalDate): ValidationResult {
   if (!isLocalDate(date)) return { ok: false, error: 'Please enter a valid date.' };

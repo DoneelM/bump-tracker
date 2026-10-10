@@ -102,7 +102,7 @@ export const SOURCES: readonly Source[] = [
     title: 'Common issues in pregnancy',
     publisher: 'Health NZ',
     url: 'https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/health-problems-in-pregnancy/common-issues',
-    usedFor: 'Danger signs that need prompt advice (journal).',
+    usedFor: 'Danger signs that need prompt advice (journal; waters breaking in the contraction timer panel).',
   },
   {
     id: 'nhs-pre-eclampsia',
@@ -117,6 +117,20 @@ export const SOURCES: readonly Source[] = [
     publisher: 'NHS',
     url: 'https://www.nhs.uk/pregnancy/keeping-well/your-babys-movements/',
     usedFor: 'Baby movement guidance (kick counter and kick-session guidance).',
+  },
+  {
+    id: 'nhs-labour-signs',
+    title: 'Signs that labour has begun',
+    publisher: 'NHS',
+    url: 'https://www.nhs.uk/pregnancy/labour-and-birth/signs-of-labour/signs-that-labour-has-begun/',
+    usedFor: 'Background for the 5-1-1 prompt on the contraction timer (when to call for advice).',
+  },
+  {
+    id: 'nz-iol-guideline',
+    title: 'Induction of Labour in Aotearoa New Zealand (2019, final 2021)',
+    publisher: 'Ministry of Health',
+    url: 'https://www.midwife.org.nz/wp-content/uploads/2020/02/induction-of-labour-in-Aotearoa-New-Zealand-guideline-2019.pdf',
+    usedFor: 'Induction usually offered between 41 and 42 weeks for a straightforward pregnancy (past-due prompt).',
   },
   {
     id: 'iom-weight-gain',

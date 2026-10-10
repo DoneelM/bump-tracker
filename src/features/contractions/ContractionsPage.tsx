@@ -128,7 +128,7 @@ export function ContractionsPage({ profile, today }: { profile: PregnancyProfile
         {(pattern || preterm) && (
           // Short line right under Start/Stop so it's seen without scrolling; the full guidance is below.
           <p className="alert-banner" style={{ padding: 'var(--space-2) var(--space-3)', fontWeight: 800 }}>
-            Contact your midwife/LMC now. Details below.
+            {preterm ? 'Contact your midwife/LMC now.' : 'Time to call your midwife/LMC.'} Details below.
           </p>
         )}
         <p className="timer-readout">

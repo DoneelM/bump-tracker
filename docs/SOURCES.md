@@ -16,9 +16,11 @@ Keep in sync with `src/data/sources.ts`.
 | [Going into labour](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/labour-and-birth/going-into-labour) | Health NZ | Labour signs and when to call (contraction timer), the "when to contact your midwife/LMC" panel and the past-due-date prompt. Note: Health NZ's threshold (contractions every 5 min, lasting >50 s, getting stronger for 2-3 hours) differs from the generic 5-1-1 rule; the app shows both. |
 | [Premature birth and care of your pēpi](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/labour-and-birth/premature-birth) | Health NZ | Signs of labour before 37 weeks: contact your midwife/LMC as soon as possible (contraction timer). |
 | [Preeclampsia](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/having-a-healthy-pregnancy/pre-eclampsia) | Health NZ | Pre-eclampsia warning signs (journal). |
-| [Common issues in pregnancy](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/health-problems-in-pregnancy/common-issues) | Health NZ | Danger signs that need prompt advice (journal). |
+| [Common issues in pregnancy](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/health-problems-in-pregnancy/common-issues) | Health NZ | Danger signs that need prompt advice (journal; waters breaking in the contraction timer panel). |
 | [Pre-eclampsia](https://www.nhs.uk/conditions/pre-eclampsia/) | NHS | Pre-eclampsia warning signs (journal). |
 | [Your baby's movements](https://www.nhs.uk/pregnancy/keeping-well/your-babys-movements/) | NHS | Baby movement guidance (kick counter and kick-session guidance). |
+| [Signs that labour has begun](https://www.nhs.uk/pregnancy/labour-and-birth/signs-of-labour/signs-that-labour-has-begun/) | NHS | Background for the 5-1-1 prompt on the contraction timer (when to call for advice). |
+| [Induction of Labour in Aotearoa New Zealand (2019, final 2021)](https://www.midwife.org.nz/wp-content/uploads/2020/02/induction-of-labour-in-Aotearoa-New-Zealand-guideline-2019.pdf) | Ministry of Health | Induction usually offered between 41 and 42 weeks for a straightforward pregnancy (past-due prompt). |
 | [Weight Gain During Pregnancy: Reexamining the Guidelines](https://www.nationalacademies.org/read/12584/chapter/2) | Institute of Medicine (2009) | Total gain ranges by pre-pregnancy BMI (Table S-1, singleton pregnancy). The weekly band in the chart is an approximation (0.5-2 kg by week 13, then linear to the total range at week 40). |
 
 ## Notes

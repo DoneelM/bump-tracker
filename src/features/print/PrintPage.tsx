@@ -158,7 +158,7 @@ export function PrintPage({ profile, today }: { profile: PregnancyProfile; today
                 <p>
                   {avgs.count} {avgs.count === 1 ? 'contraction' : 'contractions'} in the hour to {dateTimeFmt.format(lastStart)}; average length{' '}
                   {formatMmSs(avgs.avgDurationMs)}, average gap {avgs.avgIntervalMs === null ? '-' : formatMmSs(avgs.avgIntervalMs)} (mm:ss).
-                  {detect511(timed) && ' The 5-1-1 pattern was met: call your midwife/LMC or maternity unit.'}
+                  {detect511(timed) && ' The 5-1-1 pattern was met: call your midwife/LMC or birthing centre or hospital.'}
                 </p>
               </>
             )}
