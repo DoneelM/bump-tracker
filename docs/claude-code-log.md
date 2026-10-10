@@ -79,3 +79,23 @@ Checked in review:
   - The pre-pregnancy form comes back after Remove.
   - A crafted backup is handled: the 2200 LMP profile, 1e300 timestamps and an SVG posing as a PNG are all skipped, and the app still renders.
   - An aborted chart chunk shows the error boundary with Download a backup and Delete all my data.
+
+## Review round 2 (Wolverine recheck of 889613a + Iron Man re-review)
+
+| # | Model (alias → resolved) | Scope | Turns | Duration | Est. cost (USD) | Outcome |
+| --- | --- | --- | --- | --- | --- | --- |
+| 10 | `sonnet` (claude-sonnet-5-5) | N1 honest rollback + safety backup, N2 `planPhotoRestore` (all-fail keeps device photos, confirm on partial), all-invalid key keeps existing data, `apply()` try/finally, recovery backup says "no photos", live contraction clock/wake lock (`isSessionLive`), L2 whole-file fail-closed size check (post-decode check removed) | 46 | 2.6 min | $0.64 | success; typecheck, tests (273) and build passed |
+
+**Running total: 10 runs, 578 turns, ≈ 42.1 min, ≈ $11.08.** No usage or rate limit messages were seen.
+
+The reviewer made these changes by hand, in a separate worktree, cherry-picked as `e86271c`:
+
+- N3: the `check:offline` server now binds to 127.0.0.1, and every path is resolved and must stay inside the served root. `%2e%2e%2f` and `..%2f` are blocked.
+- The `public/sw.js` header comment now points to `scripts/sw-precache.mjs`.
+- DEPLOY-NOTES now say that Playwright is installed ad hoc rather than as a devDependency. They also note that a tab left open across a deploy can lose its old lazy chunks.
+
+Checked in review:
+
+- The diff was read through.
+- In a headless browser, the contraction clock ticks between contractions (01:00 → 01:03 after 3 s), and it stays still when the last contraction ended 14 minutes ago.
+- `npm run check:offline` passed.
