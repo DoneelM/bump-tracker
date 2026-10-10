@@ -1,7 +1,7 @@
 /*
  * Bump Tracker service worker: offline app shell.
  *
- * At build time (see swPlugin in vite.config.ts) PRECACHE is filled with every file in dist/
+ * After `vite build`, scripts/sw-precache.mjs (part of `npm run build`) fills PRECACHE with every file in dist/
  * and VERSION with a content hash, so each deploy is a new worker with its own cache.
  * The new worker caches ALL of its files before it activates, so it never serves an
  * index.html whose bundles are missing. Old caches are deleted on activate.

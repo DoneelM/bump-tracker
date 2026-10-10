@@ -3,7 +3,7 @@
 import { cpSync, mkdtempSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
-import { extname, join } from 'node:path';
+import { extname, join, resolve, sep } from 'node:path';
 import { injectPrecache } from './sw-precache.mjs';
 
 const { chromium } = await import('playwright').catch(() => {
@@ -27,17 +27,26 @@ let root = v1;
 let up = true;
 const server = createServer((req, res) => {
   if (!up) return req.socket.destroy();
-  const pathname = decodeURIComponent(new URL(req.url, 'http://x').pathname);
-  const path = pathname.endsWith('/') ? pathname + 'index.html' : pathname;
+  let pathname;
   try {
-    const body = readFileSync(join(root, path));
+    pathname = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+  } catch {
+    return res.writeHead(400).end();
+  }
+  // Contain every path inside the served root (no ../ traversal, including %2e%2e%2f).
+  const base = resolve(root);
+  const path = resolve(base, '.' + (pathname.endsWith('/') ? pathname + 'index.html' : pathname));
+  if (!path.startsWith(base + sep)) return res.writeHead(404).end();
+  try {
+    const body = readFileSync(path);
     res.writeHead(200, { 'Content-Type': TYPES[extname(path)] ?? 'application/octet-stream', 'Cache-Control': 'no-store' });
     res.end(body);
   } catch {
     res.writeHead(404).end();
   }
-}).listen(0);
-const url = `http://localhost:${server.address().port}/`;
+}).listen(0, '127.0.0.1');
+await new Promise((ok) => server.once('listening', ok));
+const url = `http://127.0.0.1:${server.address().port}/`;
 
 const browser = await chromium.launch();
 const ctx = await browser.newContext();
