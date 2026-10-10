@@ -38,7 +38,7 @@ export default defineConfig({
     sourcemap: false,
   },
   test: {
-    include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'scripts/**/*.test.mjs'],
     environment: 'node',
     // Run tests in Auckland time so DST-related tests are meaningful.
     env: { TZ: 'Pacific/Auckland' },
