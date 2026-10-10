@@ -49,3 +49,33 @@ The cost is the CLI's `total_cost_usd` estimate. The runs used a Claude Team sea
 - **Run 7 icon path.** It used an absolute `/icons/apple-touch-icon.png` path. The reviewer made it relative to match the manifest.
 - **Icons.** The reviewer rendered PNG icons (192/512/maskable/apple-touch) from the SVG with headless Chromium, so no new dependency was needed.
 - **Illustrations.** The reviewer generated them, not Claude Code. The free image-generation quota ran out after 7 usable images.
+
+## Review round 1 (code review, security review)
+
+Same flags as above. The Ponytail (minimal-code) plugin now loads automatically. The review files were passed read-only with `--add-dir`. No run reported a usage, session or weekly limit, and none mentioned extra usage or credits.
+
+| # | Model (alias → resolved) | Scope | Turns | Duration | Est. cost (USD) | Outcome |
+| --- | --- | --- | --- | --- | --- | --- |
+| 8 | `sonnet` (claude-sonnet-5-5) | Future scan dates, M1 date/timestamp bounds + error boundary, M2 imported photos via preparePhoto + magic bytes, L2 pixel cap, L3 caps, atomic `applyBackup` + single-transaction photo replace, one storage registry, `storage.persist()` | 92 | 5.3 min | $1.47 | success; typecheck, tests (256) and build passed |
+| 9 | `sonnet` (claude-sonnet-5-5) | Pre-pregnancy re-entry, wake lock/timer only while timing, same-day chart points, "before pregnancy" age, 5-1-1 wording, schema comment, Ponytail cuts #15/#17/#18/#20, header-based pixel check before decode | 71 | 2.2 min | $0.61 | success; typecheck, tests (262) and build passed |
+| **Round total** | | | **163** | **7.5 min** | **≈ $2.08** | |
+
+**Running total: 9 runs, 532 turns, ≈ 39.5 min, ≈ $10.44.**
+
+The reviewer did the service worker fix by hand, in a separate worktree, cherry-picked as `df703fd`:
+
+- `scripts/sw-precache.mjs` runs as part of `npm run build`. It writes every built file and a content hash into `dist/sw.js`.
+- The worker installs all of its files before it activates, and serves navigations from its own versioned cache.
+- Tests:
+  - `scripts/sw.test.mjs` runs `sw.js` against in-memory Cache Storage and covers offline after one visit, offline after a redeploy, and a failed install.
+  - `npm run check:offline` is a headless Chromium end-to-end check of scenarios A and B. Against the old `sw.js` it fails with "blank screen offline after first visit"; against the new one it passes.
+
+Checked in review:
+
+- Run 8's `applyBackup` rollback and error boundary were read through.
+- In a headless browser:
+  - A future appointment saves and shows on Home.
+  - Measurements on a future date are rejected.
+  - The pre-pregnancy form comes back after Remove.
+  - A crafted backup is handled: the 2200 LMP profile, 1e300 timestamps and an SVG posing as a PNG are all skipped, and the app still renders.
+  - An aborted chart chunk shows the error boundary with Download a backup and Delete all my data.
