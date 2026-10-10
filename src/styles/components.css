@@ -503,3 +503,41 @@
 .confirm__facts {
   padding-left: var(--space-5);
 }
+
+.chart {
+  width: 100%;
+  min-width: 0;
+}
+
+.chart-figure {
+  margin: 0;
+}
+
+.chart-figure figcaption {
+  margin-top: var(--space-2);
+  font-size: var(--font-size-sm);
+}
+
+.entry-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entry__title {
+  margin: 0;
+  font-weight: 700;
+}
+
+.entry__note {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.entry__measures {
+  margin: 0;
+  padding-left: var(--space-5);
+}

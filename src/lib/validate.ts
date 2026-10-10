@@ -41,6 +41,11 @@ export function arrayOf<T>(item: Validator<T>): Validator<T[]> {
   };
 }
 
+/** Short unique id for list entries. */
+export function newId(): string {
+  return globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 /**
  * Parses a number typed into a form field. Empty input gives null with no error;
  * the caller decides whether the field is required.

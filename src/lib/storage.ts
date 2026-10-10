@@ -14,7 +14,10 @@ export const SCHEMA_VERSION = 1;
 /** Logical keys used by the app. Add new ones here so backup/delete can find them. */
 export const STORAGE_KEYS = {
   profile: 'profile',
-  // TODO(features): weight, contractions, scans, kicks, journal, checklists, ...
+  prePregnancy: 'weight-pre-pregnancy',
+  weightEntries: 'weight-entries',
+  scanEntries: 'scan-entries',
+  // TODO(features): contractions, kicks, journal, checklists, ...
 } as const;
 
 /** Event fired on `window` when this tab writes a key, so hooks in the same tab re-read. */
