@@ -20,6 +20,12 @@ const TRIMESTER_3_START = 28 * 7;
 
 export type Trimester = 1 | 2 | 3;
 
+export const TRIMESTER_LABEL: Record<Trimester, string> = {
+  1: 'First trimester',
+  2: 'Second trimester',
+  3: 'Third trimester',
+};
+
 export interface GestationalAge {
   /** Completed weeks. Negative if `today` is before the LMP. */
   weeks: number;

@@ -169,6 +169,41 @@
   font-size: 2.25rem;
 }
 
+.size-comparison {
+  margin: 0;
+  text-align: center;
+}
+
+.size-comparison__visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.baby-illustration {
+  max-width: 45%;
+  height: auto;
+}
+
+.size-comparison__emoji {
+  font-size: 4rem;
+  line-height: 1;
+}
+
+.size-comparison__caption {
+  margin-top: var(--space-2);
+  font-weight: 700;
+}
+
+.week-card .size-comparison__emoji {
+  font-size: 2.25rem;
+}
+
+.week-card .size-comparison__caption {
+  font-size: var(--font-size-sm);
+}
+
 .week-card__title {
   display: block;
   font-weight: 700;

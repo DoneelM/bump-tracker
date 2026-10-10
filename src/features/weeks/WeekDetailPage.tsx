@@ -1,6 +1,18 @@
 import { Link } from '../../app/router';
 import { Page } from '../../components/Page';
+import { SizeComparison } from '../../components/SizeComparison';
 import { FIRST_GUIDE_WEEK, getWeekInfo, LAST_GUIDE_WEEK } from '../../data/weeks';
+import { TRIMESTER_LABEL, trimester } from '../../lib/pregnancy';
+
+const MEASURE_NOTE = {
+  'crown-rump': 'Crown–rump: measured from the top of the head to the bottom, as the legs are curled up.',
+  'crown-heel': 'Head to heel: measured from the top of the head to the heel, with legs straightened.',
+} as const;
+
+function formatWeight(g: number | null): string {
+  if (g === null) return 'Too small to weigh meaningfully - length is the usual measure';
+  return g >= 1000 ? `about ${(g / 1000).toFixed(1)} kg` : `about ${g} g`;
+}
 
 export function WeekDetailPage({ week }: { week: number }) {
   const info = getWeekInfo(week);
@@ -10,18 +22,21 @@ export function WeekDetailPage({ week }: { week: number }) {
     <Page title={`Week ${week}`} icon={info?.sizeEmoji ?? '📖'} back={back}>
       {info ? (
         <>
-          <section className="card">
-            <h2>Size</h2>
-            <p>About the size of {info.sizeObject}.</p>
+          <p className="lead">{TRIMESTER_LABEL[trimester(week * 7)]}</p>
+          <section className="card" aria-labelledby="size-heading">
+            <h2 id="size-heading">Size comparison</h2>
+            <SizeComparison info={info} size={200} />
             <dl className="details">
-              <dt>Length ({info.lengthNote})</dt>
-              <dd>{info.lengthCm !== null ? `${info.lengthCm} cm` : 'Not available yet'}</dd>
-              <dt>Weight</dt>
-              <dd>{info.weightG !== null ? `${info.weightG} g` : 'Not available yet'}</dd>
+              <dt>Typical length</dt>
+              <dd>{info.lengthCm} cm</dd>
+              <dt>Typical weight</dt>
+              <dd>{formatWeight(info.weightG)}</dd>
             </dl>
+            <p className="muted">{MEASURE_NOTE[info.lengthNote]}</p>
+            <p className="muted">Every baby grows at their own pace - these are typical averages, not targets.</p>
           </section>
           <section className="card">
-            <h2>Baby’s development</h2>
+            <h2>What’s developing</h2>
             <ul className="bullets">
               {info.developing.map((item) => (
                 <li key={item}>{item}</li>
@@ -29,13 +44,20 @@ export function WeekDetailPage({ week }: { week: number }) {
             </ul>
           </section>
           <section className="card">
-            <h2>For you</h2>
+            <h2>What you might notice</h2>
             <ul className="bullets">
               {info.mother.map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>
           </section>
+          <p className="muted">
+            Source:{' '}
+            <a href={info.sourceUrl} target="_blank" rel="noopener noreferrer">
+              NHS week-by-week guide, week {week}
+            </a>{' '}
+            (paraphrased). Size data: WHO fetal growth charts. See <Link to="/more/sources">Sources</Link>.
+          </p>
         </>
       ) : (
         <section className="card card--soft">
