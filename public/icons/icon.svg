@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Bump Tracker">
+  <rect width="512" height="512" rx="112" fill="#ffeee4"/>
+  <circle cx="256" cy="256" r="176" fill="#f9b99b"/>
+  <!-- Heart -->
+  <path d="M256 360c-8 0-14-4-20-9-46-40-92-77-92-128 0-34 26-61 58-61 22 0 42 12 54 30 12-18 32-30 54-30 32 0 58 27 58 61 0 51-46 88-92 128-6 5-12 9-20 9z" fill="#b04a32"/>
+  <!-- Sage leaf -->
+  <path d="M352 134c-36 2-62 26-64 60 36-2 62-26 64-60z" fill="#7fa275"/>
+</svg>

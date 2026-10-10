@@ -1,0 +1,56 @@
+/*
+ * Design tokens. Contrast notes (WCAG AA, 4.5:1 for body text):
+ *   --color-text on bg / peach-100 / sage-100: 12.9 / 12.0 / 11.5
+ *   --color-text-muted on bg / peach-100 / sage-100: 6.6 / 6.1 / 5.8
+ *   white on --color-primary: 5.4;  --color-primary on bg / peach-100: 5.2 / 4.8
+ *   --color-sage-700 on --color-sage-100: 6.5;  --color-error on --color-error-bg: 6.4
+ */
+:root {
+  /* Palette */
+  --color-bg: #fff8f0; /* cream */
+  --color-surface: #ffffff;
+  --color-peach-100: #ffeee4;
+  --color-peach-200: #ffd9c4;
+  --color-peach-300: #f9b99b;
+  --color-coral-500: #e8785a; /* decorative only (not for text) */
+  --color-primary: #b04a32; /* coral, darkened for AA text/buttons */
+  --color-primary-hover: #943b27;
+  --color-sage-100: #e5efe0;
+  --color-sage-300: #b7cfae;
+  --color-sage-700: #3d5a40;
+  --color-text: #3b2a26;
+  --color-text-muted: #6b5550;
+  --color-border: #f0dccf;
+  --color-error: #a12a2a;
+  --color-error-bg: #fdecea;
+  --color-success-bg: #e5efe0;
+  --color-warning-bg: #fff3d6;
+  --color-focus: #2f5ea8;
+
+  /* Type */
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2rem;
+  --line-height: 1.5;
+
+  /* Space & shape */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.5rem;
+  --radius-pill: 999px;
+  --shadow-card: 0 2px 10px rgb(176 74 50 / 0.08);
+  --tap-target: 48px;
+
+  /* Layout */
+  --content-max: 40rem;
+  --tabbar-height: 64px;
+}

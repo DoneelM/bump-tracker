@@ -1,0 +1,27 @@
+{
+  "name": "Bump Tracker",
+  "short_name": "Bump",
+  "description": "A private, on-device pregnancy tracker. No accounts, no tracking.",
+  "lang": "en-NZ",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff8f0",
+  "theme_color": "#fff8f0",
+  "categories": ["health", "lifestyle"],
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
