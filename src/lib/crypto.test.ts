@@ -7,7 +7,7 @@ import {
   derivePrfKek,
   encryptVault,
   formatRecoveryCode,
-  generateDek,
+  createDek,
   generateRecoveryCode,
   MAX_VAULT_BYTES,
   pad,
@@ -17,7 +17,6 @@ import {
   recoveryAuthHash,
   unwrapDek,
   VaultTooLargeError,
-  wrapDek,
 } from './crypto';
 import { MAX_ITEM_ANSWER, MAX_ITEM_TEXT, MAX_ITEMS } from './checklists';
 import { MAX_EVENTS_PER_SESSION, MAX_STORED_SESSIONS } from './kicks';
@@ -32,11 +31,12 @@ const USER = 'user-1';
 const NOW = new Date(Date.UTC(2026, 9, 11));
 const smallEnvelope = () =>
   buildBackup({ 'weight-pre-pregnancy': { heightCm: 165, weightKg: 60 } }, NOW);
+const newDek = async () => (await createDek([await deriveRecoveryKek(generateRecoveryCode().bytes)])).dek;
 const flipped = (wire: Uint8Array, i: number) => Uint8Array.from(wire, (b, j) => (j === i ? b ^ 1 : b));
 
 describe('vault', () => {
   it('round-trips the JSON text and parseBackup accepts it', async () => {
-    const dek = await generateDek();
+    const dek = await newDek();
     const env = smallEnvelope();
     const text = await decryptVault(dek, USER, await encryptVault(dek, USER, env));
     expect(text).toBe(JSON.stringify(env));
@@ -44,7 +44,7 @@ describe('vault', () => {
   });
 
   it('uses a fresh IV each time', async () => {
-    const dek = await generateDek();
+    const dek = await newDek();
     const a = await encryptVault(dek, USER, smallEnvelope());
     const b = await encryptVault(dek, USER, smallEnvelope());
     expect(a.subarray(1, 13)).not.toEqual(b.subarray(1, 13));
@@ -52,7 +52,7 @@ describe('vault', () => {
   });
 
   it('rejects wrong user, tampering, wrong version, wrong key and short input', async () => {
-    const dek = await generateDek();
+    const dek = await newDek();
     const wire = await encryptVault(dek, USER, smallEnvelope());
     await expect(decryptVault(dek, 'user-2', wire)).rejects.toThrow();
     await expect(decryptVault(dek, USER, flipped(wire, 40))).rejects.toThrow('decrypt');
@@ -60,18 +60,18 @@ describe('vault', () => {
     await expect(decryptVault(dek, USER, flipped(wire, wire.length - 1))).rejects.toThrow('decrypt'); // tag
     await expect(decryptVault(dek, USER, wire.subarray(0, wire.length - 1))).rejects.toThrow('decrypt'); // truncated
     await expect(decryptVault(dek, USER, Uint8Array.from(wire, (b, j) => (j === 0 ? 2 : b)))).rejects.toThrow('version');
-    await expect(decryptVault(await generateDek(), USER, wire)).rejects.toThrow();
+    await expect(decryptVault(await newDek(), USER, wire)).rejects.toThrow();
     await expect(decryptVault(dek, USER, wire.subarray(0, 20))).rejects.toThrow('short');
   });
 
   it('pads small vaults to the 16 KiB bucket', async () => {
-    const wire = await encryptVault(await generateDek(), USER, smallEnvelope());
+    const wire = await encryptVault(await newDek(), USER, smallEnvelope());
     expect(wire.length).toBe(1 + 12 + 16384 + 16);
     expect(MAX_VAULT_BYTES).toBe(1_048_605);
   });
 
   it('pads to power-of-two buckets', async () => {
-    const dek = await generateDek();
+    const dek = await newDek();
     const wire = await encryptVault(dek, USER, { ...smallEnvelope(), data: { x: randomText(60_000, B32) } });
     const bucket = wire.length - 1 - 12 - 16;
     expect(bucket & (bucket - 1)).toBe(0);
@@ -80,7 +80,7 @@ describe('vault', () => {
 
   it('throws VaultTooLargeError over 1 MiB', async () => {
     const env = { ...smallEnvelope(), data: { x: randomText(2_000_000, B32) } };
-    const err = await encryptVault(await generateDek(), USER, env).catch((e: unknown) => e);
+    const err = await encryptVault(await newDek(), USER, env).catch((e: unknown) => e);
     expect(err).toBeInstanceOf(VaultTooLargeError);
     expect(err).toMatchObject({ name: 'VaultTooLargeError', message: SYNC_PAUSED_TOO_LARGE });
   });
@@ -106,7 +106,7 @@ describe('padding', () => {
     expect(() => unpad(Uint8Array.from([1, 2, 3, 0, 0]))).toThrow('padding');
   });
   it('rejects a validly encrypted blob with bad padding', async () => {
-    const dek = await generateDek();
+    const dek = await newDek();
     const iv = new Uint8Array(12);
     const ct = new Uint8Array(
       await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: new TextEncoder().encode(`${USER}|vault|1`) }, dek, new Uint8Array(16384)),
@@ -142,21 +142,26 @@ describe('recovery code', () => {
 });
 
 describe('key derivation and wrapping', () => {
-  it('unwraps the DEK with the re-parsed code and decrypts the vault', async () => {
+  it('createDek wraps under every KEK and returns only a non-extractable key', async () => {
     const { bytes, code } = generateRecoveryCode();
-    const dek = await generateDek();
+    const prf = globalThis.crypto.getRandomValues(new Uint8Array(32));
+    const { dek, wraps } = await createDek([await deriveRecoveryKek(bytes), await derivePrfKek(prf)]);
+    expect(dek.extractable).toBe(false);
+    expect(wraps.map((w) => w.length)).toEqual([40, 40]);
     const wire = await encryptVault(dek, USER, smallEnvelope());
-    const wrapped = await wrapDek(dek, await deriveRecoveryKek(bytes));
-    expect(wrapped.length).toBe(40);
-    const back = await unwrapDek(wrapped, await deriveRecoveryKek(parseRecoveryCode(formatRecoveryCode(code))!));
-    expect(back.extractable).toBe(false);
-    expect(parseBackup(await decryptVault(back, USER, wire)).ok).toBe(true);
+    const viaCode = await unwrapDek(wraps[0]!, await deriveRecoveryKek(parseRecoveryCode(formatRecoveryCode(code))!));
+    const viaPrf = await unwrapDek(wraps[1]!, await derivePrfKek(prf));
+    for (const k of [viaCode, viaPrf]) {
+      expect(k.extractable).toBe(false);
+      expect(parseBackup(await decryptVault(k, USER, wire)).ok).toBe(true);
+    }
   });
 
-  it('fails to unwrap with a different code', async () => {
-    const dek = await generateDek();
-    const wrapped = await wrapDek(dek, await deriveRecoveryKek(generateRecoveryCode().bytes));
-    await expect(unwrapDek(wrapped, await deriveRecoveryKek(generateRecoveryCode().bytes))).rejects.toThrow();
+  it('fails to unwrap with a different code or PRF output, and refuses a DEK with no wrap', async () => {
+    const { wraps } = await createDek([await deriveRecoveryKek(generateRecoveryCode().bytes)]);
+    await expect(unwrapDek(wraps[0]!, await deriveRecoveryKek(generateRecoveryCode().bytes))).rejects.toThrow();
+    await expect(unwrapDek(wraps[0]!, await derivePrfKek(globalThis.crypto.getRandomValues(new Uint8Array(32))))).rejects.toThrow();
+    await expect(createDek([])).rejects.toThrow('at least one');
   });
 
   it('hashes auth_rc deterministically', async () => {
@@ -165,17 +170,6 @@ describe('key derivation and wrapping', () => {
     expect(h.length).toBe(32);
     expect(await recoveryAuthHash(a)).toEqual(h);
     expect(await recoveryAuthHash(generateRecoveryCode().bytes)).not.toEqual(h);
-  });
-
-  it('wraps with a PRF-derived KEK', async () => {
-    const prf = globalThis.crypto.getRandomValues(new Uint8Array(32));
-    const dek = await generateDek();
-    const wrapped = await wrapDek(dek, await derivePrfKek(prf));
-    const back = await unwrapDek(wrapped, await derivePrfKek(prf));
-    expect(back.extractable).toBe(false);
-    const wire = await encryptVault(dek, USER, smallEnvelope());
-    expect(parseBackup(await decryptVault(back, USER, wire)).ok).toBe(true);
-    await expect(unwrapDek(wrapped, await derivePrfKek(globalThis.crypto.getRandomValues(new Uint8Array(32))))).rejects.toThrow();
   });
 });
 
@@ -326,7 +320,7 @@ describe('max-cap vault sizing', () => {
 
       const raw = new TextEncoder().encode(json).length;
       const gz = await gzipLength(json);
-      const dek = await generateDek();
+      const dek = await newDek();
       let outcome: string;
       try {
         const wire = await encryptVault(dek, USER, env);
@@ -344,7 +338,7 @@ describe('max-cap vault sizing', () => {
 
 describe('gunzip cap', () => {
   it('rejects a small gzip bomb that inflates past MAX_IMPORT_BYTES, quickly', async () => {
-    const dek = await generateDek();
+    const dek = await newDek();
     const zeros = new Uint8Array(MAX_IMPORT_BYTES + 4 * 1024 * 1024); // ~30 MB of zeros, ~30 KB of gzip
     const gz = new Uint8Array(await new Response(new Blob([zeros]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer());
     expect(gz.length).toBeLessThan(64 * 1024);

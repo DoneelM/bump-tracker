@@ -25,12 +25,16 @@ export class VaultTooLargeError extends Error {
 // ---------------------------------------------------------------------------
 // DEK
 
-/** Extractable only so it can be wrapped once at account creation. */
-export const generateDek = (): Promise<CryptoKey> =>
-  subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
-
-export const wrapDek = async (dek: CryptoKey, kek: CryptoKey): Promise<Bytes> =>
-  new Uint8Array(await subtle.wrapKey('raw', dek, kek, 'AES-KW'));
+/**
+ * A new DEK wrapped under each KEK (recovery code first, then any PRF KEKs), plus the non-extractable copy to keep
+ * on the device. The extractable key never leaves this function. At least one KEK, or the data could never be recovered.
+ */
+export async function createDek(keks: CryptoKey[]): Promise<{ dek: CryptoKey; wraps: Bytes[] }> {
+  if (!keks.length) throw new Error('createDek needs at least one key-encryption key.');
+  const extractable = await subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
+  const wraps = await Promise.all(keks.map(async (kek) => new Uint8Array(await subtle.wrapKey('raw', extractable, kek, 'AES-KW'))));
+  return { dek: await unwrapDek(wraps[0]!, keks[0]!), wraps };
+}
 
 /** The returned key is non-extractable: this is the copy kept in IndexedDB. */
 export const unwrapDek = (wrapped: Bytes, kek: CryptoKey): Promise<CryptoKey> =>
