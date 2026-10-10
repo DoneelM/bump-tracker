@@ -1,0 +1,28 @@
+{
+  "name": "bump-tracker",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Privacy-first pregnancy tracker demo. All data stays in the browser.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build && node scripts/sw-precache.mjs dist",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "check:offline": "node scripts/offline-check.mjs"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^2.15.4"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "typescript": "~5.9.3",
+    "vite": "^6.4.4",
+    "vitest": "^4.1.11"
+  }
+}

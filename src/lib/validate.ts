@@ -1,0 +1,49 @@
+/**
+ * Tiny runtime-validation helpers for data read from storage or imported files.
+ * A Validator returns a clean typed value, or null if the input is unusable.
+ */
+
+export type Validator<T> = (value: unknown) => T | null;
+
+export function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+export function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
+export function isIntInRange(value: unknown, min: number, max: number): value is number {
+  return typeof value === 'number' && Number.isInteger(value) && value >= min && value <= max;
+}
+
+export function isNumberInRange(value: unknown, min: number, max: number): value is number {
+  return isFiniteNumber(value) && value >= min && value <= max;
+}
+
+/** Epoch-ms bounds [2000-01-01, 2100-01-01) for stored timestamps, so Intl formatting can't throw. */
+export const isEpochMs = (value: unknown): value is number =>
+  isFiniteNumber(value) && value >= Date.UTC(2000, 0, 1) && value < Date.UTC(2100, 0, 1);
+
+/** Trimmed string of at most `maxLength` characters, or null. */
+export function cleanString(value: unknown, maxLength: number): string | null {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  return trimmed.length <= maxLength ? trimmed : null;
+}
+
+/** Short unique id for list entries. */
+export function newId(): string {
+  return globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+/**
+ * Parses a number typed into a form field. Empty input gives null with no error;
+ * the caller decides whether the field is required.
+ */
+export function parseNumberInput(raw: string): { value: number | null; error?: string } {
+  const text = raw.trim();
+  if (text === '') return { value: null };
+  if (!/^-?\d+(\.\d+)?$/.test(text)) return { value: null, error: 'Please enter a number.' };
+  return { value: Number(text) };
+}
