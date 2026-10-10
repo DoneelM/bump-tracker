@@ -65,7 +65,7 @@ export const ROUTES: readonly RouteDef[] = [
   { pattern: '/tools/weight', tab: 'tools', render: ({ profile, today }) => <WeightPage profile={profile} today={today} /> },
   { pattern: '/tools/contractions', tab: 'tools', render: () => <ContractionsPage /> },
   { pattern: '/tools/scans', tab: 'tools', render: ({ profile, today }) => <ScansPage profile={profile} today={today} /> },
-  { pattern: '/tools/kicks', tab: 'tools', render: () => <KicksPage /> },
+  { pattern: '/tools/kicks', tab: 'tools', render: ({ profile, today }) => <KicksPage profile={profile} today={today} /> },
   { pattern: '/tools/photos', tab: 'tools', render: () => <PhotosPage /> },
   { pattern: '/tools/checklists', tab: 'tools', render: () => <ChecklistsPage /> },
   { pattern: '/journal', tab: 'journal', render: () => <JournalPage /> },

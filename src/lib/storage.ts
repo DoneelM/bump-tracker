@@ -17,7 +17,9 @@ export const STORAGE_KEYS = {
   prePregnancy: 'weight-pre-pregnancy',
   weightEntries: 'weight-entries',
   scanEntries: 'scan-entries',
-  // TODO(features): contractions, kicks, journal, checklists, ...
+  contractions: 'contractions',
+  kickSessions: 'kick-sessions',
+  // TODO(features): journal, checklists, ...
 } as const;
 
 /** Event fired on `window` when this tab writes a key, so hooks in the same tab re-read. */

@@ -383,6 +383,54 @@
   background: var(--color-peach-100);
 }
 
+/* ---------- Timers (contractions, kicks) ---------- */
+.timer-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+  margin: var(--space-5) 0;
+}
+
+.big-button {
+  width: min(18rem, 80vw);
+  aspect-ratio: 1;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 1.75rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: var(--shadow-card);
+}
+
+.big-button:hover {
+  background: var(--color-primary-hover);
+}
+
+.big-button--active {
+  background: var(--color-sage-700);
+}
+
+.timer-readout {
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.alert-banner {
+  background: var(--color-warning-bg);
+  border: 3px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+
+.alert-banner__title {
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
 .button-row {
   display: flex;
   flex-wrap: wrap;
