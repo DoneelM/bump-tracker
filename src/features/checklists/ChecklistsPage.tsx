@@ -79,6 +79,7 @@ function ChecklistView({ storageKey, sections, defaults, progressLabel, answers,
   const fallback = useMemo(defaults, [defaults]);
   const [items, setItems] = useStoredState<ChecklistItem[]>(storageKey, fallback, validate);
   const [error, setError] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
   const update = (fn: (prev: ChecklistItem[]) => ChecklistItem[]) => {
     const r = setItems(fn);
     setError(r.ok ? null : r.error);
@@ -101,6 +102,11 @@ function ChecklistView({ storageKey, sections, defaults, progressLabel, answers,
           {error}
         </p>
       )}
+      <div className="button-row">
+        <button type="button" className="btn btn--ghost" aria-pressed={editing} onClick={() => setEditing(!editing)}>
+          {editing ? 'Done editing' : 'Edit list'}
+        </button>
+      </div>
 
       {sections.map((section) => {
         const inSection = items.filter((i) => i.section === section);
@@ -117,26 +123,32 @@ function ChecklistView({ storageKey, sections, defaults, progressLabel, answers,
                       aria-label={`Done: ${item.text}`}
                       onChange={() => update((p) => toggleItem(p, item.id))}
                     />
-                    <input
-                      className={`input${item.done ? ' check-item__done' : ''}`}
-                      key={item.text}
-                      defaultValue={item.text}
-                      maxLength={MAX_ITEM_TEXT}
-                      aria-label="Item text"
-                      onBlur={(e) => {
-                        if (e.target.value.trim()) update((p) => editItem(p, item.id, e.target.value));
-                        else e.target.value = item.text; // blank edits revert
-                      }}
-                    />
-                    <button type="button" className="btn btn--ghost" disabled={idx === 0} aria-label={`Move up: ${item.text}`} onClick={() => update((p) => moveItem(p, item.id, -1))}>
-                      ↑
-                    </button>
-                    <button type="button" className="btn btn--ghost" disabled={idx === inSection.length - 1} aria-label={`Move down: ${item.text}`} onClick={() => update((p) => moveItem(p, item.id, 1))}>
-                      ↓
-                    </button>
-                    <button type="button" className="btn btn--ghost" aria-label={`Delete: ${item.text}`} onClick={() => update((p) => removeItem(p, item.id))}>
-                      ✕
-                    </button>
+                    {editing ? (
+                      <>
+                        <input
+                          className={`input${item.done ? ' check-item__done' : ''}`}
+                          key={item.text}
+                          defaultValue={item.text}
+                          maxLength={MAX_ITEM_TEXT}
+                          aria-label="Item text"
+                          onBlur={(e) => {
+                            if (e.target.value.trim()) update((p) => editItem(p, item.id, e.target.value));
+                            else e.target.value = item.text; // blank edits revert
+                          }}
+                        />
+                        <button type="button" className="btn btn--ghost" disabled={idx === 0} aria-label={`Move up: ${item.text}`} onClick={() => update((p) => moveItem(p, item.id, -1))}>
+                          ↑
+                        </button>
+                        <button type="button" className="btn btn--ghost" disabled={idx === inSection.length - 1} aria-label={`Move down: ${item.text}`} onClick={() => update((p) => moveItem(p, item.id, 1))}>
+                          ↓
+                        </button>
+                        <button type="button" className="btn btn--ghost" aria-label={`Delete: ${item.text}`} onClick={() => update((p) => removeItem(p, item.id))}>
+                          ✕
+                        </button>
+                      </>
+                    ) : (
+                      <span className={item.done ? 'check-item__done' : undefined}>{item.text}</span>
+                    )}
                   </div>
                   {answers && (
                     <textarea
@@ -153,7 +165,7 @@ function ChecklistView({ storageKey, sections, defaults, progressLabel, answers,
                 </li>
               ))}
             </ul>
-            <AddRow onAdd={(text) => update((p) => addItem(p, section, text))} section={section} />
+            {editing && <AddRow onAdd={(text) => update((p) => addItem(p, section, text))} section={section} />}
           </section>
         );
       })}

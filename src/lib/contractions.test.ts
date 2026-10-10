@@ -59,6 +59,12 @@ describe('detect511', () => {
     const gapped = l.map((c, i) => (i >= 6 ? { start: c.start + 3 * M, end: c.end + 3 * M } : c));
     expect(detect511(gapped)).toBe(false);
   });
+  it('false once the latest contraction is over 7 min old', () => {
+    const l = series(13, 5 * M, 60 * S);
+    const lastStart = l[12]!.start;
+    expect(detect511(l, lastStart + 6 * M)).toBe(true);
+    expect(detect511(l, lastStart + 8 * M)).toBe(false);
+  });
   it('earlier irregular labour does not block a later qualifying hour', () => {
     const early = series(3, 20 * M, 40 * S, 0);
     const late = series(13, 5 * M, 60 * S, 5 * 60 * M);

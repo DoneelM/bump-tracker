@@ -9,9 +9,10 @@
  *   so cache-first is always safe for them.
  * - No user data passes through here: it lives in localStorage/IndexedDB.
  */
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE_NAME = `bump-tracker-${CACHE_VERSION}`;
-const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon.svg', './icons/icon-maskable.svg'];
+const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon.svg', './icons/icon-maskable.svg',
+  './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/apple-touch-icon.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

@@ -22,6 +22,7 @@ const moodOf = (v: number) => MOODS.find((m) => m.value === v)!;
 export function JournalPage() {
   const [entries, setEntries] = useStoredState<JournalEntry[]>(STORAGE_KEYS.journal, NO_ENTRIES, parseJournalEntries);
   const [editing, setEditing] = useState<JournalEntry | null>(null);
+  const [adding, setAdding] = useState(false);
   const [onlyFlagged, setOnlyFlagged] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const shown = onlyFlagged ? flaggedEntries(entries) : sortNewestFirst(entries);
@@ -48,15 +49,27 @@ export function JournalPage() {
         </p>
       )}
 
-      <EntryForm
-        key={editing?.id ?? 'new'}
-        initial={editing}
-        full={!editing && entries.length >= MAX_JOURNAL_ENTRIES}
-        onCancel={editing ? () => setEditing(null) : undefined}
-        onSave={(e) => {
-          if (save((prev) => (prev.some((x) => x.id === e.id) ? prev.map((x) => (x.id === e.id ? e : x)) : [...prev, e]))) setEditing(null);
-        }}
-      />
+      {adding || editing ? (
+        <EntryForm
+          key={editing?.id ?? 'new'}
+          initial={editing}
+          full={!editing && entries.length >= MAX_JOURNAL_ENTRIES}
+          onCancel={() => {
+            setEditing(null);
+            setAdding(false);
+          }}
+          onSave={(e) => {
+            if (save((prev) => (prev.some((x) => x.id === e.id) ? prev.map((x) => (x.id === e.id ? e : x)) : [...prev, e]))) {
+              setEditing(null);
+              setAdding(false);
+            }
+          }}
+        />
+      ) : (
+        <button type="button" className="btn btn--primary" onClick={() => setAdding(true)}>
+          + New entry
+        </button>
+      )}
 
       <section aria-labelledby="j-list">
         <h2 id="j-list">Entries</h2>

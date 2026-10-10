@@ -60,7 +60,7 @@ textarea {
   outline-offset: 2px;
 }
 
-[tabindex='-1']:focus:not(:focus-visible) {
+[tabindex='-1']:focus {
   outline: none;
 }
 

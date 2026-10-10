@@ -63,12 +63,14 @@ export function averagesLastHour(list: readonly Contraction[], now: number): Ave
 /**
  * 5-1-1: walking back from the latest contraction with no gap over 7 minutes, the run
  * spans at least an hour; its contractions average <= 5.5 min apart, average >= 45 s
- * long, and most are >= 40 s.
+ * long, and most are >= 40 s. With `now`, the latest contraction must also have started
+ * within the last 7 minutes, so a finished session stops alerting.
  */
-export function detect511(list: readonly Contraction[]): boolean {
+export function detect511(list: readonly Contraction[], now?: number): boolean {
   const s = validSorted(list);
   if (s.length < 2) return false;
   const latest = s[s.length - 1]!;
+  if (now !== undefined && now - latest.start > PATTERN_MAX_GAP_MS) return false;
   const run: Contraction[] = [latest];
   for (let i = s.length - 2; i >= 0; i--) {
     if (run[0]!.start - s[i]!.start > PATTERN_MAX_GAP_MS) return false;

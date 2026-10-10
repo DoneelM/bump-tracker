@@ -492,6 +492,10 @@
   width: 6rem;
 }
 
+select.input--short {
+  min-width: 8rem; /* "Week 12" truncates at 6rem */
+}
+
 .inline-inputs {
   display: flex;
   flex-wrap: wrap;

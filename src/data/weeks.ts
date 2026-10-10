@@ -127,7 +127,7 @@ export const WEEKS: readonly WeekInfo[] = [
     lengthNote: 'crown-rump',
     weightG: null,
     sizeObject: 'a raspberry',
-    sizeEmoji: '🍒',
+    sizeEmoji: '🌱',
     sourceUrl: 'https://www.nhs.uk/best-start-in-life/pregnancy/week-by-week-guide-to-pregnancy/1st-trimester/week-8/',
   },
   {
@@ -165,7 +165,7 @@ export const WEEKS: readonly WeekInfo[] = [
     lengthNote: 'crown-rump',
     weightG: null,
     sizeObject: 'an apricot',
-    sizeEmoji: '🍊',
+    sizeEmoji: '🌱',
     sourceUrl: 'https://www.nhs.uk/best-start-in-life/pregnancy/week-by-week-guide-to-pregnancy/1st-trimester/week-10/',
   },
   {
@@ -185,7 +185,7 @@ export const WEEKS: readonly WeekInfo[] = [
     lengthNote: 'crown-rump',
     weightG: null,
     sizeObject: 'a fig',
-    sizeEmoji: '🟣',
+    sizeEmoji: '🌱',
     sourceUrl: 'https://www.nhs.uk/best-start-in-life/pregnancy/week-by-week-guide-to-pregnancy/1st-trimester/week-11/',
   },
   {
@@ -303,7 +303,7 @@ export const WEEKS: readonly WeekInfo[] = [
     lengthNote: 'crown-rump',
     weightG: 179,
     sizeObject: 'a pomegranate',
-    sizeEmoji: '🍎',
+    sizeEmoji: '🌱',
     sourceUrl: 'https://www.nhs.uk/best-start-in-life/pregnancy/week-by-week-guide-to-pregnancy/2nd-trimester/week-17/',
   },
   {
@@ -680,7 +680,7 @@ export const WEEKS: readonly WeekInfo[] = [
     lengthNote: 'crown-heel',
     weightG: 2966,
     sizeObject: 'a leek',
-    sizeEmoji: '🥬',
+    sizeEmoji: '🌱',
     sourceUrl: 'https://www.nhs.uk/best-start-in-life/pregnancy/week-by-week-guide-to-pregnancy/3rd-trimester/week-37/',
   },
   {
@@ -699,7 +699,7 @@ export const WEEKS: readonly WeekInfo[] = [
     lengthNote: 'crown-heel',
     weightG: 3186,
     sizeObject: 'a stick of rhubarb',
-    sizeEmoji: '🌿',
+    sizeEmoji: '🌱',
     sourceUrl: 'https://www.nhs.uk/best-start-in-life/pregnancy/week-by-week-guide-to-pregnancy/3rd-trimester/week-38/',
   },
   {

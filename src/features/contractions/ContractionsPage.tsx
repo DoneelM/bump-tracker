@@ -19,6 +19,8 @@ import { useStoredState } from '../../lib/useStoredState';
 
 const timeFmt = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit', second: '2-digit' });
 
+const HISTORY_LIMIT = 20;
+
 /** Current time, refreshed every second while `on`. */
 function useNow(on: boolean): number {
   const [now, setNow] = useState(Date.now);
@@ -70,6 +72,7 @@ function useWakeLock(on: boolean): boolean {
 export function ContractionsPage() {
   const [state, setState] = useStoredState<ContractionState>(STORAGE_KEYS.contractions, EMPTY_STATE, parseContractionState);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
   const active = state.activeStart !== null;
   const sessionOn = active || state.contractions.length > 0;
   const now = useNow(sessionOn);
@@ -94,7 +97,7 @@ export function ContractionsPage() {
   const rows = sorted.map((c, i) => ({ c, interval: intervals[i] ?? null })).reverse();
   const last = sorted[sorted.length - 1];
   const avgs = averagesLastHour(state.contractions, now);
-  const pattern = detect511(state.contractions);
+  const pattern = detect511(state.contractions, state.activeStart ?? now);
   const elapsed = state.activeStart !== null ? now - state.activeStart : 0;
   const stale = active && elapsed > MAX_CONTRACTION_MS;
   const sinceLast = last ? now - (active ? last.start : last.end) : null;
@@ -167,7 +170,7 @@ export function ContractionsPage() {
         ) : (
           <>
             <ul className="entry-list">
-              {rows.map(({ c, interval }) => (
+              {(showAll ? rows : rows.slice(0, HISTORY_LIMIT)).map(({ c, interval }) => (
                 <li key={c.start} className="card entry">
                   <p className="entry__title">{timeFmt.format(c.start)}</p>
                   <p className="muted">
@@ -184,6 +187,11 @@ export function ContractionsPage() {
               ))}
             </ul>
             <div className="button-row">
+              {rows.length > HISTORY_LIMIT && (
+                <button type="button" className="btn btn--ghost" onClick={() => setShowAll(!showAll)}>
+                  {showAll ? 'Show recent only' : `Show all (${rows.length})`}
+                </button>
+              )}
               <button
                 type="button"
                 className="btn btn--ghost"

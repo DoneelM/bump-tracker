@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { lazy, Suspense, useState, type FormEvent } from 'react';
 import { FormField } from '../../components/FormField';
 import { Page } from '../../components/Page';
 import { formatDisplayDate, type LocalDate } from '../../lib/dates';
@@ -26,7 +26,9 @@ import {
   type PrePregnancy,
   type WeightEntry,
 } from '../../lib/weightGain';
-import { WeightChart } from './WeightChart';
+
+// Recharts is large, so the chart loads as its own chunk.
+const WeightChart = lazy(() => import('./WeightChart').then((m) => ({ default: m.WeightChart })));
 
 const NO_ENTRIES: WeightEntry[] = [];
 const round1 = (n: number) => Math.round(n * 10) / 10;
@@ -38,7 +40,11 @@ export function WeightPage({ profile, today }: { profile: PregnancyProfile; toda
   const entries = sortByDate(stored);
 
   const [saveError, setSaveError] = useState<string | null>(null);
-  const report = (r: { ok: boolean; error?: string }) => setSaveError(r.ok ? null : (r.error ?? 'Could not save.'));
+  const [adding, setAdding] = useState(false);
+  const report = (r: { ok: boolean; error?: string }) => {
+    setSaveError(r.ok ? null : (r.error ?? 'Could not save.'));
+    return r.ok;
+  };
 
   const category = pre ? bmiCategory(bmi(pre.heightCm, pre.weightKg)) : null;
   const points = entries.map((e) => ({
@@ -57,16 +63,16 @@ export function WeightPage({ profile, today }: { profile: PregnancyProfile; toda
 
       <PrePregnancySection pre={pre} onSave={(v) => report(setPre(v))} />
 
-      <EntryForm key="new" lmp={lmp} today={today} onSave={(e) => report(setEntries((prev) => [...prev, e]))} />
-
       <section className="card" aria-labelledby="chart-heading">
         <h2 id="chart-heading">{pre ? 'Weight gain by week' : 'Weight by week'}</h2>
         {entries.length === 0 ? (
-          <p className="muted">Add a weight entry above to see your chart.</p>
+          <p className="muted">Add a weight entry to see your chart.</p>
         ) : (
           <>
             <figure className="chart-figure">
-              <WeightChart points={points} category={category} gain={pre !== null} />
+              <Suspense fallback={<p className="muted">Loading chart...</p>}>
+                <WeightChart points={points} category={category} gain={pre !== null} />
+              </Suspense>
               <figcaption className="muted">
                 {pre
                   ? 'Your gain compared with your pre-pregnancy weight. The shaded band is an approximation drawn from the Institute of Medicine (2009) total-gain guidance, not an official week-by-week range.'
@@ -80,6 +86,19 @@ export function WeightPage({ profile, today }: { profile: PregnancyProfile; toda
           Ranges apply to singleton pregnancies only. Your midwife/LMC may give you different advice.
         </p>
       </section>
+
+      {adding ? (
+        <EntryForm
+          lmp={lmp}
+          today={today}
+          onSave={(e) => report(setEntries((prev) => [...prev, e])) && setAdding(false)}
+          onCancel={() => setAdding(false)}
+        />
+      ) : (
+        <button type="button" className="btn btn--primary" onClick={() => setAdding(true)}>
+          + Add weight
+        </button>
+      )}
 
       <section aria-labelledby="log-heading">
         <h2 id="log-heading">Your entries</h2>

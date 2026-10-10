@@ -136,6 +136,12 @@
   flex: 1 1 10rem;
 }
 
+.check-item > span {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .check-item__done {
   text-decoration: line-through;
   color: var(--color-text-muted);

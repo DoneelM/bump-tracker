@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { lazy, Suspense, useState, type FormEvent } from 'react';
 import { FormField } from '../../components/FormField';
 import { Page } from '../../components/Page';
 import { formatDisplayDate, type LocalDate } from '../../lib/dates';
@@ -21,7 +21,9 @@ import { STORAGE_KEYS } from '../../lib/storage';
 import { useStoredState } from '../../lib/useStoredState';
 import { newId } from '../../lib/validate';
 import { validateEntryDate } from '../../lib/weightGain';
-import { ScanChart } from './ScanChart';
+
+// Recharts is large, so the chart loads as its own chunk.
+const ScanChart = lazy(() => import('./ScanChart').then((m) => ({ default: m.ScanChart })));
 
 const NO_ENTRIES: ScanEntry[] = [];
 const byDate = (a: ScanEntry, b: ScanEntry) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
@@ -31,7 +33,11 @@ export function ScansPage({ profile, today }: { profile: PregnancyProfile; today
   const [stored, setEntries] = useStoredState<ScanEntry[]>(STORAGE_KEYS.scanEntries, NO_ENTRIES, parseScanEntries);
   const entries = [...stored].sort(byDate);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const report = (r: { ok: boolean; error?: string }) => setSaveError(r.ok ? null : (r.error ?? 'Could not save.'));
+  const [adding, setAdding] = useState(false);
+  const report = (r: { ok: boolean; error?: string }) => {
+    setSaveError(r.ok ? null : (r.error ?? 'Could not save.'));
+    return r.ok;
+  };
 
   const withEfw = entries.filter((e) => e.efwG !== null);
   const points = withEfw.map((e) => ({ days: gestationalAge(profile.dueDate, e.date).totalDays, efwG: e.efwG! }));
@@ -45,8 +51,6 @@ export function ScansPage({ profile, today }: { profile: PregnancyProfile; today
         </p>
       )}
 
-      <ScanForm lmp={lmp} today={today} onSave={(e) => report(setEntries((prev) => [...prev, e]))} />
-
       <section className="card" aria-labelledby="efw-heading">
         <h2 id="efw-heading">Estimated weight from your scans</h2>
         {withEfw.length === 0 ? (
@@ -54,7 +58,9 @@ export function ScansPage({ profile, today }: { profile: PregnancyProfile; today
         ) : (
           <>
             <figure className="chart-figure">
-              <ScanChart points={points} />
+              <Suspense fallback={<p className="muted">Loading chart...</p>}>
+                <ScanChart points={points} />
+              </Suspense>
               <figcaption className="muted">
                 Typical range from the WHO Fetal Growth Charts (Kiserud et al., 2017). Scan weight estimates are
                 approximate - your sonographer and midwife/LMC interpret your results.
@@ -67,6 +73,19 @@ export function ScansPage({ profile, today }: { profile: PregnancyProfile; today
           </>
         )}
       </section>
+
+      {adding ? (
+        <ScanForm
+          lmp={lmp}
+          today={today}
+          onSave={(e) => report(setEntries((prev) => [...prev, e])) && setAdding(false)}
+          onCancel={() => setAdding(false)}
+        />
+      ) : (
+        <button type="button" className="btn btn--primary" onClick={() => setAdding(true)}>
+          + Add scan or appointment
+        </button>
+      )}
 
       <section aria-labelledby="scan-log-heading">
         <h2 id="scan-log-heading">Your scans and appointments</h2>
