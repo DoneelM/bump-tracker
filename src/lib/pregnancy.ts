@@ -78,6 +78,10 @@ export function daysUntilDue(dueDate: LocalDate, today: LocalDate): number {
   return diffDays(today, dueDate);
 }
 
+/** Past-due guidance: none up to the due date, "past" after it, "overdue" from 14 days past (42w0d). */
+export const pastDueLevel = (daysLeft: number): 'none' | 'past' | 'overdue' =>
+  daysLeft >= 0 ? 'none' : daysLeft <= -14 ? 'overdue' : 'past';
+
 /** Fraction of a 40-week pregnancy elapsed, clamped to 0..1. */
 export function progressFraction(totalDays: number): number {
   return Math.min(1, Math.max(0, totalDays / PREGNANCY_LENGTH_DAYS));

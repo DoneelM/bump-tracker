@@ -20,6 +20,9 @@ export const addMovement = (s: KickSession, at: number): KickSession =>
 
 export const endSession = (s: KickSession, at: number): KickSession => ({ ...s, end: Math.max(at, s.start) });
 
+/** Ended session: no movements gets the prominent alert, otherwise a normal card. Deliberately not based on reaching 10. */
+export const sessionGuidanceLevel = (movements: number): 'alert' | 'card' => (movements === 0 ? 'alert' : 'card');
+
 /** Elapsed ms; for an open session pass `now`. */
 export const sessionDurationMs = (s: KickSession, now: number): number => Math.max(0, (s.end ?? now) - s.start);
 

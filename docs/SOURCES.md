@@ -12,9 +12,13 @@ Keep in sync with `src/data/sources.ts`.
 | [How your fetus grows during pregnancy](https://www.acog.org/womens-health/faqs/how-your-fetus-grows-during-pregnancy) | ACOG | Background reference for general fetal growth information. |
 | [Methods for estimating the due date](https://www.acog.org/clinical/clinical-guidance/committee-opinion/articles/2017/05/methods-for-estimating-the-due-date) | ACOG | Due date and gestational age calculations. |
 | [Pregnancy and maternity](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity) | Health NZ | NZ context: working with your midwife/LMC. |
-| [Pregnancy and your baby's movements](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/having-a-healthy-pregnancy/pregnancy-and-your-babys-movements) | Health NZ | Baby movement guidance (kick counter). |
-| [Going into labour](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/labour-and-birth/going-into-labour) | Health NZ | Labour signs and when to call (contraction timer). Note: Health NZ's threshold (contractions every 5 min, lasting >50 s, getting stronger for 2-3 hours) differs from the generic 5-1-1 rule; the app shows both. |
-| [Your baby's movements](https://www.nhs.uk/pregnancy/keeping-well/your-babys-movements/) | NHS | Baby movement guidance (kick counter). |
+| [Pregnancy and your baby's movements](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/having-a-healthy-pregnancy/pregnancy-and-your-babys-movements) | Health NZ | Baby movement guidance (kick counter and kick-session guidance), and the past-due-date prompt. |
+| [Going into labour](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/labour-and-birth/going-into-labour) | Health NZ | Labour signs and when to call (contraction timer), the "when to contact your midwife/LMC" panel and the past-due-date prompt. Note: Health NZ's threshold (contractions every 5 min, lasting >50 s, getting stronger for 2-3 hours) differs from the generic 5-1-1 rule; the app shows both. |
+| [Premature birth and care of your pēpi](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/labour-and-birth/premature-birth) | Health NZ | Signs of labour before 37 weeks: contact your midwife/LMC as soon as possible (contraction timer). |
+| [Preeclampsia](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/having-a-healthy-pregnancy/pre-eclampsia) | Health NZ | Pre-eclampsia warning signs (journal). |
+| [Common issues in pregnancy](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/health-problems-in-pregnancy/common-issues) | Health NZ | Danger signs that need prompt advice (journal). |
+| [Pre-eclampsia](https://www.nhs.uk/conditions/pre-eclampsia/) | NHS | Pre-eclampsia warning signs (journal). |
+| [Your baby's movements](https://www.nhs.uk/pregnancy/keeping-well/your-babys-movements/) | NHS | Baby movement guidance (kick counter and kick-session guidance). |
 | [Weight Gain During Pregnancy: Reexamining the Guidelines](https://www.nationalacademies.org/read/12584/chapter/2) | Institute of Medicine (2009) | Total gain ranges by pre-pregnancy BMI (Table S-1, singleton pregnancy). The weekly band in the chart is an approximation (0.5-2 kg by week 13, then linear to the total range at week 40). |
 
 ## Notes

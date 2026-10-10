@@ -132,6 +132,13 @@
   accent-color: var(--color-primary);
 }
 
+/* Whole row is the tap target (44px+); the 24px box sits inside it. */
+.check-item--tap {
+  flex-wrap: nowrap;
+  min-height: 2.75rem;
+  cursor: pointer;
+}
+
 .check-item .input {
   flex: 1 1 10rem;
 }

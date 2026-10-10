@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
+import { GuidanceCard } from '../../components/GuidanceCard';
 import { Page } from '../../components/Page';
+import { WORRIED_ABOUT_MOVEMENTS } from '../../data/guidance';
 import type { LocalDate } from '../../lib/dates';
 import {
   addMovement,
@@ -8,6 +10,7 @@ import {
   KICKS_UNLOCK_WEEK,
   MAX_STORED_SESSIONS,
   parseKickSessions,
+  sessionGuidanceLevel,
   sessionDurationMs,
   type KickSession,
 } from '../../lib/kicks';
@@ -27,11 +30,15 @@ export function KicksPage({ profile, today }: { profile: PregnancyProfile; today
   const [sessions, setSessions] = useStoredState<KickSession[]>(STORAGE_KEYS.kickSessions, NO_SESSIONS, parseKickSessions);
   const [override, setOverride] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [worried, setWorried] = useState(false);
+  const [endedId, setEndedId] = useState<string | null>(null);
   const weeks = gestationalAge(profile.dueDate, today).weeks;
   const unlocked = weeks >= KICKS_UNLOCK_WEEK || override;
   const current = sessions.find((s) => s.end === undefined);
   const past = sessions.filter((s) => s.end !== undefined).reverse();
   const currentId = current?.id;
+  // Guidance for the session just ended; a new session replaces it.
+  const ended = current ? undefined : past.find((s) => s.id === endedId);
 
   const [now, setNow] = useState(Date.now);
   useEffect(() => {
@@ -78,6 +85,13 @@ export function KicksPage({ profile, today }: { profile: PregnancyProfile; today
         <p>This counter is a personal log only. It is not a safety tool and can’t tell you whether your baby is well.</p>
       </div>
 
+      <div className="button-row">
+        <button type="button" className="btn btn--ghost" aria-expanded={worried} onClick={() => setWorried(!worried)}>
+          I’m worried about my baby’s movements
+        </button>
+      </div>
+      {worried && <GuidanceCard g={WORRIED_ABOUT_MOVEMENTS} />}
+
       {error && (
         <p className="field__error" role="alert">
           {error}
@@ -112,7 +126,10 @@ export function KicksPage({ profile, today }: { profile: PregnancyProfile; today
                 <button
                   type="button"
                   className="btn btn--primary"
-                  onClick={() => save((prev) => prev.map((s) => (s.id === current.id ? endSession(s, Date.now()) : s)))}
+                  onClick={() => {
+                    save((prev) => prev.map((s) => (s.id === current.id ? endSession(s, Date.now()) : s)));
+                    setEndedId(current.id);
+                  }}
                 >
                   End session
                 </button>
@@ -123,6 +140,8 @@ export function KicksPage({ profile, today }: { profile: PregnancyProfile; today
               </button>
             )}
           </section>
+
+          {ended && <GuidanceCard g={WORRIED_ABOUT_MOVEMENTS} alert={sessionGuidanceLevel(ended.count) === 'alert'} />}
 
           <section aria-labelledby="k-history">
             <h2 id="k-history">Past sessions</h2>

@@ -104,9 +104,15 @@ export function parseScanEntries(value: unknown): ScanEntry[] | null {
   return value.map(parseScanEntry).filter((e): e is ScanEntry => e !== null).slice(-MAX_SCAN_ENTRIES);
 }
 
-/** Earliest entry dated today or later, or null. */
+/**
+ * Earliest upcoming entry, or null. Entries have a date but no time, so one dated today counts only
+ * while it has no measurements (with measurements it has already happened); later dates always count.
+ */
 export function nextAppointment(entries: readonly ScanEntry[], today: LocalDate): ScanEntry | null {
   let next: ScanEntry | null = null;
-  for (const e of entries) if (e.date >= today && (next === null || e.date < next.date)) next = e;
+  for (const e of entries) {
+    const upcoming = e.date > today || (e.date === today && MEASUREMENTS.every((m) => e[m.key] === null));
+    if (upcoming && (next === null || e.date < next.date)) next = e;
+  }
   return next;
 }
