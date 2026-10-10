@@ -10,6 +10,7 @@ import {
   generateDek,
   generateRecoveryCode,
   MAX_VAULT_BYTES,
+  SYNC_PAUSED_TOO_LARGE,
   parseRecoveryCode,
   recoveryAuthHash,
   unwrapDek,
@@ -73,7 +74,9 @@ describe('vault', () => {
 
   it('throws VaultTooLargeError over 1 MiB', async () => {
     const env = { ...smallEnvelope(), data: { x: randomText(2_000_000, B32) } };
-    await expect(encryptVault(await generateDek(), USER, env)).rejects.toBeInstanceOf(VaultTooLargeError);
+    const err = await encryptVault(await generateDek(), USER, env).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(VaultTooLargeError);
+    expect(err).toMatchObject({ name: 'VaultTooLargeError', message: SYNC_PAUSED_TOO_LARGE });
   });
 });
 

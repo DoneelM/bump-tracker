@@ -12,9 +12,12 @@ export const MAX_VAULT_BYTES = 1 + IV_BYTES + MAX_BUCKET + TAG_BYTES;
 const subtle = globalThis.crypto.subtle;
 const enc = new TextEncoder();
 
+/** What the sync UI shows when the vault is over the cap (this error, or the server's 413). MVP: no chunking. */
+export const SYNC_PAUSED_TOO_LARGE = 'Sync paused: your data is too large to sync, it’s still safe on this device.';
+
 export class VaultTooLargeError extends Error {
   constructor() {
-    super('The vault is too large to sync.');
+    super(SYNC_PAUSED_TOO_LARGE);
     this.name = 'VaultTooLargeError';
   }
 }
