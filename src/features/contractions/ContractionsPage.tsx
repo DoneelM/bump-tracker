@@ -111,6 +111,7 @@ export function ContractionsPage({ profile, today }: { profile: PregnancyProfile
   const elapsed = state.activeStart !== null ? now - state.activeStart : 0;
   const stale = active && elapsed > MAX_CONTRACTION_MS;
   const sinceLast = last ? now - (active ? last.start : last.end) : null;
+  const preterm = showPretermGuidance(weeks, state);
 
   return (
     <Page title="Contractions" icon="⏱️" back={{ to: '/tools', label: 'Tools' }}>
@@ -124,6 +125,12 @@ export function ContractionsPage({ profile, today }: { profile: PregnancyProfile
         <button type="button" className={`big-button${active ? ' big-button--active' : ''}`} aria-pressed={active} onClick={toggle}>
           {active ? 'Stop' : 'Start contraction'}
         </button>
+        {(pattern || preterm) && (
+          // Short line right under Start/Stop so it's seen without scrolling; the full guidance is below.
+          <p className="alert-banner" style={{ padding: 'var(--space-2) var(--space-3)', fontWeight: 800 }}>
+            Contact your midwife/LMC now. Details below.
+          </p>
+        )}
         <p className="timer-readout">
           {active ? (
             <>
@@ -143,7 +150,7 @@ export function ContractionsPage({ profile, today }: { profile: PregnancyProfile
       </section>
 
       {pattern && <GuidanceCard g={PATTERN_511} alert />}
-      {showPretermGuidance(weeks, state) && <GuidanceCard g={PRETERM} alert />}
+      {preterm && <GuidanceCard g={PRETERM} alert />}
       <GuidanceCard g={CONTACT_MIDWIFE} />
 
       <section className="card" aria-labelledby="c-summary">

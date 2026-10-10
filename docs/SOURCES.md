@@ -23,6 +23,8 @@ Keep in sync with `src/data/sources.ts`.
 
 ## Notes
 
+- All health guidance shown in the app (the contraction timer panels, past-due prompt, pre-eclampsia note and kick-session guidance) lives in `src/data/guidance.ts`. It is general guidance attributed to Health NZ/NHS, not a diagnosis, and it still needs clinical sign-off.
+
 - Lengths (crown-rump before week 20, crown-heel from week 20) and weights are typical averages, not targets.
   Weights are the WHO 50th percentile and only exist from week 14.
 - Baby illustrations are AI-generated stylised art, not medical images. There are no illustrations for weeks
