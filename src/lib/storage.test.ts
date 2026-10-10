@@ -4,7 +4,8 @@ import {
   exportAll,
   fullKey,
   listAppKeys,
-  readStored,
+  parseStored,
+  readRaw,
   removeStored,
   writeStored,
 } from './storage';
@@ -56,15 +57,15 @@ describe('storage', () => {
   it('round-trips JSON through a validator', () => {
     expect(writeStored('n', 42)).toEqual({ ok: true });
     expect(storage.getItem('bt:v1:n')).toBe('42');
-    expect(readStored('n', numberValidator)).toBe(42);
+    expect(parseStored(readRaw('n'), numberValidator)).toBe(42);
   });
 
   it('returns null for missing, corrupt or invalid data', () => {
-    expect(readStored('missing', numberValidator)).toBeNull();
+    expect(parseStored(readRaw('missing'), numberValidator)).toBeNull();
     storage.setItem('bt:v1:corrupt', '{not json');
-    expect(readStored('corrupt', numberValidator)).toBeNull();
+    expect(parseStored(readRaw('corrupt'), numberValidator)).toBeNull();
     storage.setItem('bt:v1:invalid', '-5');
-    expect(readStored('invalid', numberValidator)).toBeNull();
+    expect(parseStored(readRaw('invalid'), numberValidator)).toBeNull();
   });
 
   it('reports write failures instead of throwing', () => {
@@ -76,7 +77,7 @@ describe('storage', () => {
   it('reports unavailable storage', () => {
     Reflect.deleteProperty(globalThis, 'localStorage');
     expect(writeStored('n', 1)).toMatchObject({ ok: false });
-    expect(readStored('n', numberValidator)).toBeNull();
+    expect(parseStored(readRaw('n'), numberValidator)).toBeNull();
   });
 
   it('only exports and clears its own keys', () => {

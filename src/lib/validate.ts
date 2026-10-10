@@ -32,19 +32,6 @@ export function cleanString(value: unknown, maxLength: number): string | null {
   return trimmed.length <= maxLength ? trimmed : null;
 }
 
-/** Validates every element of an array, dropping invalid ones. Returns null if `value` is not an array. */
-export function arrayOf<T>(item: Validator<T>): Validator<T[]> {
-  return (value) => {
-    if (!Array.isArray(value)) return null;
-    const out: T[] = [];
-    for (const v of value) {
-      const parsed = item(v);
-      if (parsed !== null) out.push(parsed);
-    }
-    return out;
-  };
-}
-
 /** Short unique id for list entries. */
 export function newId(): string {
   return globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;

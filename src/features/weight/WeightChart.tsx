@@ -11,19 +11,19 @@ const round1 = (n: number) => Math.round(n * 10) / 10;
 
 /** Weight (or gain) by gestational week; shades the approximate IOM band when a category is known. */
 export function WeightChart({ points, category, gain }: { points: WeightPoint[]; category: BmiCategory | null; gain: boolean }) {
-  const rows = new Map<number, { week: number; value?: number; band?: [number, number] }>();
+  const rows: { week: number; value?: number; band?: [number, number] }[] = [];
   if (category) {
     for (let w = 0; w <= 40; w++) {
       const r = recommendedRangeAtWeek(category, w);
-      rows.set(w, { week: w, band: [round1(r.low), round1(r.high)] });
+      rows.push({ week: w, band: [round1(r.low), round1(r.high)] });
     }
   }
   for (const p of points) {
-    const week = round1(p.week);
-    const band = category ? recommendedRangeAtWeek(category, week) : null;
-    rows.set(week, { week, value: round1(p.value), band: band ? [round1(band.low), round1(band.high)] : undefined });
+    // One row per entry (not per week), so two entries on the same day both show.
+    const band = category ? recommendedRangeAtWeek(category, p.week) : null;
+    rows.push({ week: p.week, value: round1(p.value), band: band ? [round1(band.low), round1(band.high)] : undefined });
   }
-  const data = [...rows.values()].sort((a, b) => a.week - b.week);
+  const data = rows.sort((a, b) => a.week - b.week);
   const unit = gain ? 'Gain (kg)' : 'Weight (kg)';
 
   return (

@@ -1,13 +1,11 @@
 import { useState } from 'react';
 import { Page } from '../../components/Page';
-import { formatDisplayDate } from '../../lib/dates';
+import { formatDisplayDate, type LocalDate } from '../../lib/dates';
 import { useProfile } from '../../lib/useProfile';
-import { useToday } from '../../lib/useToday';
 import { PregnancyForm } from '../onboarding/PregnancyForm';
 
-export function SettingsPage() {
+export function SettingsPage({ today }: { today: LocalDate }) {
   const [profile, setProfile] = useProfile();
-  const today = useToday();
   const [editing, setEditing] = useState(false);
   const [saved, setSaved] = useState(false);
 

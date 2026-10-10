@@ -94,6 +94,11 @@ export function formatWeeksDays(weeks: number, days: number): string {
   return parts.join(' ');
 }
 
+/** Age for a logged entry; a date before the LMP (dating changed later) reads "before pregnancy". */
+export function formatEntryAge(ga: GestationalAge): string {
+  return ga.totalDays < 0 ? 'before pregnancy' : formatWeeksDays(ga.weeks, ga.days);
+}
+
 // ---------------------------------------------------------------------------
 // Validation
 

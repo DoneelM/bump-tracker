@@ -17,6 +17,7 @@ import type { Validator } from './validate';
 import { parsePrePregnancy, parseWeightEntries } from './weightGain';
 
 export const KEY_PREFIX = 'bt:';
+// Bumping this needs a migration step first: keys and exportAll are per-version, so v1 data would be hidden.
 export const SCHEMA_VERSION = 1;
 
 /** The one registry of stored data: logical key, backup label and validator. Add new keys here only. */
@@ -82,10 +83,6 @@ export function parseStored<T>(raw: string | null, validate: Validator<T>): T | 
   } catch {
     return null;
   }
-}
-
-export function readStored<T>(name: string, validate: Validator<T>): T | null {
-  return parseStored(readRaw(name), validate);
 }
 
 export type WriteResult = { ok: true } | { ok: false; error: string };

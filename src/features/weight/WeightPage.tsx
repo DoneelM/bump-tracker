@@ -2,7 +2,7 @@ import { lazy, Suspense, useState, type FormEvent } from 'react';
 import { FormField } from '../../components/FormField';
 import { Page } from '../../components/Page';
 import { formatDisplayDate, type LocalDate } from '../../lib/dates';
-import { formatWeeksDays, gestationalAge, lmpFromDueDate } from '../../lib/pregnancy';
+import { formatEntryAge, gestationalAge, lmpFromDueDate } from '../../lib/pregnancy';
 import type { PregnancyProfile } from '../../lib/profile';
 import { STORAGE_KEYS } from '../../lib/storage';
 import { useStoredState } from '../../lib/useStoredState';
@@ -127,7 +127,7 @@ export function WeightPage({ profile, today }: { profile: PregnancyProfile; toda
 
 function summary(latest: WeightEntry, pre: PrePregnancy | null, profile: PregnancyProfile, category: ReturnType<typeof bmiCategory> | null): string {
   const ga = gestationalAge(profile.dueDate, latest.date);
-  const when = `${formatWeeksDays(ga.weeks, ga.days)} (${formatDisplayDate(latest.date)})`;
+  const when = `${formatEntryAge(ga)} (${formatDisplayDate(latest.date)})`;
   if (!pre || !category) return `Latest entry: ${latest.weightKg} kg at ${when}. There is no pre-pregnancy weight, so no gain or band is shown.`;
   const gain = round1(latest.weightKg - pre.weightKg);
   const band = recommendedRangeAtWeek(category, ga.totalDays / 7);
@@ -173,7 +173,7 @@ function PrePregnancySection({ pre, onSave }: { pre: PrePregnancy | null; onSave
             <button type="button" className="btn btn--ghost" onClick={() => setOpen(true)}>
               Edit
             </button>
-            <button type="button" className="btn btn--ghost" onClick={() => onSave(null)}>
+            <button type="button" className="btn btn--ghost" onClick={() => { onSave(null); setOpen(true); }}>
               Remove
             </button>
           </div>
@@ -295,7 +295,7 @@ function WeightRow({ entry, pre, profile, lmp, today, onSave, onDelete }: Weight
         {pre && <span className="muted"> ({round1(entry.weightKg - pre.weightKg) >= 0 ? '+' : ''}{round1(entry.weightKg - pre.weightKg)} kg)</span>}
       </p>
       <p className="muted">
-        {formatDisplayDate(entry.date)} · {formatWeeksDays(ga.weeks, ga.days)}
+        {formatDisplayDate(entry.date)} · {formatEntryAge(ga)}
       </p>
       {entry.note && <p className="entry__note">{entry.note}</p>}
       <div className="button-row">

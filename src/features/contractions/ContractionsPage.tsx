@@ -21,7 +21,7 @@ const timeFmt = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2
 
 const HISTORY_LIMIT = 20;
 
-/** Current time, refreshed every second while `on`. */
+/** Current time, refreshed every second while `on`; otherwise read at render. */
 function useNow(on: boolean): number {
   const [now, setNow] = useState(Date.now);
   useEffect(() => {
@@ -30,7 +30,7 @@ function useNow(on: boolean): number {
     const t = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(t);
   }, [on]);
-  return now;
+  return on ? now : Date.now();
 }
 
 /** Keeps the screen on while `on`, if the browser supports it; fails silently otherwise. */
@@ -74,11 +74,11 @@ export function ContractionsPage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
   const active = state.activeStart !== null;
-  const sessionOn = active || state.contractions.length > 0;
-  const now = useNow(sessionOn);
-  const wakeLockHeld = useWakeLock(sessionOn);
+  // The 1 s timer and wake lock run only while a contraction is being timed; when idle, "now" refreshes on render.
+  const now = useNow(active);
+  const wakeLockHeld = useWakeLock(active);
 
-  const update = (next: ContractionState) => {
+  const update = (next: ContractionState | ((prev: ContractionState) => ContractionState)) => {
     const r = setState(next);
     setSaveError(r.ok ? null : r.error);
   };
@@ -121,6 +121,7 @@ export function ContractionsPage() {
             seconds and have been getting stronger for at least 2 to 3 hours - or sooner if your waters break, you have
             bleeding, your baby’s movements change, or you are under 37 weeks.
           </p>
+          <p>This app alerts a little earlier than Health NZ’s guidance on purpose, so you are told sooner rather than later.</p>
           <p>Always follow your midwife’s advice. In an emergency call 111.</p>
         </div>
       )}
@@ -179,7 +180,7 @@ export function ContractionsPage() {
                   <button
                     type="button"
                     className="btn btn--ghost"
-                    onClick={() => update({ ...state, contractions: state.contractions.filter((x) => x.start !== c.start) })}
+                    onClick={() => update((prev) => ({ ...prev, contractions: prev.contractions.filter((x) => x.start !== c.start) }))}
                   >
                     Delete
                   </button>

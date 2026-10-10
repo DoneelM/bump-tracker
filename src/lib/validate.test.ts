@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { validatePhotoFile, MAX_PHOTO_BYTES } from './photoStore';
-import { arrayOf, cleanString, isIntInRange, isNumberInRange, isRecord, parseNumberInput } from './validate';
+import { cleanString, isIntInRange, isNumberInRange, isRecord, parseNumberInput } from './validate';
 
 describe('validate helpers', () => {
   it('isRecord', () => {
@@ -22,12 +22,6 @@ describe('validate helpers', () => {
     expect(cleanString('  hi ', 5)).toBe('hi');
     expect(cleanString('toolong', 3)).toBeNull();
     expect(cleanString(3, 3)).toBeNull();
-  });
-
-  it('arrayOf drops invalid items', () => {
-    const nums = arrayOf((v) => (typeof v === 'number' ? v : null));
-    expect(nums([1, 'x', 2])).toEqual([1, 2]);
-    expect(nums('nope')).toBeNull();
   });
 
   it('parseNumberInput', () => {

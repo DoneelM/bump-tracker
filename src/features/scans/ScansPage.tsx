@@ -3,7 +3,7 @@ import { FormField } from '../../components/FormField';
 import { Page } from '../../components/Page';
 import { formatDisplayDate, type LocalDate } from '../../lib/dates';
 import { describeEfw } from '../../lib/fetalGrowth';
-import { formatWeeksDays, gestationalAge, lmpFromDueDate } from '../../lib/pregnancy';
+import { formatEntryAge, gestationalAge, lmpFromDueDate } from '../../lib/pregnancy';
 import type { PregnancyProfile } from '../../lib/profile';
 import {
   latestScanDate,
@@ -116,7 +116,7 @@ export function ScansPage({ profile, today }: { profile: PregnancyProfile; today
 
 function efwSummary(e: ScanEntry, profile: PregnancyProfile): string {
   const ga = gestationalAge(profile.dueDate, e.date);
-  return `Latest estimate: ${e.efwG} g at ${formatWeeksDays(ga.weeks, ga.days)} (${formatDisplayDate(e.date)}), ${describeEfw(e.efwG!, ga.totalDays)} of the WHO chart.`;
+  return `Latest estimate: ${e.efwG} g at ${formatEntryAge(ga)} (${formatDisplayDate(e.date)}), ${describeEfw(e.efwG!, ga.totalDays)} of the WHO chart.`;
 }
 
 interface ScanFormProps {
@@ -246,7 +246,7 @@ function ScanRow({ entry, profile, today, onSave, onDelete }: ScanRowProps) {
     <li className="card entry">
       <p className="entry__title">{scanTypeLabel(entry.type)}</p>
       <p className="muted">
-        {formatDisplayDate(entry.date)} · {formatWeeksDays(ga.weeks, ga.days)}
+        {formatDisplayDate(entry.date)} · {formatEntryAge(ga)}
       </p>
       {measured.length > 0 && (
         <ul className="entry__measures">

@@ -4,7 +4,7 @@
  * (week, date added) live together so they can never get out of sync. Nothing is uploaded anywhere.
  */
 import { isPlausibleDate, todayLocal, type LocalDate } from './dates';
-import { cleanString, isIntInRange, isRecord } from './validate';
+import { isIntInRange, isRecord } from './validate';
 
 const DB_NAME = 'bump-tracker';
 const DB_VERSION = 1;
@@ -12,7 +12,6 @@ const STORE = 'photos';
 
 export const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
 export const MAX_PHOTO_BYTES = 15 * 1024 * 1024;
-export const MAX_CAPTION_LENGTH = 200;
 export const MIN_PHOTO_WEEK = 1;
 export const MAX_PHOTO_WEEK = 45;
 export const MAX_PHOTO_EDGE = 1280;
@@ -25,7 +24,6 @@ export interface PhotoMeta {
   takenOn: LocalDate;
   /** Completed pregnancy week the photo belongs to. */
   week: number | null;
-  caption: string;
   type: string;
   size: number;
   createdAt: string; // ISO timestamp
@@ -49,17 +47,15 @@ export function validatePhotoFile(file: { type: string; size: number }): PhotoVa
 /** Validates a record read back from IndexedDB. */
 export function parsePhotoRecord(value: unknown): PhotoRecord | null {
   if (!isRecord(value)) return null;
-  const { id, takenOn, week, caption, type, size, createdAt, blob } = value;
+  const { id, takenOn, week, type, size, createdAt, blob } = value;
   if (typeof id !== 'string' || id.length === 0 || id.length > 100) return null;
   if (!isPlausibleDate(takenOn)) return null;
   if (week !== null && !isIntInRange(week, 0, 45)) return null;
-  const cleanCaption = cleanString(caption, MAX_CAPTION_LENGTH);
-  if (cleanCaption === null) return null;
   if (typeof type !== 'string' || !(ALLOWED_PHOTO_TYPES as readonly string[]).includes(type)) return null;
   if (!isIntInRange(size, 1, MAX_PHOTO_BYTES)) return null;
   if (typeof createdAt !== 'string') return null;
   if (typeof Blob === 'undefined' || !(blob instanceof Blob)) return null;
-  return { id, takenOn, week, caption: cleanCaption, type, size, createdAt, blob };
+  return { id, takenOn, week, type, size, createdAt, blob };
 }
 
 let dbPromise: Promise<IDBDatabase> | null = null;
@@ -74,10 +70,8 @@ function openDb(): Promise<IDBDatabase> {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onupgradeneeded = () => {
       const db = req.result;
-      if (!db.objectStoreNames.contains(STORE)) {
-        const store = db.createObjectStore(STORE, { keyPath: 'id' });
-        store.createIndex('takenOn', 'takenOn');
-      }
+      // Existing v1 databases keep their unused `takenOn` index; it is harmless, so no version bump.
+      if (!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE, { keyPath: 'id' });
     };
     req.onsuccess = () => {
       const db = req.result;
@@ -130,6 +124,37 @@ export function fitWithin(width: number, height: number, maxEdge = MAX_PHOTO_EDG
 /** True when an image is too many pixels to decode safely (decompression-bomb guard). */
 export const exceedsPixelLimit = (width: number, height: number): boolean => width * height > MAX_PHOTO_PIXELS;
 
+/** Reads width/height from the first bytes of a PNG, JPEG or WebP without decoding; null if not found. */
+export function readImageSize(b: Uint8Array): { width: number; height: number } | null {
+  const be16 = (i: number) => (b[i]! << 8) | b[i + 1]!;
+  const be32 = (i: number) => be16(i) * 65536 + be16(i + 2);
+  const le16 = (i: number) => b[i]! | (b[i + 1]! << 8);
+  const le24 = (i: number) => le16(i) | (b[i + 2]! << 16);
+  const tag = (i: number, s: string) => [...s].every((c, k) => b[i + k] === c.charCodeAt(0));
+  if (b.length >= 24 && b[0] === 0x89 && tag(1, 'PNG')) return { width: be32(16), height: be32(20) };
+  if (b[0] === 0xff && b[1] === 0xd8) {
+    let i = 2;
+    while (i + 9 < b.length) {
+      if (b[i] !== 0xff) return null;
+      const m = b[i + 1]!;
+      if (m === 0xff) i++; // fill byte
+      else if (m === 0x01 || (m >= 0xd0 && m <= 0xd9)) i += 2; // no length field
+      else if (m >= 0xc0 && m <= 0xcf && m !== 0xc4 && m !== 0xc8 && m !== 0xcc) return { width: be16(i + 7), height: be16(i + 5) };
+      else i += 2 + be16(i + 2);
+    }
+    return null;
+  }
+  if (b.length >= 30 && tag(0, 'RIFF') && tag(8, 'WEBP')) {
+    if (tag(12, 'VP8X')) return { width: le24(24) + 1, height: le24(27) + 1 };
+    if (tag(12, 'VP8L') && b[20] === 0x2f) {
+      const bits = (le16(21) | (le16(23) << 16)) >>> 0;
+      return { width: (bits & 0x3fff) + 1, height: ((bits >>> 14) & 0x3fff) + 1 };
+    }
+    if (tag(12, 'VP8 ') && b[23] === 0x9d && b[24] === 0x01 && b[25] === 0x2a) return { width: le16(26) & 0x3fff, height: le16(28) & 0x3fff };
+  }
+  return null;
+}
+
 /**
  * Validates, downscales (max 1280 px) and re-encodes as JPEG. Re-encoding through a canvas drops all
  * metadata, including location EXIF.
@@ -137,13 +162,15 @@ export const exceedsPixelLimit = (width: number, height: number): boolean => wid
 export async function preparePhoto(file: File): Promise<Blob> {
   const check = validatePhotoFile(file);
   if (!check.ok) throw new Error(check.error);
+  const size = readImageSize(new Uint8Array(await file.slice(0, 65536).arrayBuffer()));
+  if (size && exceedsPixelLimit(size.width, size.height)) throw new Error('This image is too large (over 50 megapixels).');
   let bitmap: ImageBitmap;
   try {
     bitmap = await createImageBitmap(file);
   } catch {
     throw new Error('This image could not be read. Please try a JPEG, PNG or WebP photo.');
   }
-  // shortcut: the full decode has already happened by now, so this stops the canvas work, not the allocation; upgrade by parsing header sizes first.
+  // Fallback for files whose header could not be parsed above.
   if (exceedsPixelLimit(bitmap.width, bitmap.height)) {
     bitmap.close();
     throw new Error('This image is too large (over 50 megapixels).');
@@ -167,7 +194,6 @@ function makeRecord(blob: Blob, week: number, takenOn: LocalDate): PhotoRecord {
     id: weekId(week),
     takenOn,
     week,
-    caption: '',
     type: blob.type,
     size: blob.size,
     createdAt: new Date().toISOString(),

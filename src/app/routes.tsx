@@ -45,7 +45,7 @@ function parseWeekParam(raw: string | undefined): number | null {
 
 /** Add new screens here. Order matters only for overlapping patterns. */
 export const ROUTES: readonly RouteDef[] = [
-  { pattern: '/', tab: 'home', render: ({ profile }) => <HomePage profile={profile} /> },
+  { pattern: '/', tab: 'home', render: ({ profile, today }) => <HomePage profile={profile} today={today} /> },
   {
     pattern: '/weeks',
     tab: 'weeks',
@@ -75,7 +75,7 @@ export const ROUTES: readonly RouteDef[] = [
   { pattern: '/more/data', tab: 'more', render: () => <DataPage /> },
   { pattern: '/more/sources', tab: 'more', render: () => <SourcesPage /> },
   { pattern: '/more/about', tab: 'more', render: () => <AboutPage /> },
-  { pattern: '/settings', tab: 'more', render: () => <SettingsPage /> },
+  { pattern: '/settings', tab: 'more', render: ({ today }) => <SettingsPage today={today} /> },
 ];
 
 export function resolveRoute(path: string): { route: RouteDef; params: RouteParams } | null {

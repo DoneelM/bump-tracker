@@ -3,7 +3,7 @@ import { Page } from '../../components/Page';
 import { ProgressBar } from '../../components/ProgressBar';
 import { SizeComparison } from '../../components/SizeComparison';
 import { clampGuideWeek, getWeekInfo } from '../../data/weeks';
-import { formatDisplayDate } from '../../lib/dates';
+import { formatDisplayDate, type LocalDate } from '../../lib/dates';
 import {
   daysUntilDue,
   formatWeeksDays,
@@ -18,14 +18,12 @@ import { KICKS_UNLOCK_WEEK } from '../../lib/kicks';
 import { nextAppointment, parseScanEntries, scanTypeLabel, type ScanEntry } from '../../lib/scans';
 import { STORAGE_KEYS } from '../../lib/storage';
 import { useStoredState } from '../../lib/useStoredState';
-import { useToday } from '../../lib/useToday';
 import { parseWeightEntries, sortByDate, type WeightEntry } from '../../lib/weightGain';
 
 const NO_WEIGHTS: WeightEntry[] = [];
 const NO_SCANS: ScanEntry[] = [];
 
-export function HomePage({ profile }: { profile: PregnancyProfile }) {
-  const today = useToday();
+export function HomePage({ profile, today }: { profile: PregnancyProfile; today: LocalDate }) {
   const ga = gestationalAge(profile.dueDate, today);
   const daysLeft = daysUntilDue(profile.dueDate, today);
   const left = splitDays(Math.max(0, daysLeft));
