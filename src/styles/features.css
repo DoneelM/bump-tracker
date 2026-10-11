@@ -251,8 +251,8 @@
 }
 
 .btn--danger {
-  background: var(--color-error);
-  color: var(--color-on-error);
+  background: var(--color-danger);
+  color: var(--color-on-danger);
 }
 
 .btn--danger:disabled {
