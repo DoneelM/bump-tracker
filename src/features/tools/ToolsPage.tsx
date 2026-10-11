@@ -12,10 +12,11 @@ export const TOOL_ITEMS: readonly HubItem[] = [
   { to: '/tools/bp', title: 'Blood pressure', description: 'If your care team asked you to check at home', icon: '💓' },
   { to: '/tools/glucose', title: 'Glucose', description: 'If your care team asked you to check at home', icon: '🩸' },
   { to: '/tools/checklists', title: 'Checklists', description: 'Hospital bag and birth plan', icon: '✅' },
+  { to: '/tools/names', title: 'Baby names', description: 'Your private shortlist', icon: '🏷️' },
 ];
 
 /** Pregnancy-only tools, hidden once the pregnancy has ended (birth or loss). Their pages still open by link. */
-const PREGNANCY_ONLY = new Set(['/tools/timeline', '/tools/contractions', '/tools/kicks']);
+const PREGNANCY_ONLY = new Set(['/tools/timeline', '/tools/contractions', '/tools/kicks', '/tools/names']);
 
 export function ToolsPage({ ending }: { ending?: PregnancyEnding['kind'] }) {
   const items = ending ? TOOL_ITEMS.filter((i) => !PREGNANCY_ONLY.has(i.to)) : TOOL_ITEMS;
