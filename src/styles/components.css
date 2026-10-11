@@ -127,13 +127,24 @@
   margin: var(--space-1) 0 var(--space-4);
 }
 
+/* Home: the trimester sits under the headline, not above it as an eyebrow. */
+.hero__ga--tight {
+  margin: 0 0 var(--space-1);
+}
+
+.hero__tri {
+  margin-bottom: var(--space-4);
+  color: var(--color-sage-700);
+  font-weight: 700;
+}
+
 /* Week labels sit at their true positions on the bar; the end labels align to the edges. */
 .hero__scale {
   position: relative;
-  height: 1.25rem;
+  height: 1.5em;
   margin: var(--space-1) 0 var(--space-4);
   color: var(--color-text-muted);
-  font-size: 0.75rem;
+  font-size: var(--font-size-sm);
 }
 
 .hero__scale span {
@@ -665,7 +676,7 @@ select.input--short {
 }
 
 .tag {
-  font-size: 0.75rem;
+  font-size: var(--font-size-sm);
   font-weight: 700;
   padding: 0.1rem 0.5rem;
   border-radius: var(--radius-pill);

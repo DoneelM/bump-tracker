@@ -289,3 +289,19 @@
   color: var(--color-sage-700);
   font-weight: 700;
 }
+
+/* Home help card: call buttons first, then the quieter links. */
+.help-row h2 {
+  margin-bottom: var(--space-1);
+}
+
+.help-row .button-row {
+  margin-top: var(--space-3);
+}
+
+.help-row__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-4);
+  margin-top: var(--space-2);
+}

@@ -78,25 +78,40 @@ export function CallCard({
   );
 }
 
-/** Compact Home row: call the midwife if saved, and a link to the full "When to call" page. */
+/**
+ * Compact Home card: every route is a real call button, so help is one tap away even before a
+ * midwife's number is saved. Midwife first when saved, then Healthline and 111.
+ */
 export function HelpRow() {
   const [team] = useCareTeam();
   const lmc = team.lmc;
   return (
-    <section className="card help-row" aria-label="Need help?">
-      <p>
-        <strong>Worried?</strong> Call your midwife/LMC. In an emergency, call 111.
-      </p>
+    <section className="card help-row" aria-labelledby="help-heading">
+      <h2 id="help-heading">Worried?</h2>
+      <p>Call your midwife/LMC. In an emergency, call 111.</p>
       <div className="button-row">
         {lmc && (
           <a className="btn btn--primary" href={telHref(lmc.phone)}>
-            Call {lmc.name || 'midwife'}
+            Call {lmc.name || 'your midwife'}
           </a>
         )}
-        <Link to="/more/warning-signs" className="btn btn--ghost">
+        <a className="btn btn--ghost" href={HEALTHLINE.tel}>
+          Call Healthline
+        </a>
+        <a className="btn btn--danger" href={EMERGENCY.tel}>
+          Call 111
+        </a>
+      </div>
+      <p className="help-row__links">
+        {!lmc && (
+          <Link to="/settings" className="text-link">
+            Add your midwife’s number
+          </Link>
+        )}
+        <Link to="/more/warning-signs" className="text-link">
           When to call
         </Link>
-      </div>
+      </p>
     </section>
   );
 }

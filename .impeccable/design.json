@@ -1,0 +1,336 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-11T00:00:00+13:00",
+  "title": "Design System: Bump Tracker",
+  "extensions": {
+    "colorMeta": {
+      "terracotta": {
+        "role": "primary",
+        "displayName": "Terracotta",
+        "canonical": "#b04a32",
+        "dark": "#f2957c",
+        "tonalRamp": [
+          "#3a160e",
+          "#5c2316",
+          "#7f301f",
+          "#943b27",
+          "#b04a32",
+          "#e8785a",
+          "#f9b99b",
+          "#ffeee4"
+        ]
+      },
+      "terracotta-deep": {
+        "role": "primary",
+        "displayName": "Terracotta Deep",
+        "canonical": "#943b27",
+        "dark": "#f7b09d"
+      },
+      "coral-500": {
+        "role": "primary",
+        "displayName": "Coral Glow (decorative)",
+        "canonical": "#e8785a",
+        "dark": "#e8785a"
+      },
+      "kawakawa-700": {
+        "role": "secondary",
+        "displayName": "Kawakawa Leaf",
+        "canonical": "#3d5a40",
+        "dark": "#a8cdb0",
+        "tonalRamp": [
+          "#17231a",
+          "#24372a",
+          "#3d5a40",
+          "#4e6b54",
+          "#7d9c7f",
+          "#b7cfae",
+          "#d4e3cd",
+          "#e5efe0"
+        ]
+      },
+      "kawakawa-300": {
+        "role": "secondary",
+        "displayName": "Kawakawa Mid",
+        "canonical": "#b7cfae",
+        "dark": "#4e6b54"
+      },
+      "kawakawa-100": {
+        "role": "secondary",
+        "displayName": "Kawakawa Wash",
+        "canonical": "#e5efe0",
+        "dark": "#1f2b22"
+      },
+      "cream": {
+        "role": "neutral",
+        "displayName": "Cream",
+        "canonical": "#fff8f0",
+        "dark": "#1b1412"
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Surface",
+        "canonical": "#ffffff",
+        "dark": "#261d1a"
+      },
+      "peach-100": {
+        "role": "neutral",
+        "displayName": "Peach Blush",
+        "canonical": "#ffeee4",
+        "dark": "#33251f"
+      },
+      "peach-200": {
+        "role": "neutral",
+        "displayName": "Peach Bloom",
+        "canonical": "#ffd9c4",
+        "dark": "#45302a"
+      },
+      "peach-300": {
+        "role": "neutral",
+        "displayName": "Peach Edge",
+        "canonical": "#f9b99b",
+        "dark": "#8c5a48"
+      },
+      "text": {
+        "role": "neutral",
+        "displayName": "Warm Ink",
+        "canonical": "#3b2a26",
+        "dark": "#f3e9e4"
+      },
+      "text-muted": {
+        "role": "neutral",
+        "displayName": "Warm Ink Muted",
+        "canonical": "#6b5550",
+        "dark": "#c9b6ae"
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Card Edge",
+        "canonical": "#f0dccf",
+        "dark": "#3e2f29"
+      },
+      "error": {
+        "role": "neutral",
+        "displayName": "Alert",
+        "canonical": "#a12a2a",
+        "dark": "#ff9d92"
+      },
+      "error-bg": {
+        "role": "neutral",
+        "displayName": "Alert Wash",
+        "canonical": "#fdecea",
+        "dark": "#3b1d1b"
+      },
+      "warning-bg": {
+        "role": "neutral",
+        "displayName": "Honey Wash",
+        "canonical": "#fff3d6",
+        "dark": "#352b17"
+      },
+      "focus": {
+        "role": "neutral",
+        "displayName": "Focus Blue",
+        "canonical": "#2f5ea8",
+        "dark": "#9bbcff"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Single key numbers: the countdown, big readouts."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Page titles and gestational age on Home."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card headings, hub and week card titles."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "All running text."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Tile labels, trimester name, tab labels, tags. 0.875rem is the floor."
+      }
+    },
+    "shadows": [
+      {
+        "name": "card-rest",
+        "value": "0 2px 10px rgb(176 74 50 / 0.08)",
+        "dark": "0 2px 10px rgb(0 0 0 / 0.35)",
+        "purpose": "Every card, hub item and the big timer button."
+      },
+      {
+        "name": "card-lift",
+        "value": "0 4px 16px rgb(176 74 50 / 0.14)",
+        "purpose": "Hover on link cards, with a 1px upward move."
+      },
+      {
+        "name": "tabbar",
+        "value": "0 -2px 12px rgb(59 42 38 / 0.06)",
+        "purpose": "Fixed bottom tab bar only."
+      }
+    ],
+    "motion": [
+      {
+        "name": "card-hover",
+        "value": "transform 0.15s ease, box-shadow 0.15s ease",
+        "purpose": "Link card lift. All motion is removed under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "details-stack",
+        "value": "400px"
+      },
+      {
+        "name": "tabbar-top",
+        "value": "768px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one action that matters on a card.",
+      "html": "<button class=\"ds-btn ds-btn-primary\">Save weight</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0.5rem 1.5rem; border: 2px solid transparent; border-radius: 999px; font: inherit; font-weight: 700; cursor: pointer; } .ds-btn-primary { background: var(--color-primary, #b04a32); color: var(--color-on-primary, #fff); } .ds-btn-primary:hover { background: var(--color-primary-hover, #943b27); } .ds-btn:focus-visible { outline: 3px solid var(--color-focus, #2f5ea8); outline-offset: 2px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary actions and helpline links.",
+      "html": "<button class=\"ds-btn-ghost\">When to call</button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; min-height: 48px; padding: 0.5rem 1.5rem; border: 2px solid var(--color-peach-300, #f9b99b); border-radius: 999px; background: transparent; color: var(--color-primary, #b04a32); font: inherit; font-weight: 700; cursor: pointer; } .ds-btn-ghost:hover { background: var(--color-peach-100, #ffeee4); } .ds-btn-ghost:focus-visible { outline: 3px solid var(--color-focus, #2f5ea8); outline-offset: 2px; }"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Call 111 and destructive data actions only.",
+      "html": "<button class=\"ds-btn-danger\">Call 111</button>",
+      "css": ".ds-btn-danger { display: inline-flex; align-items: center; min-height: 48px; padding: 0.5rem 1.5rem; border: 2px solid transparent; border-radius: 999px; background: var(--color-error, #a12a2a); color: var(--color-on-error, #fff); font: inherit; font-weight: 700; cursor: pointer; } .ds-btn-danger:focus-visible { outline: 3px solid var(--color-focus, #2f5ea8); outline-offset: 2px; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Paper on the kitchen table: one idea per card.",
+      "html": "<section class=\"ds-card\"><h2 class=\"ds-card-title\">Countdown</h2><p class=\"ds-card-big\">109</p><p class=\"ds-card-muted\">days to go</p></section>",
+      "css": ".ds-card { background: var(--color-surface, #fff); border: 1px solid var(--color-border, #f0dccf); border-radius: 1.5rem; box-shadow: 0 2px 10px rgb(176 74 50 / 0.08); padding: 1.5rem; color: var(--color-text, #3b2a26); } .ds-card-title { margin: 0 0 0.75rem; font-size: 1.125rem; } .ds-card-big { margin: 0; font-size: 2.5rem; font-weight: 800; line-height: 1; color: var(--color-primary, #b04a32); } .ds-card-muted { margin: 0; color: var(--color-text-muted, #6b5550); }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Labelled field with a 2px peach border.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Weight (kg)</span><input class=\"ds-input\" value=\"68.4\"></label>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 0.5rem; } .ds-field-label { font-weight: 700; } .ds-input { min-height: 48px; padding: 0.5rem 0.75rem; border: 2px solid var(--color-peach-300, #f9b99b); border-radius: 1rem; background: var(--color-surface, #fff); color: inherit; font: inherit; } .ds-input:focus-visible { border-color: var(--color-focus, #2f5ea8); outline: 3px solid var(--color-focus, #2f5ea8); outline-offset: 2px; }"
+    },
+    {
+      "name": "Tab Bar",
+      "kind": "nav",
+      "refersTo": "tabbar",
+      "description": "Five tabs, bottom-fixed on phones.",
+      "html": "<nav class=\"ds-tabbar\"><a class=\"ds-tab is-active\" href=\"#\"><span class=\"ds-tab-icon\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z\"/></svg></span>Home</a><a class=\"ds-tab\" href=\"#\"><span class=\"ds-tab-icon\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\"><rect x=\"4\" y=\"5\" width=\"16\" height=\"15\" rx=\"2\"/><path d=\"M4 10h16M9 3v4M15 3v4\"/></svg></span>Weeks</a><a class=\"ds-tab\" href=\"#\"><span class=\"ds-tab-icon\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\"><rect x=\"4\" y=\"4\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"13\" y=\"4\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"4\" y=\"13\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"13\" y=\"13\" width=\"7\" height=\"7\" rx=\"1\"/></svg></span>Tools</a></nav>",
+      "css": ".ds-tabbar { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--color-surface, #fff); border-top: 1px solid var(--color-border, #f0dccf); box-shadow: 0 -2px 12px rgb(59 42 38 / 0.06); } .ds-tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 64px; color: var(--color-text-muted, #6b5550); text-decoration: none; font-size: 0.75rem; font-weight: 600; } .ds-tab.is-active { color: var(--color-primary, #b04a32); } .ds-tab.is-active .ds-tab-icon { background: var(--color-peach-100, #ffeee4); border-radius: 999px; padding: 2px 14px; } .ds-tab-icon { display: inline-flex; } .ds-tab:focus-visible { outline: 3px solid var(--color-focus, #2f5ea8); outline-offset: -3px; }"
+    },
+    {
+      "name": "Big Timer Button",
+      "kind": "custom",
+      "refersTo": "big-button",
+      "description": "Circular start/stop for contractions and kicks.",
+      "html": "<button class=\"ds-big\">Start</button>",
+      "css": ".ds-big { width: 12rem; aspect-ratio: 1; border: 0; border-radius: 50%; background: var(--color-primary, #b04a32); color: var(--color-on-primary, #fff); font: inherit; font-size: 1.75rem; font-weight: 800; box-shadow: 0 2px 10px rgb(176 74 50 / 0.08); cursor: pointer; } .ds-big:hover { background: var(--color-primary-hover, #943b27); } .ds-big:focus-visible { outline: 3px solid var(--color-focus, #2f5ea8); outline-offset: 4px; }"
+    },
+    {
+      "name": "Tag",
+      "kind": "chip",
+      "refersTo": "tag",
+      "description": "Small status label on timeline items.",
+      "html": "<span class=\"ds-tag\">Optional</span> <span class=\"ds-tag ds-tag-warn\">Above your limit</span>",
+      "css": ".ds-tag { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 0.1rem 0.5rem; border-radius: 999px; background: var(--color-peach-100, #ffeee4); color: var(--color-primary, #b04a32); } .ds-tag-warn { background: var(--color-error-bg, #fdecea); color: var(--color-error, #a12a2a); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Kitchen Table",
+    "overview": "Bump Tracker should feel like the notebook kept on the kitchen table next to the fruit bowl: warm, domestic, always to hand, never a clinic form. The room is cream and peach, the ink is a warm brown, and the one strong colour is terracotta, saved for the thing you should press. A second voice, kawakawa green, marks calm facts: the trimester, a timeline date, a disclaimer, an \"all good\" state.\n\nThe mood is gentle, tactile and hopeful. Surfaces are soft, rounded cards with a faint warm shadow, so they read as objects you can pick up. Emoji and the stylised baby illustrations add a light, human touch. Underneath the softness the system is strict: every colour pair is tested for WCAG AA in both themes, every tap target is at least 48px, and type is the device's own system font so nothing loads and nothing looks foreign on the phone.\n\nDensity is low. One column, a 40rem content width, generous card padding, and one idea per card. The phone is the primary canvas; wide screens get the same column with the tab bar moved to the top.",
+    "keyCharacteristics": [
+      "Cream ground, white or peach cards, warm brown text.",
+      "Terracotta for primary actions and key numbers only; kawakawa for calm status.",
+      "Rounded everything: 24px cards, pill buttons, a circular timer button.",
+      "System font, bold weights for hierarchy, tabular numbers for timers.",
+      "Light and dark themes are written twice and kept identical in structure."
+    ],
+    "rules": [
+      {
+        "name": "The One Terracotta Rule",
+        "body": "Terracotta means \"press this\" or \"this is the number that matters\". If two things on a card are terracotta, one of them is wrong.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tested Pair Rule",
+        "body": "No colour pair ships without its contrast ratio, in both themes, written in the comment at the top of tokens.css.",
+        "section": "colors"
+      },
+      {
+        "name": "The Decorative Coral Rule",
+        "body": "Coral Glow never carries meaning on its own and never sets text.",
+        "section": "colors"
+      },
+      {
+        "name": "The Weight Not Face Rule",
+        "body": "Hierarchy comes from weight and size. Do not add a second typeface or a web font.",
+        "section": "typography"
+      },
+      {
+        "name": "The No Eyebrow Rule",
+        "body": "Headings carry their own weight. Don't put an uppercase kicker above them; put the fact in the line below instead.",
+        "section": "typography"
+      },
+      {
+        "name": "The Steady Numbers Rule",
+        "body": "Anything that ticks (timers, counts) uses font-variant-numeric: tabular-nums so digits don't jump.",
+        "section": "typography"
+      },
+      {
+        "name": "The Thumb Zone Rule",
+        "body": "On a 390px screen, the key action for a screen (start timer, call, save) sits above the bottom tab bar without scrolling.",
+        "section": "layout"
+      },
+      {
+        "name": "The Call Route Rule",
+        "body": "The call card or help row stays where it is on Home, the contraction timer, the kick counter and the warning signs page. Layout changes must not push it below the fold.",
+        "section": "layout"
+      },
+      {
+        "name": "The Paper Rule",
+        "body": "One resting shadow for all cards. Lift happens only on hover of something you can tap.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do take every colour, space, radius and size from tokens.css.",
+      "Do check new colour pairs for 4.5:1 in both themes and record the ratio in the tokens.css header.",
+      "Do give every light --color-* token a dark value, in both dark blocks.",
+      "Do keep tap targets at 48px minimum (--tap-target).",
+      "Do use terracotta for the single primary action or key number on a card.",
+      "Do use kawakawa for calm, factual status.",
+      "Do keep charts on theme colours: terracotta for the user's data, kawakawa for reference lines and bands, Alert for user-entered limits."
+    ],
+    "donts": [
+      "Don't set text in Coral Glow.",
+      "Don't add web fonts or a second typeface.",
+      "Don't hard-code hex values or pixel spacing in component or feature CSS.",
+      "Don't use CSS-in-JS or anything that injects <style> tags (it breaks the CSP).",
+      "Don't add shadows beyond the three in the vocabulary.",
+      "Don't move or hide the call routes on Home, the timers or the warning signs page.",
+      "Don't draw a focus ring around page headings."
+    ]
+  }
+}

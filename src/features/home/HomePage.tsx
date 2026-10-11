@@ -33,6 +33,8 @@ const NO_SCANS: ScanEntry[] = [];
 const SCALE_WEEKS = [0, 14, 28, 40] as const;
 /** The contraction timer joins the quick actions at term; before that it stays in Tools. */
 const TIMER_QUICK_ACTION_WEEK = 37;
+/** From here the help card moves to the top of Home. A layout choice, not a clinical threshold. */
+const HELP_FIRST_WEEK = 36;
 
 export function HomePage({ profile, today }: { profile: PregnancyProfile; today: LocalDate }) {
   if (profile.ending?.kind === 'born') return <BornHome profile={profile} ending={profile.ending} />;
@@ -49,56 +51,72 @@ function PregnancyHome({ profile, today }: { profile: PregnancyProfile; today: L
   const beforeLmp = ga.totalDays < 0;
   const guideWeek = clampGuideWeek(ga.weeks);
   const weekInfo = getWeekInfo(guideWeek);
-  const name = profile.nickname || 'Baby';
+  const name = profile.nickname || 'your baby';
   const [weights] = useStoredState<WeightEntry[]>(STORAGE_KEYS.weightEntries, NO_WEIGHTS, parseWeightEntries);
   const [scans] = useStoredState<ScanEntry[]>(STORAGE_KEYS.scanEntries, NO_SCANS, parseScanEntries);
   const latestWeight = sortByDate(weights).at(-1);
   const next = nextAppointment(scans, today);
+  const helpFirst = ga.weeks >= HELP_FIRST_WEEK;
+
+  const hero = (
+    <section className="card hero" aria-labelledby="hero-heading">
+      <h2 id="hero-heading" className="hero__ga hero__ga--tight">
+        {beforeLmp ? 'Not started yet' : formatWeeksDays(ga.weeks, ga.days)}
+      </h2>
+      <p className="hero__tri">{TRIMESTER_LABEL[tri]}</p>
+      <ProgressBar
+        value={progressFraction(ga.totalDays)}
+        label="Pregnancy progress"
+        valueText={`${formatWeeksDays(Math.max(0, ga.weeks), Math.max(0, ga.days))} of 40 weeks`}
+      />
+      <p className="hero__scale" aria-hidden="true">
+        {SCALE_WEEKS.map((w) => (
+          <span key={w} style={{ left: `${(w / 40) * 100}%` }}>
+            {w === 40 ? '40 wks' : w}
+          </span>
+        ))}
+      </p>
+      <p className="hero__countdown">
+        {daysLeft > 0 ? (
+          <>
+            <span className="hero__days">{daysLeft}</span> {daysLeft === 1 ? 'day' : 'days'} until you meet {name}
+          </>
+        ) : daysLeft === 0 ? (
+          'Today is your due date! 💛'
+        ) : (
+          `Your due date was ${-daysLeft} ${daysLeft === -1 ? 'day' : 'days'} ago.`
+        )}
+      </p>
+      <p className="muted">
+        {daysLeft > 0 && `${formatWeeksDays(left.weeks, left.days)} to go. `}Due {formatDisplayDate(profile.dueDate)}
+      </p>
+    </section>
+  );
 
   return (
     <Page
       title="Home"
       hideTitle
       footer={
-        <p className="page-footer">
+        <div className="page-footer">
+          <p>Your data stays on this device unless you turn on sync.</p>
           <a href="./privacy.html" className="text-link">
             Privacy policy
           </a>
-        </p>
+        </div>
       }
     >
-      <section className="card hero" aria-labelledby="hero-heading">
-        <p className="hero__eyebrow">{TRIMESTER_LABEL[tri]}</p>
-        <h2 id="hero-heading" className="hero__ga">
-          {beforeLmp ? 'Not started yet' : formatWeeksDays(ga.weeks, ga.days)}
-        </h2>
-        <ProgressBar
-          value={progressFraction(ga.totalDays)}
-          label="Pregnancy progress"
-          valueText={`${Math.max(0, ga.weeks)} of 40 weeks`}
-        />
-        <p className="hero__scale" aria-hidden="true">
-          {SCALE_WEEKS.map((w) => (
-            <span key={w} style={{ left: `${(w / 40) * 100}%` }}>
-              {w === 40 ? '40 wks' : w}
-            </span>
-          ))}
-        </p>
-        <p className="hero__countdown">
-          {daysLeft > 0 ? (
-            <>
-              <span className="hero__days">{daysLeft}</span> {daysLeft === 1 ? 'day' : 'days'} until you meet {name}
-            </>
-          ) : daysLeft === 0 ? (
-            'Today is your due date! 💛'
-          ) : (
-            `Your due date was ${-daysLeft} ${daysLeft === -1 ? 'day' : 'days'} ago.`
-          )}
-        </p>
-        <p className="muted">
-          {daysLeft > 0 && `${formatWeeksDays(left.weeks, left.days)} to go. `}Due {formatDisplayDate(profile.dueDate)}
-        </p>
-      </section>
+      {helpFirst ? (
+        <>
+          <HelpRow />
+          {hero}
+        </>
+      ) : (
+        <>
+          {hero}
+          <HelpRow />
+        </>
+      )}
 
       {pastDue !== 'none' && (
         <GuidanceCard g={{ ...PAST_DUE, body: pastDue === 'overdue' ? `${PAST_DUE.body} ${PAST_DUE_OVERDUE_LINE}` : PAST_DUE.body }} />
@@ -114,8 +132,7 @@ function PregnancyHome({ profile, today }: { profile: PregnancyProfile; today: L
         {weekInfo && <SizeComparison info={weekInfo} size={112} />}
       </Link>
 
-      <HelpRow />
-
+      {ga.weeks === KICKS_UNLOCK_WEEK && <p className="muted">New from {KICKS_UNLOCK_WEEK} weeks: the kick counter.</p>}
       <nav className="quick-actions" aria-label="Quick actions">
         {ga.weeks >= TIMER_QUICK_ACTION_WEEK && (
           <Link to="/tools/contractions" className="btn btn--primary">
@@ -132,30 +149,25 @@ function PregnancyHome({ profile, today }: { profile: PregnancyProfile; today: L
         </Link>
       </nav>
 
-      <div className="summary-grid">
-        <Link to="/tools/weight" className="card card--link summary-tile">
-          <span className="summary-tile__label">Latest weight</span>
-          {latestWeight ? (
-            <>
+      {/* Only tiles with something to show; the logs are a tap away in Tools. */}
+      {(latestWeight || next) && (
+        <div className="summary-grid">
+          {latestWeight && (
+            <Link to="/tools/weight" className="card card--link summary-tile">
+              <span className="summary-tile__label">Latest weight</span>
               <span className="summary-tile__value">{Math.round(latestWeight.weightKg * 10) / 10} kg</span>
               <span className="muted">{formatDisplayDate(latestWeight.date)}</span>
-            </>
-          ) : (
-            <span className="muted">Nothing logged yet</span>
+            </Link>
           )}
-        </Link>
-        <Link to="/tools/scans" className="card card--link summary-tile">
-          <span className="summary-tile__label">Next appointment</span>
-          {next ? (
-            <>
+          {next && (
+            <Link to="/tools/scans" className="card card--link summary-tile">
+              <span className="summary-tile__label">Next appointment</span>
               <span className="summary-tile__value">{scanTypeLabel(next.type)}</span>
               <span className="muted">{formatDisplayDate(next.date)}</span>
-            </>
-          ) : (
-            <span className="muted">None planned yet</span>
+            </Link>
           )}
-        </Link>
-      </div>
+        </div>
+      )}
 
       <ComingUpCard dueDate={profile.dueDate} today={today} />
 
