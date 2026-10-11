@@ -85,7 +85,7 @@ Users can sync their data between devices through the hidden app folder (`appDat
    ```
    VITE_GOOGLE_CLIENT_ID=626836380740-79lmpemmqhe936isbhd9k2m75bbpjtj1.apps.googleusercontent.com
    ```
-5. **Before publishing:** add a contact email to `public/privacy.html` (it is marked "add a contact email").
+5. **Contact email:** `public/privacy.html` lists `dons-bot@agentmail.to` for privacy questions. Use the same address as the support email on the OAuth consent screen, and keep the two in sync.
 
 **Limits to know about:**
 
