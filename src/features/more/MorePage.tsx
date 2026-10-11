@@ -6,6 +6,7 @@ export const MORE_ITEMS: readonly HubItem[] = [
   { to: '/more/print', title: 'Print summary', description: 'A printable summary for appointments', icon: '🖨️' },
   { to: '/settings', title: 'Settings', description: 'Due date and baby’s nickname', icon: '⚙️' },
   { to: '/more/data', title: 'Your data', description: 'Back up, import or delete', icon: '💾' },
+  { to: '/more/sync', title: 'Sync', description: 'Use your data on more than one device', icon: '🔄' },
   { to: '/more/sources', title: 'Sources', description: 'Where our information comes from', icon: '📚' },
   { to: '/more/about', title: 'About', description: 'Privacy and how this app works', icon: '💡' },
 ];

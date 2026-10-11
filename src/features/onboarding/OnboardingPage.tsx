@@ -21,8 +21,8 @@ export function OnboardingPage() {
         </span>
         <h1>Kia ora, welcome to Bump Tracker</h1>
         <p>
-          Let’s work out your estimated due date. Everything you enter stays private on this device. There are no
-          accounts and nothing is sent anywhere.
+          Let’s work out your estimated due date. Everything you enter stays private on this device. Nothing is sent
+          anywhere unless you turn on sync, and then only encrypted.
         </p>
       </div>
       {!isStorageAvailable() && (
@@ -46,7 +46,7 @@ export function OnboardingPage() {
       <p>
         Moving from another device?{' '}
         <Link to="/restore" className="text-link">
-          Restore from a backup
+          Restore your data
         </Link>
       </p>
       <HealthDisclaimer />

@@ -1,13 +1,14 @@
 # Security and cache headers, Cloudflare `_headers` syntax. Vite copies this to dist/; Cloudflare applies it and
 # doesn't serve it. The CSP matches the <meta> CSP in vite.config.ts, plus frame-ancestors, which a meta tag can't set.
+# The accounts.google.com and googleapis.com sources and the COOP popup allowance are for optional Google Drive sync.
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; style-src 'self' https://accounts.google.com/gsi/style; frame-src https://accounts.google.com/gsi/; img-src 'self' blob: data:; font-src 'self'; connect-src 'self' https://accounts.google.com/gsi/ https://www.googleapis.com; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: no-referrer
   Permissions-Policy: camera=(), microphone=(), geolocation=(), browsing-topics=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains
-  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
 /sw.js
   Cache-Control: no-cache
 /assets/*

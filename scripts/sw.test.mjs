@@ -89,6 +89,18 @@ describe('service worker', () => {
     expect(injectPrecache(b).version).not.toBe(ra.version);
   });
 
+  it('serves the shell only for navigations to the app root; other pages come from the network', async () => {
+    const v = fakeDist('index-eee.js');
+    injectPrecache(v);
+    const server = { ...serverFor(v, 'index-eee.js'), 'privacy.html': 'privacy page' };
+    const w = loadWorker(v, new Map(), server, { online: true });
+    await w.install();
+    await w.activate();
+    expect(await w.get('?utm=x#/more', 'navigate')).toBe('html:index-eee.js');
+    expect(await w.get('index.html', 'navigate')).toBe('html:index-eee.js');
+    expect(await w.get('privacy.html', 'navigate')).toBe('privacy page');
+  });
+
   it('serves a shell cached through a redirect as a plain response', async () => {
     const v = fakeDist('index-ddd.js');
     injectPrecache(v);

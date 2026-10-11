@@ -15,6 +15,7 @@ import { PrintPage } from '../features/print/PrintPage';
 import { ScansPage } from '../features/scans/ScansPage';
 import { SettingsPage } from '../features/settings/SettingsPage';
 import { SourcesPage } from '../features/sources/SourcesPage';
+import { SyncPage } from '../features/sync/SyncPage';
 import { ToolsPage } from '../features/tools/ToolsPage';
 import { WeekDetailPage } from '../features/weeks/WeekDetailPage';
 import { WeeksPage } from '../features/weeks/WeeksPage';
@@ -73,6 +74,7 @@ export const ROUTES: readonly RouteDef[] = [
   { pattern: '/more/partner', tab: 'more', render: ({ profile, today }) => <PartnerPage profile={profile} today={today} /> },
   { pattern: '/more/print', tab: 'more', render: ({ profile, today }) => <PrintPage profile={profile} today={today} /> },
   { pattern: '/more/data', tab: 'more', render: () => <DataPage /> },
+  { pattern: '/more/sync', tab: 'more', render: () => <SyncPage /> },
   { pattern: '/more/sources', tab: 'more', render: () => <SourcesPage /> },
   { pattern: '/more/about', tab: 'more', render: () => <AboutPage /> },
   { pattern: '/settings', tab: 'more', render: ({ today }) => <SettingsPage today={today} /> },

@@ -11,6 +11,7 @@ const VERSION = 'dev';
 const PRECACHE = []; // filled in by scripts/sw-precache.mjs
 const CACHE_NAME = `bump-tracker-${VERSION}`;
 const SHELL = new URL('./index.html', self.registration.scope).href;
+const ROOT = new URL('./', self.registration.scope).pathname;
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -32,11 +33,13 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const { request } = event;
-  if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
-  // Hash routing: every navigation is the shell.
-  const key = request.mode === 'navigate' ? SHELL : request;
+  const url = new URL(request.url);
+  if (request.method !== 'GET' || url.origin !== self.location.origin) return;
+  // Hash routing: navigations to the app's root are the shell. Other pages (privacy.html) go to the network.
+  const shell = request.mode === 'navigate' && (url.pathname === ROOT || url.pathname === `${ROOT}index.html`);
+  const key = shell ? SHELL : request;
   event.respondWith(
-    caches.open(CACHE_NAME).then((cache) => cache.match(key, { ignoreSearch: request.mode === 'navigate', ignoreVary: true })).then((hit) => (hit ? unredirect(hit) : fetch(request))),
+    caches.open(CACHE_NAME).then((cache) => cache.match(key, { ignoreSearch: shell, ignoreVary: true })).then((hit) => (hit ? unredirect(hit) : fetch(request))),
   );
 });
 

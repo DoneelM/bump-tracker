@@ -2,7 +2,7 @@
   "name": "bump-tracker",
   "private": true,
   "version": "0.1.0",
-  "description": "Privacy-first pregnancy tracker demo. All data stays in the browser.",
+  "description": "Privacy-first pregnancy tracker demo. Data stays in the browser, with optional end-to-end encrypted sync via the user's own Google Drive.",
   "type": "module",
   "scripts": {
     "dev": "vite",

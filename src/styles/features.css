@@ -224,3 +224,17 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* Sync recovery code: large, monospaced, easy to copy by hand */
+.recovery-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  overflow-wrap: anywhere;
+  user-select: all;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+}

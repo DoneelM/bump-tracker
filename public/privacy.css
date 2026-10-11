@@ -1,0 +1,29 @@
+body {
+  margin: 0;
+  background: #fff8f0;
+  color: #3b2a26;
+  font: 16px/1.6 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+main {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+h1 {
+  font-size: 1.6rem;
+  line-height: 1.25;
+}
+h2 {
+  font-size: 1.2rem;
+  margin-top: 2rem;
+}
+a {
+  color: #b04a32;
+}
+.muted {
+  color: #6b5550;
+}
+.todo {
+  background: #ffe1d6;
+  padding: 0 0.25rem;
+}
