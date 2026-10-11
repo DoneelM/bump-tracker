@@ -13,6 +13,12 @@ import { STORAGE_KEYS } from '../../lib/storage';
 import { useStoredState } from '../../lib/useStoredState';
 import { openQuestions } from '../../lib/questions';
 import { useQuestions } from '../questions/QuestionsPage';
+import { glucoseContextLabel, newestFirst, parseBpReadings, parseGlucoseReadings, type BpReading, type GlucoseReading } from '../../lib/monitoring';
+import { useTargets } from '../monitoring/BpPage';
+
+const NO_BP: BpReading[] = [];
+const NO_GLUCOSE: GlucoseReading[] = [];
+const PRINT_READINGS = 14;
 import { parsePrePregnancy, parseWeightEntries, sortByDate, type PrePregnancy, type WeightEntry } from '../../lib/weightGain';
 
 const NO_WEIGHTS: WeightEntry[] = [];
@@ -34,6 +40,12 @@ export function PrintPage({ profile, today }: { profile: PregnancyProfile; today
   const [scans] = useStoredState<ScanEntry[]>(STORAGE_KEYS.scanEntries, NO_SCANS, parseScanEntries);
   const [questions] = useQuestions();
   const openQs = openQuestions(questions);
+  const [bpAll] = useStoredState<BpReading[]>(STORAGE_KEYS.bpReadings, NO_BP, parseBpReadings);
+  const [gAll] = useStoredState<GlucoseReading[]>(STORAGE_KEYS.glucoseReadings, NO_GLUCOSE, parseGlucoseReadings);
+  const [targets] = useTargets();
+  const bp = newestFirst(bpAll).slice(0, PRINT_READINGS);
+  const glucose = newestFirst(gAll).slice(0, PRINT_READINGS);
+  const gTargets = (['fasting', '1h', '2h'] as const).filter((c) => targets.glucoseMax[c] !== undefined);
   const [journal] = useStoredState<JournalEntry[]>(STORAGE_KEYS.journal, NO_JOURNAL, parseJournalEntries);
   const [kicks] = useStoredState<KickSession[]>(STORAGE_KEYS.kickSessions, NO_KICKS, parseKickSessions);
   const [contractions] = useStoredState<ContractionState>(STORAGE_KEYS.contractions, EMPTY_STATE, parseContractionState);
@@ -136,6 +148,48 @@ export function PrintPage({ profile, today }: { profile: PregnancyProfile; today
             </ul>
           )}
         </section>
+
+        {(bp.length > 0 || glucose.length > 0) && (
+          <section className="card print-card" aria-labelledby="pr-monitoring">
+            <h2 id="pr-monitoring">Home monitoring (latest {PRINT_READINGS})</h2>
+            {bp.length > 0 && (
+              <>
+                <h3>Blood pressure</h3>
+                {(targets.bpSystolicMax !== null || targets.bpDiastolicMax !== null) && (
+                  <p className="muted">
+                    My targets: top no higher than {targets.bpSystolicMax ?? 'not set'}, bottom no higher than {targets.bpDiastolicMax ?? 'not set'}.
+                  </p>
+                )}
+                <ul className="plain-list">
+                  {bp.map((r) => (
+                    <li key={r.id}>
+                      <strong>{formatDisplayDate(r.date)}</strong>
+                      {r.time && ` ${r.time}`} - {r.systolic}/{r.diastolic} mmHg{r.pulse !== null && `, pulse ${r.pulse}`}
+                      {r.note && `; ${r.note}`}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+            {glucose.length > 0 && (
+              <>
+                <h3>Glucose</h3>
+                {gTargets.length > 0 && (
+                  <p className="muted">My targets: {gTargets.map((c) => `${glucoseContextLabel(c).toLowerCase()} ${targets.glucoseMax[c]}`).join(', ')} mmol/L.</p>
+                )}
+                <ul className="plain-list">
+                  {glucose.map((r) => (
+                    <li key={r.id}>
+                      <strong>{formatDisplayDate(r.date)}</strong>
+                      {r.time && ` ${r.time}`} - {r.mmol.toFixed(1)} mmol/L, {glucoseContextLabel(r.context).toLowerCase()}
+                      {r.note && `; ${r.note}`}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </section>
+        )}
 
         <section className="card print-card" aria-labelledby="pr-questions">
           <h2 id="pr-questions">Questions to ask</h2>

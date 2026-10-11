@@ -18,6 +18,8 @@ import { ScansPage } from '../features/scans/ScansPage';
 import { SettingsPage } from '../features/settings/SettingsPage';
 import { SourcesPage } from '../features/sources/SourcesPage';
 import { SyncPage } from '../features/sync/SyncPage';
+import { BpPage } from '../features/monitoring/BpPage';
+import { GlucosePage } from '../features/monitoring/GlucosePage';
 import { TimelinePage } from '../features/timeline/TimelinePage';
 import { ToolsPage } from '../features/tools/ToolsPage';
 import { WeekDetailPage } from '../features/weeks/WeekDetailPage';
@@ -72,6 +74,8 @@ export const ROUTES: readonly RouteDef[] = [
   { pattern: '/tools/kicks', tab: 'tools', render: ({ profile, today }) => <KicksPage profile={profile} today={today} /> },
   { pattern: '/tools/photos', tab: 'tools', render: ({ profile, today }) => <PhotosPage profile={profile} today={today} /> },
   { pattern: '/tools/checklists', tab: 'tools', render: () => <ChecklistsPage /> },
+  { pattern: '/tools/bp', tab: 'tools', render: ({ today }) => <BpPage today={today} /> },
+  { pattern: '/tools/glucose', tab: 'tools', render: ({ today }) => <GlucosePage today={today} /> },
   { pattern: '/tools/timeline', tab: 'tools', render: ({ profile, today }) => <TimelinePage profile={profile} today={today} /> },
   { pattern: '/journal', tab: 'journal', render: () => <JournalPage /> },
   { pattern: '/journal/questions', tab: 'journal', render: ({ today }) => <QuestionsPage today={today} /> },
