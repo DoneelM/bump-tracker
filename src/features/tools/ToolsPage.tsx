@@ -16,7 +16,7 @@ export const TOOL_ITEMS: readonly HubItem[] = [
 ];
 
 /** Pregnancy-only tools, hidden once the pregnancy has ended (birth or loss). Their pages still open by link. */
-const PREGNANCY_ONLY = new Set(['/tools/timeline', '/tools/contractions', '/tools/kicks']);
+const PREGNANCY_ONLY = new Set(['/tools/timeline', '/tools/contractions', '/tools/kicks', '/tools/names']);
 
 export function ToolsPage({ ending }: { ending?: PregnancyEnding['kind'] }) {
   const items = ending ? TOOL_ITEMS.filter((i) => !PREGNANCY_ONLY.has(i.to)) : TOOL_ITEMS;
