@@ -5,6 +5,7 @@ import { Page } from '../../components/Page';
 import { EMERGENCY, HEALTHLINE, MISCARRIAGE_SUPPORT, NEED_TO_TALK, PLUNKETLINE, SANDS } from '../../data/helplines';
 import { VISITS } from '../../data/immunisations';
 import { useImmunisationsDone } from '../immunisations/ImmunisationsPage';
+import { CheckInCard, SafeSleepCard } from '../support/ParentCards';
 import { nextVisit } from '../../lib/immunisations';
 import { formatBabyAge } from '../../lib/babyAge';
 import { formatDisplayDate, type LocalDate } from '../../lib/dates';
@@ -101,6 +102,8 @@ export function BornHome({
         </Link>
       )}
       <HubList items={BABY_TOOLS} />
+      <CheckInCard today={today} />
+      <SafeSleepCard />
       <CallCard title="Help with your baby" lines={[PLUNKETLINE, HEALTHLINE, EMERGENCY]} />
       <section aria-labelledby="keepsakes-heading">
         <h2 id="keepsakes-heading">Your pregnancy</h2>

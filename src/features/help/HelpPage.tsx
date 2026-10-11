@@ -14,6 +14,7 @@ import {
 } from '../../data/babyHelp';
 import { EMERGENCY, HEALTHLINE, PLUNKETLINE } from '../../data/helplines';
 import { SOURCES } from '../../data/sources';
+import { RecoveryCard, SupportForYou } from '../support/ParentCards';
 
 function Source({ id }: { id: string }) {
   const s = SOURCES.find((x) => x.id === id);
@@ -112,6 +113,9 @@ export function HelpPage() {
       </section>
 
       <CallCard title="Who to call" lines={[PLUNKETLINE, HEALTHLINE, EMERGENCY]} />
+
+      <RecoveryCard />
+      <SupportForYou />
     </Page>
   );
 }

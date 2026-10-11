@@ -196,6 +196,27 @@ export const SOURCES: readonly Source[] = [
     usedFor: 'Baby immunisation visits, the vaccines at each, and that they are free (immunisations screen).',
   },
   {
+    id: 'pada-get-help',
+    title: 'Get help now',
+    publisher: 'Perinatal Anxiety & Depression Aotearoa (PADA)',
+    url: 'https://pada.nz/get-help-now/',
+    usedFor: 'Support lines for parents (Lifeline, Samaritans, 1737, PlunketLine) and who to talk to (baby mode).',
+  },
+  {
+    id: 'healthify-birth-injuries',
+    title: 'Maternal birth injuries: when should I seek medical help?',
+    publisher: 'Healthify (reviewed by ACC Maternal Birth Injury Team)',
+    url: 'https://healthify.nz/health-a-z/m/maternal-birth-injuries',
+    usedFor: 'Signs to contact your healthcare provider about after the birth (Help tab, baby mode).',
+  },
+  {
+    id: 'starship-safe-sleep',
+    title: 'Safe sleep: birth to 11 months',
+    publisher: 'Starship Safekids',
+    url: 'https://www.starship.org.nz/safekids/safe-sleep-birth-to-11-months/',
+    usedFor: 'Safe sleep card (A.B.C. and top tips) on Home in baby mode.',
+  },
+  {
     id: 'plunketline',
     title: 'PlunketLine',
     publisher: 'Whānau Āwhina Plunket',
