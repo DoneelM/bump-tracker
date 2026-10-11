@@ -23,11 +23,7 @@ export function OnboardingPage() {
         <h1>Kia ora, welcome to Bump Tracker</h1>
         <p>
           Let’s work out your estimated due date. Everything you enter stays private on this device. Nothing is sent
-          anywhere unless you turn on sync, and then only encrypted.{' '}
-          <a href="./privacy.html" className="text-link">
-            Read our privacy policy
-          </a>
-          .
+          anywhere unless you turn on sync, and then only encrypted.
         </p>
       </div>
       {!isStorageAvailable() && (
@@ -69,6 +65,11 @@ export function OnboardingPage() {
         }}
       />
       <HealthDisclaimer />
+      <p className="page-footer">
+        <a href="./privacy.html" className="text-link">
+          Privacy policy
+        </a>
+      </p>
     </main>
   );
 }
