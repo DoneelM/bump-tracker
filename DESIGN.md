@@ -18,6 +18,7 @@ colors:
   border: "#f0dccf"
   error: "#a12a2a"
   error-bg: "#fdecea"
+  danger: "#a12a2a"
   warning-bg: "#fff3d6"
   focus: "#2f5ea8"
   on-primary: "#ffffff"
@@ -77,7 +78,7 @@ components:
   button-ghost-hover:
     backgroundColor: "{colors.peach-100}"
   button-danger:
-    backgroundColor: "{colors.error}"
+    backgroundColor: "{colors.danger}"
     textColor: "{colors.on-primary}"
     rounded: "{rounded.pill}"
     padding: "0.5rem 1.5rem"
@@ -154,7 +155,8 @@ A warm, low-contrast room with one assertive accent and one calm one.
 - **Warm Ink** (`text`): body text, 12.9:1 on cream.
 - **Warm Ink Muted** (`text-muted`): secondary text, 6.6:1 on cream.
 - **Card Edge** (`border`): 1px card borders and dividers.
-- **Alert** (`error`, `error-bg`): errors, the 111 and delete buttons, readings above a user-entered limit.
+- **Alert** (`error`, `error-bg`): error text and washes, readings above a user-entered limit.
+- **Danger Red** (`danger`): fill for the 111 and delete buttons, always with white text. In dark mode it stays a deep red (not the light Alert pink) so it never looks like the salmon primary button.
 - **Honey Wash** (`warning-bg`): the 5-1-1 alert banner and warning cards.
 - **Focus Blue** (`focus`): focus rings only. Deliberately outside the palette so it is never mistaken for content.
 
@@ -226,7 +228,7 @@ Pill-shaped, bold, never smaller than a thumb.
 - **Primary:** terracotta fill, white text (dark text in dark mode).
 - **Hover / Focus:** fill darkens to Terracotta Deep; focus is the global 3px Focus Blue ring with 2px offset.
 - **Ghost:** transparent with a Peach Edge border and terracotta text; Peach Blush fill on hover. Used for secondary actions and helpline links.
-- **Danger:** Alert fill with white text. Used for "Call 111" and destructive data actions only.
+- **Danger:** Danger Red fill with white text, in both themes. Used for "Call 111" and destructive data actions only.
 
 ### The Big Button
 The contraction timer and kick counter's circular button: up to 18rem across (80vw on small phones), terracotta at rest, Kawakawa Leaf while running, 1.75rem/800 label, resting card shadow. It is the one place the system gets large.

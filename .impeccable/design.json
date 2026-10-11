@@ -131,6 +131,12 @@
         "displayName": "Focus Blue",
         "canonical": "#2f5ea8",
         "dark": "#9bbcff"
+      },
+      "danger": {
+        "role": "neutral",
+        "displayName": "Danger Red",
+        "canonical": "#a12a2a",
+        "dark": "#c0392b"
       }
     },
     "typographyMeta": {
@@ -214,7 +220,7 @@
       "refersTo": "button-danger",
       "description": "Call 111 and destructive data actions only.",
       "html": "<button class=\"ds-btn-danger\">Call 111</button>",
-      "css": ".ds-btn-danger { display: inline-flex; align-items: center; min-height: 48px; padding: 0.5rem 1.5rem; border: 2px solid transparent; border-radius: 999px; background: var(--color-error, #a12a2a); color: var(--color-on-error, #fff); font: inherit; font-weight: 700; cursor: pointer; } .ds-btn-danger:focus-visible { outline: 3px solid var(--color-focus, #2f5ea8); outline-offset: 2px; }"
+      "css": ".ds-btn-danger { display: inline-flex; align-items: center; min-height: 48px; padding: 0.5rem 1.5rem; border: 2px solid transparent; border-radius: 999px; background: var(--color-danger, #a12a2a); color: var(--color-on-danger, #fff); font: inherit; font-weight: 700; cursor: pointer; } .ds-btn-danger:focus-visible { outline: 3px solid var(--color-focus, #2f5ea8); outline-offset: 2px; }"
     },
     {
       "name": "Card",
