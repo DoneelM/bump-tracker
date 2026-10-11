@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './app/App';
 import { registerServiceWorker } from './lib/registerServiceWorker';
+import { requestPersistentStorage } from './lib/storage';
 import './styles/tokens.css';
 import './styles/base.css';
 import './styles/layout.css';
@@ -18,6 +19,6 @@ createRoot(root).render(
 );
 
 // Ask the browser not to evict our data when storage runs low (best effort; the answer is ignored).
-void navigator.storage?.persist?.();
+void requestPersistentStorage();
 
 registerServiceWorker();

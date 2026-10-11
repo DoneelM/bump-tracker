@@ -12,6 +12,7 @@ import {
 } from '../../lib/photoStore';
 import { gestationalAge } from '../../lib/pregnancy';
 import type { PregnancyProfile } from '../../lib/profile';
+import { requestPersistentStorage } from '../../lib/storage';
 import { PhotoSlideshow, type SlidePhoto } from './PhotoSlideshow';
 
 const WEEKS = Array.from({ length: MAX_PHOTO_WEEK - MIN_PHOTO_WEEK + 1 }, (_, i) => MIN_PHOTO_WEEK + i);
@@ -55,6 +56,7 @@ export function PhotosPage({ profile, today }: { profile: PregnancyProfile; toda
     setBusy(true);
     try {
       await putWeekPhoto(await preparePhoto(file), week, today);
+      void requestPersistentStorage();
       setError(null);
       setReload((n) => n + 1);
     } catch (err) {

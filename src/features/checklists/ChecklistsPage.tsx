@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Page } from '../../components/Page';
 import { ProgressBar } from '../../components/ProgressBar';
 import { BAG_SECTIONS, bagDefaults, PLAN_SECTIONS, planDefaults } from '../../data/checklists';
@@ -22,6 +22,14 @@ type Tab = 'bag' | 'plan';
 
 export function ChecklistsPage() {
   const [tab, setTab] = useState<Tab>('bag');
+  // ARIA tabs: arrow keys move between tabs (two tabs, so either arrow switches) and focus follows.
+  const onKeyDown = (e: KeyboardEvent) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    const next = tab === 'bag' ? 'plan' : 'bag';
+    setTab(next);
+    document.getElementById(`cl-tab-${next}`)?.focus();
+  };
   return (
     <Page title="Checklists" icon="✅" back={{ to: '/tools', label: 'Tools' }}>
       <div className="tabs" role="tablist" aria-label="Checklists">
@@ -32,6 +40,8 @@ export function ChecklistsPage() {
             role="tab"
             id={`cl-tab-${t}`}
             aria-selected={tab === t}
+            tabIndex={tab === t ? 0 : -1}
+            onKeyDown={onKeyDown}
             aria-controls="cl-panel"
             className={`btn ${tab === t ? 'btn--primary' : 'btn--ghost'}`}
             onClick={() => setTab(t)}
@@ -116,11 +126,12 @@ function ChecklistView({ storageKey, sections, defaults, progressLabel, answers,
             <ul className="entry-list">
               {inSection.map((item, idx) => (
                 <li key={item.id}>
-                  <div className="check-item">
+                  {/* Reading mode: the whole row is the label, so tapping the text toggles it. */}
+                  <Row editing={editing}>
                     <input
                       type="checkbox"
                       checked={item.done}
-                      aria-label={`Done: ${item.text}`}
+                      aria-label={editing ? `Done: ${item.text}` : undefined}
                       onChange={() => update((p) => toggleItem(p, item.id))}
                     />
                     {editing ? (
@@ -149,7 +160,7 @@ function ChecklistView({ storageKey, sections, defaults, progressLabel, answers,
                     ) : (
                       <span className={item.done ? 'check-item__done' : undefined}>{item.text}</span>
                     )}
-                  </div>
+                  </Row>
                   {answers && (
                     <textarea
                       className="input"
@@ -183,6 +194,11 @@ function ChecklistView({ storageKey, sections, defaults, progressLabel, answers,
       </div>
     </>
   );
+}
+
+/** Editing: a plain row (text is an input and must not toggle). Otherwise the row is one label, at least 44px tall. */
+function Row({ editing, children }: { editing: boolean; children: ReactNode }) {
+  return editing ? <div className="check-item">{children}</div> : <label className="check-item check-item--tap">{children}</label>;
 }
 
 function AddRow({ section, onAdd }: { section: string; onAdd: (text: string) => void }) {

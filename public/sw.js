@@ -36,7 +36,7 @@ self.addEventListener('fetch', (event) => {
   // Hash routing: every navigation is the shell.
   const key = request.mode === 'navigate' ? SHELL : request;
   event.respondWith(
-    caches.open(CACHE_NAME).then((cache) => cache.match(key, { ignoreSearch: request.mode === 'navigate' })).then((hit) => (hit ? unredirect(hit) : fetch(request))),
+    caches.open(CACHE_NAME).then((cache) => cache.match(key, { ignoreSearch: request.mode === 'navigate', ignoreVary: true })).then((hit) => (hit ? unredirect(hit) : fetch(request))),
   );
 });
 

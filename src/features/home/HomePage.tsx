@@ -1,5 +1,7 @@
 import { Link } from '../../app/router';
+import { GuidanceCard } from '../../components/GuidanceCard';
 import { Page } from '../../components/Page';
+import { PAST_DUE, PAST_DUE_OVERDUE_LINE } from '../../data/guidance';
 import { ProgressBar } from '../../components/ProgressBar';
 import { SizeComparison } from '../../components/SizeComparison';
 import { clampGuideWeek, getWeekInfo } from '../../data/weeks';
@@ -8,6 +10,7 @@ import {
   daysUntilDue,
   formatWeeksDays,
   gestationalAge,
+  pastDueLevel,
   progressFraction,
   splitDays,
   TRIMESTER_LABEL,
@@ -26,6 +29,7 @@ const NO_SCANS: ScanEntry[] = [];
 export function HomePage({ profile, today }: { profile: PregnancyProfile; today: LocalDate }) {
   const ga = gestationalAge(profile.dueDate, today);
   const daysLeft = daysUntilDue(profile.dueDate, today);
+  const pastDue = pastDueLevel(daysLeft);
   const left = splitDays(Math.max(0, daysLeft));
   const tri = trimester(ga.totalDays);
   const beforeLmp = ga.totalDays < 0;
@@ -76,6 +80,10 @@ export function HomePage({ profile, today }: { profile: PregnancyProfile; today:
           Change dates
         </Link>
       </section>
+
+      {pastDue !== 'none' && (
+        <GuidanceCard g={{ ...PAST_DUE, body: pastDue === 'overdue' ? `${PAST_DUE.body} ${PAST_DUE_OVERDUE_LINE}` : PAST_DUE.body }} />
+      )}
 
       <Link to={`/weeks/${guideWeek}`} className="card card--link week-card">
         {weekInfo ? (

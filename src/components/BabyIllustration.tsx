@@ -1,4 +1,4 @@
-import { stageForWeek, stageImagePath } from '../lib/stages';
+import { stageAlt, stageImagePath } from '../lib/stages';
 
 /** Stylised AI-generated baby illustration for the closest stage at or below `week`. */
 export function BabyIllustration({ week, size = 160 }: { week: number; size?: number }) {
@@ -6,7 +6,7 @@ export function BabyIllustration({ week, size = 160 }: { week: number; size?: nu
     <img
       className="baby-illustration"
       src={`${import.meta.env.BASE_URL}${stageImagePath(week)}`}
-      alt={`Stylised illustration of a baby at about ${stageForWeek(week)} weeks of pregnancy`}
+      alt={stageAlt(week)}
       width={size}
       height={size}
       loading="lazy"

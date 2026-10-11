@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
+import { GuidanceCard } from '../../components/GuidanceCard';
 import { Page } from '../../components/Page';
+import { CONTACT_MIDWIFE, PATTERN_511, PRETERM } from '../../data/guidance';
+import type { LocalDate } from '../../lib/dates';
+import { gestationalAge } from '../../lib/pregnancy';
+import type { PregnancyProfile } from '../../lib/profile';
 import {
   averagesLastHour,
   detect511,
@@ -13,6 +18,7 @@ import {
   MAX_CONTRACTION_MS,
   MAX_STORED_CONTRACTIONS,
   parseContractionState,
+  showPretermGuidance,
   validSorted,
   type ContractionState,
 } from '../../lib/contractions';
@@ -71,7 +77,8 @@ function useWakeLock(on: boolean): boolean {
   return held;
 }
 
-export function ContractionsPage() {
+export function ContractionsPage({ profile, today }: { profile: PregnancyProfile; today: LocalDate }) {
+  const weeks = gestationalAge(profile.dueDate, today).weeks;
   const [state, setState] = useStoredState<ContractionState>(STORAGE_KEYS.contractions, EMPTY_STATE, parseContractionState);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
@@ -104,6 +111,7 @@ export function ContractionsPage() {
   const elapsed = state.activeStart !== null ? now - state.activeStart : 0;
   const stale = active && elapsed > MAX_CONTRACTION_MS;
   const sinceLast = last ? now - (active ? last.start : last.end) : null;
+  const preterm = showPretermGuidance(weeks, state);
 
   return (
     <Page title="Contractions" icon="⏱️" back={{ to: '/tools', label: 'Tools' }}>
@@ -113,26 +121,16 @@ export function ContractionsPage() {
         </p>
       )}
 
-      {pattern && (
-        <div className="alert-banner" role="alert">
-          <p className="alert-banner__title">
-            Your contractions look like the 5-1-1 pattern (about every 5 minutes, lasting about 1 minute, for an hour).
-            Contact your midwife/LMC or maternity unit now.
-          </p>
-          <p>
-            Health NZ advises calling your midwife when contractions are coming every 5 minutes, lasting longer than 50
-            seconds and have been getting stronger for at least 2 to 3 hours - or sooner if your waters break, you have
-            bleeding, your baby’s movements change, or you are under 37 weeks.
-          </p>
-          <p>This app alerts a little earlier than Health NZ’s guidance on purpose, so you are told sooner rather than later.</p>
-          <p>Always follow your midwife’s advice. In an emergency call 111.</p>
-        </div>
-      )}
-
       <section className="timer-panel" aria-label="Contraction timer">
         <button type="button" className={`big-button${active ? ' big-button--active' : ''}`} aria-pressed={active} onClick={toggle}>
           {active ? 'Stop' : 'Start contraction'}
         </button>
+        {(pattern || preterm) && (
+          // Short line right under Start/Stop so it's seen without scrolling; the full guidance is below.
+          <p className="alert-banner" style={{ padding: 'var(--space-2) var(--space-3)', fontWeight: 800 }}>
+            {preterm ? 'Contact your midwife/LMC now.' : 'Time to call your midwife/LMC.'} Details below.
+          </p>
+        )}
         <p className="timer-readout">
           {active ? (
             <>
@@ -150,6 +148,10 @@ export function ContractionsPage() {
         )}
         {wakeLockHeld && <p className="muted">Screen will stay on</p>}
       </section>
+
+      {pattern && <GuidanceCard g={PATTERN_511} alert />}
+      {preterm && <GuidanceCard g={PRETERM} alert />}
+      <GuidanceCard g={CONTACT_MIDWIFE} />
 
       <section className="card" aria-labelledby="c-summary">
         <h2 id="c-summary">Last hour</h2>
