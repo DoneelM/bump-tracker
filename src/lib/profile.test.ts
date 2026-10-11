@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createProfile, dueDateFor, parseProfile, validateDating, validateNickname } from './profile';
+import { createProfile, dueDateFor, parseProfile, validateDating, validateEndingDate, validateNickname } from './profile';
 
 describe('profile', () => {
   it('computes due dates for both dating methods', () => {
@@ -62,6 +62,34 @@ describe('profile', () => {
       { dating: { method: 'lmp', lmp: '2026-03-10' }, nickname: 5 },
     ])('rejects %j', (value) => {
       expect(parseProfile(value)).toBeNull();
+    });
+  });
+
+  describe('ending', () => {
+    const base = createProfile({ method: 'lmp', lmp: '2026-01-01' }, 'Bean', new Date('2026-10-01T00:00:00Z'));
+
+    it('round-trips a birth and an ended pregnancy', () => {
+      const born = { ...base, ending: { kind: 'born' as const, date: '2026-10-05', name: 'Aria', weightG: 3450 } };
+      expect(parseProfile(JSON.parse(JSON.stringify(born)))).toEqual(born);
+      const ended = { ...base, ending: { kind: 'ended' as const, date: null } };
+      expect(parseProfile(JSON.parse(JSON.stringify(ended)))).toEqual(ended);
+    });
+
+    it('drops a damaged ending but keeps the profile', () => {
+      for (const ending of [{ kind: 'born', date: 'nope', name: '' }, { kind: 'born', date: '2026-10-05', weightG: 99 }, { kind: 'x' }, 'born']) {
+        const p = parseProfile({ ...base, ending });
+        expect(p).not.toBeNull();
+        expect(p).not.toHaveProperty('ending');
+      }
+    });
+
+    it('checks the date: required for a birth, never in the future or before the pregnancy', () => {
+      // LMP 2026-01-01, so due 2026-10-08.
+      expect(validateEndingDate('', base.dueDate, '2026-10-11', true).ok).toBe(false);
+      expect(validateEndingDate('', base.dueDate, '2026-10-11', false).ok).toBe(true);
+      expect(validateEndingDate('2026-10-12', base.dueDate, '2026-10-11', true).ok).toBe(false);
+      expect(validateEndingDate('2025-12-31', base.dueDate, '2026-10-11', true).ok).toBe(false);
+      expect(validateEndingDate('2026-03-01', base.dueDate, '2026-10-11', false).ok).toBe(true);
     });
   });
 });

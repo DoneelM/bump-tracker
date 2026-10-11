@@ -69,14 +69,27 @@ export function PrintPage({ profile, today }: { profile: PregnancyProfile; today
           <dl className="details">
             <dt>Estimated due date</dt>
             <dd>{formatDisplayDate(profile.dueDate)}</dd>
-            <dt>Gestational age today</dt>
-            <dd>{ga.weeks < 0 ? 'Not started yet' : formatWeeksDays(ga.weeks, ga.days)}</dd>
+            {!profile.ending && (
+              <>
+                <dt>Gestational age today</dt>
+                <dd>{ga.weeks < 0 ? 'Not started yet' : formatWeeksDays(ga.weeks, ga.days)}</dd>
+              </>
+            )}
             <dt>Dating method</dt>
             <dd>
               {profile.dating.method === 'lmp'
                 ? `Last period starting ${formatDisplayDate(profile.dating.lmp)}`
                 : `Scan on ${formatDisplayDate(profile.dating.scanDate)} showing ${profile.dating.gaWeeks}w${profile.dating.gaDays}d`}
             </dd>
+            {profile.ending?.kind === 'born' && (
+              <>
+                <dt>Born</dt>
+                <dd>
+                  {formatDisplayDate(profile.ending.date)}
+                  {profile.ending.weightG ? `, ${profile.ending.weightG} g` : ''}
+                </dd>
+              </>
+            )}
           </dl>
         </section>
 

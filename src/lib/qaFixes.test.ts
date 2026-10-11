@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CONTACT_MIDWIFE, PATTERN_511, PAST_DUE, PRE_ECLAMPSIA, PRETERM, WORRIED_ABOUT_MOVEMENTS } from '../data/guidance';
+import * as HELPLINES from '../data/helplines';
 import { SOURCES } from '../data/sources';
 import { EMPTY_STATE, showPretermGuidance } from './contractions';
 import { hasPreEclampsiaSigns, parseJournalEntries, SYMPTOMS, validateJournalDate } from './journal';
@@ -87,6 +88,13 @@ describe('stageAlt', () => {
 });
 
 describe('guidance sources', () => {
+  it('every helpline has a source in SOURCES, and only 111 goes without', () => {
+    const ids = new Set(SOURCES.map((s) => s.id));
+    for (const h of Object.values(HELPLINES)) {
+      if (h.id === '111') continue;
+      expect(h.source && ids.has(h.source)).toBe(true);
+    }
+  });
   it('every source id used by guidance exists in SOURCES', () => {
     const ids = new Set(SOURCES.map((s) => s.id));
     for (const g of [CONTACT_MIDWIFE, PRETERM, PATTERN_511, PAST_DUE, PRE_ECLAMPSIA, WORRIED_ABOUT_MOVEMENTS])

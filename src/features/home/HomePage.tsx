@@ -1,4 +1,5 @@
 import { Link } from '../../app/router';
+import { HelpRow } from '../../components/CallCard';
 import { GuidanceCard } from '../../components/GuidanceCard';
 import { Page } from '../../components/Page';
 import { PAST_DUE, PAST_DUE_OVERDUE_LINE } from '../../data/guidance';
@@ -21,6 +22,7 @@ import { KICKS_UNLOCK_WEEK } from '../../lib/kicks';
 import { nextAppointment, parseScanEntries, scanTypeLabel, type ScanEntry } from '../../lib/scans';
 import { STORAGE_KEYS } from '../../lib/storage';
 import { SyncPromo } from '../sync/SyncPromo';
+import { BornHome, EndedHome } from './EndingHome';
 import { useStoredState } from '../../lib/useStoredState';
 import { parseWeightEntries, sortByDate, type WeightEntry } from '../../lib/weightGain';
 
@@ -28,6 +30,12 @@ const NO_WEIGHTS: WeightEntry[] = [];
 const NO_SCANS: ScanEntry[] = [];
 
 export function HomePage({ profile, today }: { profile: PregnancyProfile; today: LocalDate }) {
+  if (profile.ending?.kind === 'born') return <BornHome profile={profile} ending={profile.ending} />;
+  if (profile.ending?.kind === 'ended') return <EndedHome />;
+  return <PregnancyHome profile={profile} today={today} />;
+}
+
+function PregnancyHome({ profile, today }: { profile: PregnancyProfile; today: LocalDate }) {
   const ga = gestationalAge(profile.dueDate, today);
   const daysLeft = daysUntilDue(profile.dueDate, today);
   const pastDue = pastDueLevel(daysLeft);
@@ -137,6 +145,8 @@ export function HomePage({ profile, today }: { profile: PregnancyProfile; today:
           )}
         </Link>
       </div>
+
+      <HelpRow />
 
       <SyncPromo />
 

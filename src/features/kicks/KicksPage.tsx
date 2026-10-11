@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { CallCard } from '../../components/CallCard';
 import { GuidanceCard } from '../../components/GuidanceCard';
 import { Page } from '../../components/Page';
 import { WORRIED_ABOUT_MOVEMENTS } from '../../data/guidance';
@@ -91,7 +92,12 @@ export function KicksPage({ profile, today }: { profile: PregnancyProfile; today
           I’m worried about my baby’s movements
         </button>
       </div>
-      {worried && <GuidanceCard g={WORRIED_ABOUT_MOVEMENTS} />}
+      {worried && (
+        <>
+          <GuidanceCard g={WORRIED_ABOUT_MOVEMENTS} />
+          <CallCard title="Call now" />
+        </>
+      )}
 
       {error && (
         <p className="field__error" role="alert">
@@ -143,6 +149,7 @@ export function KicksPage({ profile, today }: { profile: PregnancyProfile; today
           </section>
 
           {ended && <GuidanceCard g={WORRIED_ABOUT_MOVEMENTS} alert={sessionGuidanceLevel(ended.count) === 'alert'} />}
+          {ended && sessionGuidanceLevel(ended.count) === 'alert' && <CallCard title="Call now" />}
 
           <section aria-labelledby="k-history">
             <h2 id="k-history">Past sessions</h2>

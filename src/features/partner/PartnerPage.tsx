@@ -82,6 +82,14 @@ export function PartnerPage({ profile, today }: { profile: PregnancyProfile; tod
     }
   };
 
+  if (profile.ending) {
+    return (
+      <Page title="Partner summary" icon="💞" back={{ to: '/more', label: 'More' }} health={false}>
+        <p className="card card--soft">The partner summary shares pregnancy updates, so it’s turned off now your pregnancy has ended.</p>
+      </Page>
+    );
+  }
+
   return (
     <Page title="Partner summary" icon="💞" back={{ to: '/more', label: 'More' }}>
       <section className="card card--soft">
