@@ -36,6 +36,13 @@ self.addEventListener('fetch', (event) => {
   // Hash routing: every navigation is the shell.
   const key = request.mode === 'navigate' ? SHELL : request;
   event.respondWith(
-    caches.open(CACHE_NAME).then((cache) => cache.match(key, { ignoreSearch: request.mode === 'navigate', ignoreVary: true })).then((hit) => hit || fetch(request)),
+    caches.open(CACHE_NAME).then((cache) => cache.match(key, { ignoreSearch: request.mode === 'navigate', ignoreVary: true })).then((hit) => (hit ? unredirect(hit) : fetch(request))),
   );
 });
+
+// Hosts like Cloudflare answer ./index.html with a redirect to ./, so the cached shell is a
+// redirected response. Browsers reject those for navigations (ERR_FAILED), so serve a clean copy.
+function unredirect(res) {
+  if (!res.redirected) return res;
+  return res.blob().then((body) => new Response(body, { status: res.status, statusText: res.statusText, headers: res.headers }));
+}
