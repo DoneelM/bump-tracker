@@ -13,6 +13,7 @@ export const TOOL_ITEMS: readonly HubItem[] = [
   { to: '/tools/glucose', title: 'Glucose', description: 'If your care team asked you to check at home', icon: '🩸' },
   { to: '/tools/checklists', title: 'Checklists', description: 'Hospital bag and birth plan', icon: '✅' },
   { to: '/tools/names', title: 'Baby names', description: 'Your private shortlist', icon: '🏷️' },
+  { to: '/tools/food', title: 'Food safety', description: 'What’s OK to eat, from NZ Food Safety', icon: '🥗' },
 ];
 
 /** Pregnancy-only tools, hidden once the pregnancy has ended (birth or loss). Their pages still open by link. */
