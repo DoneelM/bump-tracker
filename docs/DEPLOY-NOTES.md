@@ -50,6 +50,7 @@ The app deploys to Cloudflare Workers as static assets only (no Worker script). 
 - `assets/*` file names are content-hashed, so `_headers` caches them long-term (`immutable`).
 - After `vite build`, `scripts/sw-precache.mjs` writes the full file list and a content hash into `dist/sw.js`. It is part of `npm run build`, so don't deploy the output of a bare `vite build`.
 - The precache list is an allowlist: `index.html`, `manifest.webmanifest`, and `assets/`, `icons/` and `images/` (no dotfiles). Host config such as `_headers` stays out, because hosts don't serve it and one missing file fails the worker install. Every file in `dist/`, `_headers` included, still counts towards the worker version, so a header-only change ships a new worker and pages it serves from cache pick up the new headers. If you add a new top-level folder the app loads, add it to `DIRS` in `scripts/sw-precache.mjs`.
+- **Update banner:** after a deploy, the new worker takes over at once, but the open page keeps running the old code. When that happens, the app shows "A new version of Bump Tracker is ready" with **Reload**. It doesn't show on a first install. An app left open also checks for a new version when it's shown again, at most every 30 minutes.
 - A tab left open across a deploy can lose its old lazy chunks (e.g. the chart) when the new worker activates and deletes the old cache. Offline, that tab shows the recovery screen, and **Reload** fixes it because the new shell is cached. This is accepted.
 - End-to-end offline check (Playwright is deliberately not a devDependency, to keep installs small; install it ad hoc, and don't wire this into CI as is): `npm run build && npm i --no-save playwright && npx playwright install chromium && npm run check:offline`.
 
@@ -62,7 +63,11 @@ Users can sync their data between devices through the hidden app folder (`appDat
 - **Encryption:** the data is encrypted on the device first (`src/lib/crypto.ts`). Google only ever holds ciphertext and a data key wrapped by the user's recovery code.
 - **Merging:** `src/lib/sync/engine.ts` does a three-way merge per storage key. If both devices changed the same thing, it asks the user which to keep.
 - **Photos** are not synced.
-- **Sign-in** uses Google Identity Services, loaded only when the user opens Sync. The access token stays in memory, never in storage.
+- **Sign-in** uses Google Identity Services, loaded only when a sync screen opens (the Sync page or the restore screen), never on Home or the welcome screen. It's loaded and prepared as the screen opens, so tapping **Sign in with Google** opens the popup within the tap; Safari blocks popups opened after a delay. The access token stays in memory, never in storage.
+- **Where users find it:**
+  - Welcome screen: "Already using Bump Tracker?", then **Restore from Google Drive**, above the due-date form.
+  - Home: a "Use Bump Tracker on more than one device?" card while sync is off. **Not now** hides it on that device.
+  - **More → Sync**.
 - **Headers:** the CSP allows `accounts.google.com/gsi/*` and `www.googleapis.com`, and COOP is `same-origin-allow-popups` so the sign-in popup can report back. Both live in `public/_headers` and the meta CSP in `vite.config.ts`.
 
 **One-time Google Cloud setup:**

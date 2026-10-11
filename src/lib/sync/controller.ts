@@ -3,7 +3,7 @@
  * one sync at a time, plus a debounced automatic sync after local changes while signed in.
  * UI reads `getSyncStatus()` through `useSyncStatus`.
  */
-import { useSyncExternalStore } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import { STORAGE_EVENT } from '../storage';
 import { appLocal } from './appLocal';
 import { sync, type Resolutions, type SyncDeps, type SyncResult } from './engine';
@@ -63,14 +63,51 @@ export function runSync(resolutions?: Resolutions): Promise<SyncResult | null> {
     } finally {
       set({ busy: false });
       running = null;
+      refreshSyncEnabled();
     }
   })();
   return running;
 }
 
 /** Records an outcome from setup/unlock, which run the engine directly. */
-export const reportSyncResult = (result: SyncResult | null, error: string | null = null): void =>
+export function reportSyncResult(result: SyncResult | null, error: string | null = null): void {
   set({ result, error, needsSignIn: false });
+  refreshSyncEnabled();
+}
+
+/** Whether sync is on for this device (null until read from IndexedDB), and when it last synced. */
+export interface SyncEnabled {
+  on: boolean | null;
+  lastSyncedAt: number | null;
+}
+let enabled: SyncEnabled = { on: null, lastSyncedAt: null };
+const enabledListeners = new Set<() => void>();
+
+/** Re-reads whether sync is on here; every useSyncEnabled() caller updates. */
+export function refreshSyncEnabled(): void {
+  const apply = (next: SyncEnabled) => {
+    enabled = next;
+    enabledListeners.forEach((l) => l());
+  };
+  syncDeps.store.load().then(
+    (s) => apply({ on: s !== null, lastSyncedAt: s?.lastSyncedAt ?? null }),
+    () => apply({ on: false, lastSyncedAt: null }),
+  );
+}
+
+export function useSyncEnabled(): SyncEnabled & { refresh: () => void } {
+  const snap = useSyncExternalStore(
+    (l) => {
+      enabledListeners.add(l);
+      return () => enabledListeners.delete(l);
+    },
+    () => enabled,
+    () => enabled,
+  );
+  // Re-read on mount: sync can be turned off elsewhere (e.g. "Delete all my data").
+  useEffect(refreshSyncEnabled, []);
+  return { ...snap, refresh: refreshSyncEnabled };
+}
 
 const AUTO_SYNC_DELAY_MS = 4000;
 

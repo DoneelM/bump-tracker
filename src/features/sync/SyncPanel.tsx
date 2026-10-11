@@ -1,9 +1,9 @@
 import { useEffect, useState, useSyncExternalStore, type FormEvent } from 'react';
 import { download } from '../../lib/download';
 import { SYNC_PAUSED_TOO_LARGE } from '../../lib/crypto';
-import { reportSyncResult, runSync, syncAvailable, syncDeps, useSyncStatus } from '../../lib/sync/controller';
+import { reportSyncResult, runSync, syncAvailable, syncDeps, useSyncEnabled, useSyncStatus } from '../../lib/sync/controller';
 import { deleteSyncedCopy, startSetup, turnOff, unlock, type Conflict, type Resolutions, type SyncResult } from '../../lib/sync/engine';
-import { isSignedIn, onAuthChange, signIn, signOut } from '../../lib/sync/googleAuth';
+import { isSignedIn, isSignInReady, onAuthChange, preloadGoogleSignIn, signIn, signOut } from '../../lib/sync/googleAuth';
 import { SignInRequiredError } from '../../lib/sync/provider';
 
 const timeFmt = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' });
@@ -11,25 +11,6 @@ const errorText = (err: unknown) => (err instanceof Error ? err.message : 'Somet
 
 function useSignedIn(): boolean {
   return useSyncExternalStore(onAuthChange, isSignedIn, () => false);
-}
-
-/** Whether this device has sync turned on (state in IndexedDB); null while loading. */
-function useSyncOn(): [boolean | null, number | null, () => void] {
-  const [on, setOn] = useState<boolean | null>(null);
-  const [last, setLast] = useState<number | null>(null);
-  const [tick, setTick] = useState(0);
-  const { busy } = useSyncStatus();
-  useEffect(() => {
-    let live = true;
-    void syncDeps.store
-      .load()
-      .then((s) => live && (setOn(s !== null), setLast(s?.lastSyncedAt ?? null)))
-      .catch(() => live && setOn(false));
-    return () => {
-      live = false;
-    };
-  }, [tick, busy]);
-  return [on, last, () => setTick((t) => t + 1)];
 }
 
 function ResultMessage({ result }: { result: SyncResult | null }) {
@@ -217,18 +198,24 @@ function UnlockFlow({ onDone }: { onDone: () => void }) {
 
 function SignInButton({ then }: { then?: () => void }) {
   const [error, setError] = useState<string | null>(null);
+  const ready = useSyncExternalStore(onAuthChange, isSignInReady, () => false);
+  // Load Google sign-in now, so the tap below can open its popup without a delay (Safari blocks late popups).
+  useEffect(() => {
+    preloadGoogleSignIn().catch((err: unknown) => setError(errorText(err)));
+  }, []);
   return (
     <div>
       <div className="button-row">
         <button
           type="button"
           className="btn btn--primary"
+          disabled={!ready && !error}
           onClick={() => {
             setError(null);
             signIn().then(then, (err: unknown) => setError(errorText(err)));
           }}
         >
-          Sign in with Google
+          {ready || error ? 'Sign in with Google' : 'Loading Google sign-in…'}
         </button>
       </div>
       {error && (
@@ -244,7 +231,7 @@ function SignInButton({ then }: { then?: () => void }) {
 export function SyncPanel({ newDevice = false }: { newDevice?: boolean }) {
   const signedIn = useSignedIn();
   const status = useSyncStatus();
-  const [on, last, refresh] = useSyncOn();
+  const { on, lastSyncedAt: last, refresh } = useSyncEnabled();
   const [mode, setMode] = useState<'setup' | 'unlock'>(newDevice ? 'unlock' : 'setup');
   const [opError, setOpError] = useState<string | null>(null);
 

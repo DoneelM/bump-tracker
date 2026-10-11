@@ -193,3 +193,19 @@ Done by hand in this session, no Claude Code run.
   - the privacy page through the service worker;
   - no CSP violations.
 - Not tested: real Google sign-in and the real Drive API. That needs the OAuth client ID.
+
+**Follow-up: sync was hard to find.** The user couldn't find a login on the preview.
+
+- **Cause:** the only entry on first visit was a small link below the fold.
+- **Entry points added:**
+  - a **Restore from Google Drive** card above the welcome form;
+  - a dismissible "sync" card on Home while sync is off.
+- **Sign-in:** Google sign-in is now preloaded when a sync screen opens, so the popup opens within the tap. Before, a script load came first, which Safari can block.
+- **Update banner:** the app now shows "A new version is ready, Reload" after a deploy. Before, the service worker kept showing the old cached build until a later reload.
+- **Checked on `wrangler dev` at 390×844:**
+  - the button sits above the fold, and no Google code loads on the welcome screen or Home;
+  - the popup is requested while the tap's user activation is still active;
+  - **Not now** persists;
+  - the banner appears on a simulated redeploy, and Reload loads the new bundle;
+  - the full two-device sync test still passes.
+

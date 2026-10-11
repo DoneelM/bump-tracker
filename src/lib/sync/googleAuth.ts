@@ -64,29 +64,65 @@ function loadGis(): Promise<GisOAuth2> {
   return gis;
 }
 
-/** Opens Google's popup. Call it straight from a click handler, or browsers block the popup. */
-export async function signIn(): Promise<void> {
-  if (!googleClientId) throw new Error('Sync isn’t set up on this version of the app.');
-  const oauth2 = await loadGis();
-  await new Promise<void>((resolve, reject) => {
-    const client = oauth2.initTokenClient({
-      client_id: googleClientId,
-      scope: DRIVE_SCOPE,
-      callback: (r) => {
-        const seconds = Number(r.expires_in);
-        if (!r.access_token || r.error || !Number.isFinite(seconds)) {
-          reject(new Error(r.error === 'access_denied' ? 'Google access wasn’t allowed, so sync can’t start.' : 'Google sign-in didn’t complete.'));
-          return;
-        }
-        token = { value: r.access_token, expiresAt: Date.now() + seconds * 1000 };
-        notify();
-        resolve();
-      },
-      error_callback: (e) =>
-        reject(new Error(e.type === 'popup_failed_to_open' ? 'The Google sign-in window was blocked. Allow pop-ups and try again.' : 'Google sign-in was closed before it finished.')),
-    });
-    client.requestAccessToken();
+// One token client, made ahead of time by preloadGoogleSignIn() so a tap can open the popup synchronously.
+let client: TokenClient | null = null;
+let pending: { resolve: () => void; reject: (e: Error) => void } | null = null;
+
+function settle(outcome: Error | null) {
+  const p = pending;
+  pending = null;
+  if (outcome) p?.reject(outcome);
+  else p?.resolve();
+}
+
+function makeClient(oauth2: GisOAuth2): TokenClient {
+  return oauth2.initTokenClient({
+    client_id: googleClientId,
+    scope: DRIVE_SCOPE,
+    callback: (r) => {
+      const seconds = Number(r.expires_in);
+      if (!r.access_token || r.error || !Number.isFinite(seconds)) {
+        settle(new Error(r.error === 'access_denied' ? 'Google access wasn’t allowed, so sync can’t start.' : 'Google sign-in didn’t complete.'));
+        return;
+      }
+      token = { value: r.access_token, expiresAt: Date.now() + seconds * 1000 };
+      notify();
+      settle(null);
+    },
+    error_callback: (e) =>
+      settle(new Error(e.type === 'popup_failed_to_open' ? 'The Google sign-in window was blocked. Allow pop-ups and try again.' : 'Google sign-in was closed before it finished.')),
   });
+}
+
+/**
+ * Loads Google sign-in and prepares the token client, so a later tap opens the popup straight away.
+ * Call it when a sync screen opens; it's the only place Google code is loaded.
+ */
+export async function preloadGoogleSignIn(): Promise<void> {
+  if (!googleClientId || client) return;
+  client = makeClient(await loadGis());
+  notify();
+}
+
+/** True once preloadGoogleSignIn() has finished, so a tap can open the popup with no delay. */
+export const isSignInReady = (): boolean => client !== null;
+
+function request(c: TokenClient): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    settle(new Error('Google sign-in was restarted.'));
+    pending = { resolve, reject };
+    c.requestAccessToken(); // runs synchronously inside the caller's click, so the popup isn't blocked
+  });
+}
+
+/**
+ * Opens Google's popup. Call it straight from a click handler. If the client is preloaded, the popup opens
+ * within the click; otherwise Google sign-in is loaded first (some browsers may then block the popup).
+ */
+export function signIn(): Promise<void> {
+  if (!googleClientId) return Promise.reject(new Error('Sync isn’t set up on this version of the app.'));
+  if (client) return request(client);
+  return preloadGoogleSignIn().then(() => request(client!));
 }
 
 export const isSignedIn = (): boolean => token !== null && token.expiresAt - 60_000 > Date.now();

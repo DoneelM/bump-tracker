@@ -20,6 +20,7 @@ import type { PregnancyProfile } from '../../lib/profile';
 import { KICKS_UNLOCK_WEEK } from '../../lib/kicks';
 import { nextAppointment, parseScanEntries, scanTypeLabel, type ScanEntry } from '../../lib/scans';
 import { STORAGE_KEYS } from '../../lib/storage';
+import { SyncPromo } from '../sync/SyncPromo';
 import { useStoredState } from '../../lib/useStoredState';
 import { parseWeightEntries, sortByDate, type WeightEntry } from '../../lib/weightGain';
 
@@ -126,6 +127,8 @@ export function HomePage({ profile, today }: { profile: PregnancyProfile; today:
           )}
         </Link>
       </div>
+
+      <SyncPromo />
 
       <section className="card" aria-labelledby="quick-heading">
         <h2 id="quick-heading">Quick actions</h2>
