@@ -20,6 +20,7 @@ import { SourcesPage } from '../features/sources/SourcesPage';
 import { SyncPage } from '../features/sync/SyncPage';
 import { BabyNamesPage } from '../features/names/BabyNamesPage';
 import { FoodSafetyPage } from '../features/food/FoodSafetyPage';
+import { SupplementsPage } from '../features/supplements/SupplementsPage';
 import { BpPage } from '../features/monitoring/BpPage';
 import { GlucosePage } from '../features/monitoring/GlucosePage';
 import { TimelinePage } from '../features/timeline/TimelinePage';
@@ -81,6 +82,7 @@ export const ROUTES: readonly RouteDef[] = [
   { pattern: '/tools/checklists', tab: 'tools', render: () => <ChecklistsPage /> },
   { pattern: '/tools/names', tab: 'tools', render: () => <BabyNamesPage /> },
   { pattern: '/tools/food', tab: 'tools', render: () => <FoodSafetyPage /> },
+  { pattern: '/tools/supplements', tab: 'tools', render: ({ today }) => <SupplementsPage today={today} /> },
   { pattern: '/tools/bp', tab: 'tools', render: ({ today }) => <BpPage today={today} /> },
   { pattern: '/tools/glucose', tab: 'tools', render: ({ today }) => <GlucosePage today={today} /> },
   { pattern: '/tools/timeline', tab: 'tools', render: ({ profile, today }) => <TimelinePage profile={profile} today={today} /> },

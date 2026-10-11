@@ -1,6 +1,7 @@
 /**
- * Builds an iCalendar (RFC 5545) file of all-day events, made on the device and downloaded by the user.
- * Nothing is uploaded; the user imports the file into their own calendar.
+ * Builds an iCalendar (RFC 5545) file, made on the device and downloaded by the user. Events are all-day,
+ * or at a local wall-clock time (floating, so they follow the phone's time zone and DST) and optionally
+ * repeating with an alert. Nothing is uploaded; the user imports the file into their own calendar.
  */
 import { addDays, type LocalDate } from './dates';
 
@@ -9,7 +10,16 @@ export interface CalendarEvent {
   date: LocalDate;
   title: string;
   description: string;
+  /** "HH:MM" local time for a 15-minute event; all-day when left out. */
+  time?: string;
+  /** Repeat rule, e.g. "FREQ=DAILY". */
+  rrule?: string;
+  /** Add an alert at the start time (timed events only). */
+  alert?: boolean;
 }
+
+const TIME = /^([01]\d|2[0-3]):([0-5]\d)$/;
+export const isTimeOfDay = (t: unknown): t is string => typeof t === 'string' && TIME.test(t);
 
 /** Escapes TEXT values: backslash, semicolon, comma and newlines. */
 export const escapeText = (s: string): string =>
@@ -47,17 +57,19 @@ const icsStamp = (now: Date) =>
 export function buildCalendar(events: readonly CalendarEvent[], now: Date = new Date()): string {
   const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Bump Tracker//Timeline//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH'];
   for (const e of events) {
-    lines.push(
-      'BEGIN:VEVENT',
-      `UID:${escapeText(e.uid)}`,
-      `DTSTAMP:${icsStamp(now)}`,
-      `DTSTART;VALUE=DATE:${icsDate(e.date)}`,
-      `DTEND;VALUE=DATE:${icsDate(addDays(e.date, 1))}`,
-      `SUMMARY:${escapeText(e.title)}`,
-      `DESCRIPTION:${escapeText(e.description)}`,
-      'TRANSP:TRANSPARENT',
-      'END:VEVENT',
-    );
+    lines.push('BEGIN:VEVENT', `UID:${escapeText(e.uid)}`, `DTSTAMP:${icsStamp(now)}`);
+    if (isTimeOfDay(e.time)) {
+      const hhmm = e.time.replace(':', '');
+      lines.push(`DTSTART:${icsDate(e.date)}T${hhmm}00`, 'DURATION:PT15M');
+    } else {
+      lines.push(`DTSTART;VALUE=DATE:${icsDate(e.date)}`, `DTEND;VALUE=DATE:${icsDate(addDays(e.date, 1))}`);
+    }
+    if (e.rrule) lines.push(`RRULE:${e.rrule}`);
+    lines.push(`SUMMARY:${escapeText(e.title)}`, `DESCRIPTION:${escapeText(e.description)}`, 'TRANSP:TRANSPARENT');
+    if (e.alert && isTimeOfDay(e.time)) {
+      lines.push('BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${escapeText(e.title)}`, 'TRIGGER:PT0M', 'END:VALARM');
+    }
+    lines.push('END:VEVENT');
   }
   lines.push('END:VCALENDAR');
   return lines.map(foldLine).join('\r\n') + '\r\n';

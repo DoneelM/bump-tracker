@@ -17,6 +17,7 @@ import { parseBpReadings, parseGlucoseReadings, parseTargets } from './monitorin
 import { parseProfile } from './profile';
 import { parseQuestions } from './questions';
 import { parseScanEntries } from './scans';
+import { parseSupplements } from './supplements';
 import type { Validator } from './validate';
 import { parsePrePregnancy, parseWeightEntries } from './weightGain';
 
@@ -41,6 +42,7 @@ const REGISTRY = {
   glucoseReadings: { key: 'glucose-readings', label: 'Glucose readings', validate: parseGlucoseReadings },
   monitoringTargets: { key: 'monitoring-targets', label: 'Home monitoring targets', validate: parseTargets },
   babyNames: { key: 'baby-names', label: 'Baby name shortlist', validate: parseBabyNames },
+  supplements: { key: 'supplements', label: 'Supplements taken', validate: parseSupplements },
 } as const;
 
 export interface StorageEntry {
