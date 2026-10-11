@@ -145,6 +145,15 @@ export function exportAll(): Record<string, unknown> {
   return out;
 }
 
+/** Asks the browser not to evict our data. Best effort: browsers may decide silently, so also call it after user actions. Never throws. */
+export async function requestPersistentStorage(): Promise<void> {
+  try {
+    await navigator.storage?.persist?.();
+  } catch {
+    // unsupported or refused: nothing to do
+  }
+}
+
 /** Removes every `bt:` key (all versions). Does not touch photos in IndexedDB. */
 export function clearAllStored(): void {
   const storage = getStorage();

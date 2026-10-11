@@ -1,9 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { FormField } from '../../components/FormField';
 import { Page } from '../../components/Page';
-import { formatDisplayDate, isPlausibleDate, MAX_PLAUSIBLE_DATE, MIN_PLAUSIBLE_DATE, todayLocal, type LocalDate } from '../../lib/dates';
+import { GuidanceCard } from '../../components/GuidanceCard';
+import { PRE_ECLAMPSIA } from '../../data/guidance';
+import { formatDisplayDate, todayLocal, type LocalDate } from '../../lib/dates';
 import {
   flaggedEntries,
+  hasPreEclampsiaSigns,
+  validateJournalDate,
   MAX_JOURNAL_ENTRIES,
   MAX_NOTES_LENGTH,
   MOODS,
@@ -90,6 +94,7 @@ export function JournalPage() {
                     {e.flagged && ' · 🚩 Mention to midwife'}
                   </p>
                   {e.symptoms.length > 0 && <p>{e.symptoms.join(', ')}</p>}
+                  {hasPreEclampsiaSigns(e.symptoms) && <GuidanceCard g={PRE_ECLAMPSIA} as="h3" />}
                   {e.notes && <p className="entry__note">{e.notes}</p>}
                   <div className="button-row">
                     <button type="button" className="btn btn--ghost" onClick={() => setEditing(e)}>
@@ -136,8 +141,8 @@ function EntryForm({
   function submit(ev: FormEvent) {
     ev.preventDefault();
     const next: typeof errors = {};
-    // Same range the stored journal accepts, so a saved entry can't vanish on the next read.
-    if (!isPlausibleDate(date)) next.date = 'Please enter a valid date (2000 to 2099).';
+    const d = validateJournalDate(date, todayLocal());
+    if (!d.ok) next.date = d.error;
     if (!mood) next.mood = 'Please pick how you’re feeling.';
     if (notes.trim().length > MAX_NOTES_LENGTH) next.notes = `Notes can be up to ${MAX_NOTES_LENGTH} characters.`;
     setErrors(next);
@@ -156,7 +161,7 @@ function EntryForm({
       <h2 id="j-form">{initial ? 'Edit entry' : 'New entry'}</h2>
       {full && <p className="field__error">The journal is full. Delete an old entry to add more.</p>}
       <FormField id="j-date" label="Date" error={errors.date}>
-        {(aria) => <input {...aria} type="date" className="input" min={MIN_PLAUSIBLE_DATE} max={MAX_PLAUSIBLE_DATE} value={date} onChange={(e) => setDate(e.target.value)} />}
+        {(aria) => <input {...aria} type="date" className="input" value={date} onChange={(e) => setDate(e.target.value)} />}
       </FormField>
 
       <fieldset className="choice" aria-describedby={errors.mood ? 'j-mood-error' : undefined}>
@@ -190,6 +195,7 @@ function EntryForm({
             </label>
           ))}
         </div>
+        {hasPreEclampsiaSigns(symptoms) && <GuidanceCard g={PRE_ECLAMPSIA} />}
       </fieldset>
 
       <FormField id="j-notes" label="Notes" hint={`${notes.length}/${MAX_NOTES_LENGTH}`} error={errors.notes}>

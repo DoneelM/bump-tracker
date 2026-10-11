@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { HealthDisclaimer } from '../../components/HealthDisclaimer';
-import { writeStored, STORAGE_KEYS, isStorageAvailable } from '../../lib/storage';
+import { writeStored, STORAGE_KEYS, isStorageAvailable, requestPersistentStorage } from '../../lib/storage';
 import { useToday } from '../../lib/useToday';
 import { Link, navigate } from '../../app/router';
 import { PregnancyForm } from './PregnancyForm';
@@ -38,6 +38,7 @@ export function OnboardingPage() {
         onSave={(profile) => {
           const result = writeStored(STORAGE_KEYS.profile, profile);
           if (!result.ok) return result.error;
+          void requestPersistentStorage();
           navigate('/', { replace: true });
           return null;
         }}

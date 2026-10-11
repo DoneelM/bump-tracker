@@ -98,6 +98,10 @@ export function formatSinceLast(ms: number, live: boolean): string {
   return live ? formatMmSs(ms) : `over ${PATTERN_MAX_GAP_MS / 60_000} min`;
 }
 
+/** Under 37 weeks, contractions being timed (one running, or any in the session) means "contact your midwife" straight away, no pattern needed. */
+export const showPretermGuidance = (weeks: number, state: ContractionState): boolean =>
+  weeks < 37 && (state.activeStart !== null || state.contractions.length > 0);
+
 /** mm:ss (minutes may exceed 59). Null, negative or invalid input shows 00:00. */
 export function formatMmSs(ms: number | null): string {
   if (ms === null || !isFiniteNumber(ms) || ms < 0) return '00:00';

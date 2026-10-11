@@ -1,5 +1,6 @@
 /** Symptom & mood journal: entry model, storage parsing and selectors. Pure. */
-import { isPlausibleDate, type LocalDate } from './dates';
+import { isLocalDate, isPlausibleDate, type LocalDate } from './dates';
+import type { ValidationResult } from './pregnancy';
 import { cleanString, isIntInRange, isRecord } from './validate';
 
 export const MAX_NOTES_LENGTH = 2000;
@@ -26,6 +27,10 @@ export const SYMPTOMS = [
   'mood swings',
   'breathlessness',
   'itching',
+  'vision changes',
+  'pain below ribs',
+  'vomiting',
+  'difficulty breathing',
   'other',
 ] as const;
 
@@ -37,6 +42,18 @@ export interface JournalEntry {
   notes: string;
   /** "Mention to midwife" */
   flagged: boolean;
+}
+
+/** Symptoms that can be pre-eclampsia warning signs, so the entry shows guidance. */
+const PRE_ECLAMPSIA_SIGNS: readonly string[] = ['headache', 'swelling', 'vision changes', 'pain below ribs', 'vomiting', 'difficulty breathing'];
+export const hasPreEclampsiaSigns = (symptoms: readonly string[]): boolean =>
+  symptoms.some((s) => PRE_ECLAMPSIA_SIGNS.includes(s));
+
+export function validateJournalDate(date: string, today: LocalDate): ValidationResult {
+  if (!isLocalDate(date)) return { ok: false, error: 'Please enter a valid date.' };
+  // Same range parseEntry keeps, so a saved entry can't vanish on the next read (e.g. a 1995 typo).
+  if (!isPlausibleDate(date)) return { ok: false, error: 'Please enter a date from 2000 onwards.' };
+  return date > today ? { ok: false, error: 'The date can’t be in the future.' } : { ok: true };
 }
 
 function parseEntry(value: unknown): JournalEntry | null {

@@ -114,9 +114,39 @@ These came from Iron Man's re-review 2 and Wolverine's recheck at `bfd546f`:
 
 Checked in a headless browser: the contraction line reads "over 7 min" 14 minutes after the last contraction ended, and `check:offline` passes.
 
-## Review round 4: week guide lengths moved from NHS to perinatology.com
+## QA round 1 (Vision QA of main @ a929ea6, branch fix/qa-round1)
 
-Done by hand in this session, no Claude Code run.
+| # | Model (alias → resolved) | Scope | Turns | Duration | Est. cost (USD) | Outcome |
+| --- | --- | --- | --- | --- | --- | --- |
+| 11 | `sonnet` (claude-sonnet-5-5) | M1 contraction guidance (always-on "when to contact" panel, immediate under-37-weeks card, non-diagnostic 5-1-1 copy), S1 timer first, S3 next appointment, S4 past-due prompt, S5 checklist labels and 44px rows, S6 pre-eclampsia note, S7 kick-session guidance, S8 persistence helper, N1/N3/N4/N5/N6/N7/N9 | 73 | 3.6 min | $0.98 | success; typecheck, tests (291) and build passed |
+
+**Running total: 11 runs, 651 turns, ≈ 45.7 min, ≈ $12.06.** No usage or rate limit messages were seen.
+
+The reviewer made these changes by hand:
+
+- S2: `public/sw.js` now matches the cache with `ignoreVary: true`. The `check:offline` server now sends `Vary: Origin`, as `vite preview` does. With that header the old worker fails the check ("B: blank screen offline after redeploy") and the new one passes.
+- S1: a one-line "Contact your midwife/LMC now. Details below." strip now sits right under Start/Stop whenever the 5-1-1 or under-37-weeks card is showing. Without it, the timer-first layout pushed the guidance below the fold.
+
+Checked in a headless browser at iPhone 14 size (390×664 viewport), with 13 contractions 5 minutes apart at 31 weeks:
+
+- Start/Stop sits at y 208–496 and the strip ends at y 578, both above the tab bar at y 599.
+- The 5-1-1 and under-37-weeks alerts both show.
+- The under-37-weeks card appears as soon as the first contraction starts.
+- Tapping a checklist item's text toggles it, and rows are 44px tall.
+- `check:offline` passed.
+
+The health guidance wording sources are in `docs/SOURCES.md`, and the wording still needs clinical sign-off.
+
+## Review round 4 (full-codebase review, branch opusreview)
+
+Done by hand in this session, no Claude Code run. Four parallel reviewers (data layer, clinical/date logic, UI, PWA/security), every finding checked against the code. Fixes kept after merging #2 and #3:
+
+- Precache allowlist (`index.html`, manifest, `assets/`, `icons/`, `images/`, no dotfiles): host config such as `_headers` in `dist/` was precached, and one 404 fails the worker install.
+- `#/restore`: a new device can import a backup before onboarding (standalone, so the import isn't unmounted when it writes the profile).
+- Journal dates must be 2000-2099 (the range the stored journal keeps) as well as not in the future (#2); 1995 was saved and then silently dropped.
+- Dropped in favour of the merged PRs: the redirected-shell fix (#3 has the same fix) and the under-37-weeks card (#2's is fuller).
+
+### Week guide lengths moved from NHS to perinatology.com
 
 - **Why:** the NHS lengths jumped from 30.0 cm at week 24 to 34.6 cm at week 25, while neighbouring weeks change by about 1 to 1.5 cm.
 - **Source:** perinatology.com's week-by-week figures have no such step (32.2 cm, then 33.7 cm). Weeks 6-40 now use them. That page gives no figure for weeks 4-5, so those keep the NHS 0.2 cm.

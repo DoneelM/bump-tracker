@@ -173,7 +173,11 @@ function PrePregnancySection({ pre, onSave }: { pre: PrePregnancy | null; onSave
             <button type="button" className="btn btn--ghost" onClick={() => setOpen(true)}>
               Edit
             </button>
-            <button type="button" className="btn btn--ghost" onClick={() => { onSave(null); setOpen(true); }}>
+            <button type="button" className="btn btn--ghost" onClick={() => {
+                if (!window.confirm('Remove your pre-pregnancy height and weight?')) return;
+                onSave(null);
+                setOpen(true);
+              }}>
               Remove
             </button>
           </div>

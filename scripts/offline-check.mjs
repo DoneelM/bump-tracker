@@ -39,7 +39,7 @@ const server = createServer((req, res) => {
   if (!path.startsWith(base + sep)) return res.writeHead(404).end();
   try {
     const body = readFileSync(path);
-    res.writeHead(200, { 'Content-Type': TYPES[extname(path)] ?? 'application/octet-stream', 'Cache-Control': 'no-store' });
+    res.writeHead(200, { 'Content-Type': TYPES[extname(path)] ?? 'application/octet-stream', 'Cache-Control': 'no-store', Vary: 'Origin' }); // Vary like vite preview (QA S2)
     res.end(body);
   } catch {
     res.writeHead(404).end();

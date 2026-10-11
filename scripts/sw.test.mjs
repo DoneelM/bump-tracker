@@ -83,7 +83,7 @@ describe('service worker', () => {
     const v = fakeDist('index-ddd.js');
     injectPrecache(v);
     const server = serverFor(v, 'index-ddd.js');
-    server['index.html'] = { body: 'html', status: 200, statusText: 'OK', headers: {}, redirected: true };
+    server['index.html'] = { status: 200, statusText: 'OK', headers: {}, redirected: true, blob: async () => 'html' };
     const w = loadWorker(v, new Map(), server, { online: true });
     await w.install();
     await w.activate();
