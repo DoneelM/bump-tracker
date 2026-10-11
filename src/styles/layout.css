@@ -209,3 +209,10 @@
     overflow-wrap: anywhere;
   }
 }
+
+/* Small centred footer line at the bottom of Home and the welcome screen (privacy policy link) */
+.page-footer {
+  margin-top: var(--space-4);
+  text-align: center;
+  font-size: 0.875rem;
+}

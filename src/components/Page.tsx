@@ -10,11 +10,13 @@ interface PageProps {
   back?: { to: string; label: string };
   /** Show the health disclaimer (default true: most screens are health screens). */
   health?: boolean;
+  /** Shown at the very bottom, after the disclaimer (e.g. Home's privacy policy link). */
+  footer?: ReactNode;
   children?: ReactNode;
 }
 
 /** Standard screen layout: heading (focused on navigation for screen readers), content, disclaimer. */
-export function Page({ title, icon, back, health = true, children }: PageProps) {
+export function Page({ title, icon, back, health = true, footer, children }: PageProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -40,6 +42,7 @@ export function Page({ title, icon, back, health = true, children }: PageProps) 
       </h1>
       {children}
       {health && <HealthDisclaimer />}
+      {footer}
     </div>
   );
 }

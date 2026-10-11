@@ -65,7 +65,7 @@ export function OnboardingPage() {
         }}
       />
       <HealthDisclaimer />
-      <p className="muted">
+      <p className="page-footer">
         <a href="./privacy.html" className="text-link">
           Privacy policy
         </a>

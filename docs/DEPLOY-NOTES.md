@@ -30,7 +30,7 @@ The app deploys to Cloudflare Workers as static assets only (no Worker script). 
 - **Wrangler version:** `npm run deploy` runs a pinned Wrangler (`npx -y wrangler@4.141.0 deploy`) instead of a devDependency, to keep installs small. `compatibility_date` in `wrangler.jsonc` must be a date that Wrangler version supports; 4.141.0 rejects anything after 2026-10-02.
 - **Telemetry:** `send_metrics: false` turns off Wrangler's anonymous usage telemetry.
 - **Checking a change locally:** run `npm run build && npx -y wrangler@4.141.0 dev` to serve `dist/` with Cloudflare's runtime, `_headers` included.
-- **Preview builds for other branches** are optional (Worker → **Settings** → **Builds**). Each preview gets its own URL, which is a separate origin, so it has separate storage.
+- **Preview builds for other branches** are optional (Worker → **Settings** → **Builds**). Each preview gets its own URL, which is a separate origin, so it has separate storage. `wrangler.jsonc` sets `preview_urls: true` on purpose: with a custom-domain route, Wrangler turns the workers.dev subdomain off by default, and a deploy from `main` without that line switched preview URLs off for every branch. Google sign-in works on a preview only if its origin (e.g. `https://<branch>-bump-tracker.picme-nz.workers.dev`) is added to the OAuth client.
 - **Cloudflare behaviours the app relies on:**
   - Cloudflare answers `/index.html` with a 307 to `/`. `sw.js` serves that redirected cached copy as a clean response (#3).
   - Cloudflare returns 404 for `/_headers`, so it is never precached (#4).
@@ -76,7 +76,7 @@ Users can sync their data between devices through the hidden app folder (`appDat
 2. Configure the **OAuth consent screen** (Google Auth Platform → Branding, Audience, Data Access):
    - User type: External. App name: Bump Tracker.
    - Homepage `https://bump-tracker.aiagents.nz`; privacy policy `https://bump-tracker.aiagents.nz/privacy.html`.
-   - Google's branding check needs the homepage to link to the privacy policy. `index.html` carries a short description and a privacy link inside `#root`, so anything reading the raw HTML sees it, and the app replaces it on start. The welcome screen shows a **Privacy policy** link too. Both only reach production once this branch is deployed, so request re-verification after that.
+   - Google's branding check needs the homepage to link to the privacy policy. A **Privacy policy** link sits at the bottom of the homepage: the welcome screen for new visitors, and Home once set up. Other screens don't carry it. `index.html` also carries a short description and the link inside `#root`, for checkers that don't run JavaScript; the app replaces it on start.
    - Authorized domain: `aiagents.nz`. Verify it once in Google Search Console with a DNS TXT record. That covers the subdomain, and brand verification (app name and logo on the consent screen) needs it.
    - Scope: only `https://www.googleapis.com/auth/drive.appdata`. Google classes it as non-sensitive, so full app verification isn't required.
    - **Publish the app to production.** In testing mode, only listed test users can sign in.
@@ -95,7 +95,8 @@ Users can sync their data between devices through the hidden app folder (`appDat
 
 **Limits to know about:**
 
-- **Recovery code:** losing it means the synced copy can't be opened. There is no reset, by design. Data on devices is unaffected.
+- **Recovery code:** every synced device keeps the code next to its data key and shows it again (**Sync → Show recovery code**). That adds no exposure: anyone who can read that storage already has the key and the plain data. Devices set up before this was added ask for the code once to keep it. The synced copy can't be opened only if the code and every synced device are both lost. There's no reset of the encryption itself, by design.
+- **Forgot your code? Start over:** on the screen that asks for the code. It deletes the synced copy from Drive (after a confirm), and the user turns sync on again to get a new code. Other devices see the copy was replaced, turn sync off with a message, and rejoin with the new code. Data that differs comes up as a choice, so nothing is overwritten silently. Data on devices is never touched.
 - **Simultaneous pushes:** Drive v3 has no conditional write. The app checks the file's `version` right before uploading, and retries after a merge if another device wrote first. If two devices upload within the same moment, the later upload can replace the earlier one, and the earlier device's change from that sync is lost. The device that lost it already counts it as synced, so the next sync won't bring it back. Drive offers no way to prevent this. It needs two devices syncing at the same instant, so it's rare for one person's devices.
 - **Size:** the encrypted vault is capped at 1 MiB, details only. Typical data is far smaller. Past the cap, sync pauses with a message and the data stays on the device.
 - **Delete all my data** turns sync off on that device before wiping, so it never pushes an empty state. Deleting the Drive copy is a separate button on the Sync page.

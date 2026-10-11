@@ -89,19 +89,25 @@ function newSyncId(): string {
   return toB64(b).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
+/** Setup found synced data already in this account: the user needs the recovery code (or to start over) instead. */
+export class AlreadySyncedError extends Error {
+  constructor() {
+    super('This account already has synced data. Enter your recovery code to use it on this device.');
+  }
+}
+
 /**
  * First device: makes a recovery code and a data key, but stores nothing until `finish()`,
  * which the UI calls only after the user has confirmed they kept the code.
  */
 export async function startSetup(deps: SyncDeps): Promise<{ code: string; finish: () => Promise<SyncResult> }> {
-  if (await deps.provider.loadKeys()) {
-    throw new Error('This account already has synced data. Enter your recovery code to use it on this device.');
-  }
+  if (await deps.provider.loadKeys()) throw new AlreadySyncedError();
   const rc = generateRecoveryCode();
   const { dek, wraps } = await createDek([await deriveRecoveryKek(rc.bytes)]);
   const syncId = newSyncId();
+  const code = formatRecoveryCode(rc.code);
   return {
-    code: formatRecoveryCode(rc.code),
+    code,
     finish: async () => {
       if (await deps.provider.loadKeys()) {
         throw new Error('Sync was turned on from another device in the meantime. Enter that recovery code instead.');
@@ -109,26 +115,41 @@ export async function startSetup(deps: SyncDeps): Promise<{ code: string; finish
       // A vault without a keys file can't be opened by anyone; clear it so it doesn't block the first push.
       if (await deps.provider.loadVault()) await deps.provider.deleteAll();
       await deps.provider.saveKeys({ format: 1, syncId, wrapRc: toB64(wraps[0]!) });
-      await deps.store.save({ dek, syncId, highestSeen: 0, base: {}, lastSyncedAt: null });
+      await deps.store.save({ dek, syncId, highestSeen: 0, base: {}, lastSyncedAt: null, recoveryCode: code });
       return sync(deps);
     },
   };
 }
 
-/** Another device: unlocks the synced copy with the recovery code, then merges it with this device's data. */
-export async function unlock(deps: SyncDeps, codeInput: string): Promise<SyncResult> {
+/** Checks a typed code against the synced copy's key file; returns the data key and the code in standard form. */
+async function openWithCode(deps: Pick<SyncDeps, 'provider'>, codeInput: string) {
   const keys = await deps.provider.loadKeys();
   if (!keys) throw new Error('No synced data was found in this account. Turn on sync on the device that has your data first.');
   const codeBytes = parseRecoveryCode(codeInput);
   if (!codeBytes) throw new Error('That doesn’t look like a recovery code. Check it and try again.');
-  let dek: CryptoKey;
   try {
-    dek = await unwrapDek(fromB64(keys.wrapRc), await deriveRecoveryKek(codeBytes));
+    const dek = await unwrapDek(fromB64(keys.wrapRc), await deriveRecoveryKek(codeBytes));
+    return { dek, keys, code: formatRecoveryCode(codeInput.replace(/[\s-]/g, '').toUpperCase()) };
   } catch {
     throw new Error('That recovery code doesn’t match the synced data in this account.');
   }
-  await deps.store.save({ dek, syncId: keys.syncId, highestSeen: 0, base: {}, lastSyncedAt: null });
+}
+
+/** Another device: unlocks the synced copy with the recovery code, then merges it with this device's data. */
+export async function unlock(deps: SyncDeps, codeInput: string): Promise<SyncResult> {
+  const { dek, keys, code } = await openWithCode(deps, codeInput);
+  await deps.store.save({ dek, syncId: keys.syncId, highestSeen: 0, base: {}, lastSyncedAt: null, recoveryCode: code });
   return sync(deps);
+}
+
+/** For a device set up before codes were kept: checks the code and keeps it, leaving the sync state as it was. */
+export async function rememberCode(deps: Pick<SyncDeps, 'provider' | 'store'>, codeInput: string): Promise<string> {
+  const state = await deps.store.load();
+  if (!state) throw new Error('Sync is off on this device.');
+  const { keys, code } = await openWithCode(deps, codeInput);
+  if (keys.syncId !== state.syncId) throw new Error('The synced copy was replaced from another device. Turn sync off here and on again.');
+  await deps.store.save({ ...state, recoveryCode: code });
+  return code;
 }
 
 export async function sync(deps: SyncDeps, resolutions: Resolutions = {}, retried = false): Promise<SyncResult> {

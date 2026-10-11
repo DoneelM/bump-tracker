@@ -7,6 +7,9 @@
   // Served at a subdomain of a domain we own: Google brand verification needs a verified domain, and it's the
   // app's own origin. aiagents.nz must be an active zone in the same Cloudflare account.
   "routes": [{ "pattern": "bump-tracker.aiagents.nz", "custom_domain": true }],
+  // Keep branch preview URLs on. With routes set, Wrangler defaults workers.dev off, and a main deploy can then
+  // switch preview URLs off too. workers_dev stays at its default (off): production lives only on the domain above.
+  "preview_urls": true,
   "assets": {
     "directory": "./dist"
   },
