@@ -21,6 +21,7 @@ import { SyncPage } from '../features/sync/SyncPage';
 import { BabyNamesPage } from '../features/names/BabyNamesPage';
 import { FoodSafetyPage } from '../features/food/FoodSafetyPage';
 import { SupplementsPage } from '../features/supplements/SupplementsPage';
+import { BabyLogPage } from '../features/babylog/BabyLogPage';
 import { BpPage } from '../features/monitoring/BpPage';
 import { GlucosePage } from '../features/monitoring/GlucosePage';
 import { TimelinePage } from '../features/timeline/TimelinePage';
@@ -55,6 +56,7 @@ function parseWeekParam(raw: string | undefined): number | null {
 /** Add new screens here. Order matters only for overlapping patterns. */
 export const ROUTES: readonly RouteDef[] = [
   { pattern: '/', tab: 'home', render: ({ profile, today }) => <HomePage profile={profile} today={today} /> },
+  { pattern: '/baby', tab: 'home', render: ({ profile }) => <BabyLogPage profile={profile} /> },
   {
     pattern: '/weeks',
     tab: 'weeks',

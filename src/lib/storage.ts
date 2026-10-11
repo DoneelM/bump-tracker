@@ -8,6 +8,7 @@
  */
 import { BAG_SECTIONS, PLAN_SECTIONS } from '../data/checklists';
 import { parseBabyNames } from './babyNames';
+import { parseBabyLog } from './babyLog';
 import { parseCareTeam } from './careTeam';
 import { parseChecklist } from './checklists';
 import { parseContractionState } from './contractions';
@@ -43,6 +44,7 @@ const REGISTRY = {
   monitoringTargets: { key: 'monitoring-targets', label: 'Home monitoring targets', validate: parseTargets },
   babyNames: { key: 'baby-names', label: 'Baby name shortlist', validate: parseBabyNames },
   supplements: { key: 'supplements', label: 'Supplements taken', validate: parseSupplements },
+  babyLog: { key: 'baby-log', label: 'Baby log (feeds, nappies, sleep)', validate: parseBabyLog },
 } as const;
 
 export interface StorageEntry {

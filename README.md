@@ -34,6 +34,7 @@ More screens are in [`docs/screenshots/`](docs/screenshots/) (390 px mobile view
 - **Printable appointment summary** (print stylesheet / Save as PDF).
 - **NZ antenatal timeline**: the usual checks, tests and vaccines from Health NZ (LMC, first bloods, optional screening, whooping cough and flu vaccines, anatomy scan, glucose test) placed on your own dates, with a "Coming up" card on Home and a calendar file (.ics) made on the device. Upcoming appointments go in by type and date only, never notes.
 - **When to call**: the sourced warning signs in one place, with one-tap calling for your own midwife/LMC, birthing unit and GP (saved in Settings), Healthline and 111. Call buttons also appear on Home, the contraction timer and the kick counter.
+- **Baby log**: once "Baby's here" is set, log feeds (left, right, bottle with optional ml), nappies and sleep with one tap each, with Undo. Shows the last feed, a 24-hour summary and PlunketLine. Records only; no targets.
 - **When the pregnancy ends**: "Baby's here" turns Home into a keepsake page with birth details and PlunketLine. "My pregnancy has ended" stops all pregnancy updates and shows support (1737, Sands NZ, Miscarriage Support). Both keep your data and can be undone in Settings.
 - **Your data**: JSON backup export/import (optionally with photos) and "delete all my data".
 

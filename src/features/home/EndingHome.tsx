@@ -15,6 +15,10 @@ const footer = (
   </p>
 );
 
+const BABY_TOOLS: readonly HubItem[] = [
+  { to: '/baby', title: 'Baby log', description: 'Feeds, nappies and sleep', icon: '🍼' },
+];
+
 const KEEPSAKES: readonly HubItem[] = [
   { to: '/tools/photos', title: 'Bump photos', description: 'Your photo timeline and slideshow', icon: '📸' },
   { to: '/journal', title: 'Journal', description: 'Everything you wrote along the way', icon: '📓' },
@@ -54,6 +58,7 @@ export function BornHome({ profile, ending }: { profile: PregnancyProfile; endin
           Change birth details
         </Link>
       </section>
+      <HubList items={BABY_TOOLS} />
       <CallCard title="Help with your baby" lines={[PLUNKETLINE, HEALTHLINE, EMERGENCY]} />
       <section aria-labelledby="keepsakes-heading">
         <h2 id="keepsakes-heading">Your pregnancy</h2>
