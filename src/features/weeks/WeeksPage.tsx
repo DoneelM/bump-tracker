@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from '../../app/router';
 import { Page } from '../../components/Page';
 import { FIRST_GUIDE_WEEK, getWeekInfo, LAST_GUIDE_WEEK } from '../../data/weeks';
@@ -9,6 +9,12 @@ const WEEK_NUMBERS = Array.from({ length: LAST_GUIDE_WEEK - FIRST_GUIDE_WEEK + 1
 export function WeeksPage({ currentWeek, ending }: { currentWeek: number; ending?: PregnancyEnding['kind'] }) {
   // After a loss the guides stay available, but only when asked for: no baby sizes by default.
   const [showAfterLoss, setShowAfterLoss] = useState(false);
+  const leadRef = useRef<HTMLParagraphElement>(null);
+
+  // The button that was focused is gone once the guides show; move focus to the text that replaced it.
+  useEffect(() => {
+    if (showAfterLoss) leadRef.current?.focus();
+  }, [showAfterLoss]);
 
   if (ending === 'ended' && !showAfterLoss) {
     return (
@@ -30,7 +36,7 @@ export function WeeksPage({ currentWeek, ending }: { currentWeek: number; ending
   const current = ending ? null : currentWeek;
   return (
     <Page title="Week by week" icon="📅">
-      <p className="lead">
+      <p className="lead" ref={leadRef} tabIndex={-1}>
         {ending ? 'Tap a week to look back at its guide.' : 'Tap a week to see what’s happening with you and baby.'}
       </p>
       <ol className="week-grid">

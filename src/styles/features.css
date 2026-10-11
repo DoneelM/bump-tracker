@@ -251,8 +251,8 @@
 }
 
 .btn--danger {
-  background: var(--color-error);
-  color: var(--color-on-error);
+  background: var(--color-danger);
+  color: var(--color-on-danger);
 }
 
 .btn--danger:disabled {
@@ -304,6 +304,204 @@
   flex-wrap: wrap;
   gap: 0 var(--space-4);
   margin-top: var(--space-2);
+}
+
+/* Baby name shortlist */
+.name-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.name-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.name-item--favourite {
+  background: var(--color-peach-100);
+  border-color: var(--color-peach-300);
+}
+
+.name-item__text {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 10rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.name-item__name {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+.name-item__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Food safety guide */
+.food-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.food-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.food-item:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.food-item__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.food-item__name {
+  font-weight: 700;
+}
+
+/* The label always says the verdict in words; the colour only backs it up. */
+.food-tag--ok {
+  background: var(--color-sage-100);
+  color: var(--color-sage-700);
+}
+
+.food-tag--care,
+.food-tag--cooked {
+  background: var(--color-peach-100);
+  color: var(--color-primary);
+}
+
+.food-tag--avoid {
+  background: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+.fish-band + .fish-band {
+  margin-top: var(--space-4);
+}
+
+.fish-band h3 {
+  margin-bottom: var(--space-1);
+  font-size: var(--font-size-base);
+}
+
+/* Supplements: big toggles for today, a quiet 7-day strip */
+.supp-toggles {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.supp-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 64px;
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--color-peach-300);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.supp-toggle:hover {
+  background: var(--color-peach-100);
+}
+
+.supp-toggle.is-on {
+  border-color: var(--color-sage-300);
+  background: var(--color-sage-100);
+  color: var(--color-sage-700);
+}
+
+.supp-toggle__name {
+  font-size: var(--font-size-lg);
+}
+
+.supp-week,
+.supp-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.supp-week li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.supp-week__name {
+  font-weight: 700;
+}
+
+.supp-week__days {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.supp-day {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-peach-100);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.supp-day.is-on {
+  background: var(--color-sage-700);
+  color: var(--color-surface);
+}
+
+.supp-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.supp-reminder,
+.supp-add {
+  margin-top: var(--space-4);
+}
+
+.supp-time {
+  width: 9rem;
 }
 
 /* Baby log */

@@ -1,5 +1,6 @@
 import { HubList, type HubItem } from '../../components/HubList';
 import { Page } from '../../components/Page';
+import type { PregnancyEnding } from '../../lib/profile';
 
 export const TOOL_ITEMS: readonly HubItem[] = [
   { to: '/tools/timeline', title: 'Timeline', description: 'Checks, tests and vaccines, with calendar dates', icon: '🗓️' },
@@ -11,12 +12,22 @@ export const TOOL_ITEMS: readonly HubItem[] = [
   { to: '/tools/bp', title: 'Blood pressure', description: 'If your care team asked you to check at home', icon: '💓' },
   { to: '/tools/glucose', title: 'Glucose', description: 'If your care team asked you to check at home', icon: '🩸' },
   { to: '/tools/checklists', title: 'Checklists', description: 'Hospital bag and birth plan', icon: '✅' },
+  { to: '/baby', title: 'Baby log', description: 'Feeds, nappies and sleep', icon: '🍼' },
+  { to: '/tools/names', title: 'Baby names', description: 'Your private shortlist', icon: '🏷️' },
+  { to: '/tools/food', title: 'Food safety', description: 'What’s OK to eat, from NZ Food Safety', icon: '🥗' },
+  { to: '/tools/supplements', title: 'Supplements', description: 'Tick off folic acid, iodine and more', icon: '💊' },
 ];
 
-export function ToolsPage() {
+/** Pregnancy-only tools, hidden once the pregnancy has ended (birth or loss). Their pages still open by link. */
+const PREGNANCY_ONLY = new Set(['/tools/timeline', '/tools/contractions', '/tools/kicks', '/tools/names']);
+/** Shown only once the baby is born. */
+const BORN_ONLY = new Set(['/baby']);
+
+export function ToolsPage({ ending }: { ending?: PregnancyEnding['kind'] }) {
+  const items = TOOL_ITEMS.filter((i) => (ending ? !PREGNANCY_ONLY.has(i.to) : true) && (BORN_ONLY.has(i.to) ? ending === 'born' : true));
   return (
     <Page title="Tools" icon="🧰" health={false}>
-      <HubList items={TOOL_ITEMS} />
+      <HubList items={items} />
     </Page>
   );
 }

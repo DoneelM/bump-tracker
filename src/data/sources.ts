@@ -154,6 +154,20 @@ export const SOURCES: readonly Source[] = [
     usedFor: 'Healthline number (0800 611 116) on the call cards and the Warning signs page.',
   },
   {
+    id: 'mpi-food-pregnancy',
+    title: 'List of safe food in pregnancy',
+    publisher: 'New Zealand Food Safety (MPI)',
+    url: 'https://www.mpi.govt.nz/food-safety-home/food-pregnancy/list-safe-food-pregnancy',
+    usedFor: 'The food safety guide: what is OK to eat, what needs care or cooking, what not to eat, and fish servings for mercury.',
+  },
+  {
+    id: 'healthnz-supplements',
+    title: 'Nutrients and supplements in pregnancy',
+    publisher: 'Health NZ',
+    url: 'https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/having-a-healthy-pregnancy/nutrients-and-supplements-in-pregnancy',
+    usedFor: 'Folic acid and iodine: how much, when, and that they are free on prescription (supplements screen).',
+  },
+  {
     id: 'plunketline',
     title: 'PlunketLine',
     publisher: 'Whānau Āwhina Plunket',
