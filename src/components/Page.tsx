@@ -12,11 +12,13 @@ interface PageProps {
   health?: boolean;
   /** Shown at the very bottom, after the disclaimer (e.g. Home's privacy policy link). */
   footer?: ReactNode;
+  /** Keep the h1 for screen readers but hide it on screen, when the tab bar already says where you are. */
+  hideTitle?: boolean;
   children?: ReactNode;
 }
 
 /** Standard screen layout: heading (focused on navigation for screen readers), content, disclaimer. */
-export function Page({ title, icon, back, health = true, footer, children }: PageProps) {
+export function Page({ title, icon, back, health = true, footer, hideTitle = false, children }: PageProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -32,7 +34,7 @@ export function Page({ title, icon, back, health = true, footer, children }: Pag
           <span aria-hidden="true">‹</span> {back.label}
         </Link>
       )}
-      <h1 ref={headingRef} tabIndex={-1} className="page__title">
+      <h1 ref={headingRef} tabIndex={-1} className={hideTitle ? 'visually-hidden' : 'page__title'}>
         {icon && (
           <span className="page__icon" aria-hidden="true">
             {icon}

@@ -124,15 +124,41 @@
 
 .hero__ga {
   font-size: var(--font-size-2xl);
-  margin: var(--space-1) 0 var(--space-4);
+  margin: 0 0 var(--space-1);
 }
 
+/* Week labels sit at their true point on the 40-week bar (left set inline); ends align to the edges. */
 .hero__scale {
-  display: flex;
-  justify-content: space-between;
-  margin-top: var(--space-1);
+  position: relative;
+  height: 1.5em;
+  margin: var(--space-1) 0 var(--space-3);
   color: var(--color-text-muted);
-  font-size: 0.75rem;
+  font-size: var(--font-size-sm);
+}
+
+.hero__scale span {
+  position: absolute;
+  top: 0;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+.hero__scale span:first-child {
+  transform: none;
+}
+
+.hero__scale span:last-child {
+  transform: translateX(-100%);
+}
+
+.hero__meta {
+  margin-bottom: var(--space-4);
+  font-size: var(--font-size-lg);
+}
+
+.hero__tri {
+  color: var(--color-sage-700);
+  font-weight: 700;
 }
 
 .progress {
@@ -146,23 +172,6 @@
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, var(--color-coral-500), var(--color-primary));
-}
-
-.countdown__numbers {
-  font-size: var(--font-size-lg);
-}
-
-.countdown__big {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: var(--color-primary);
-  line-height: 1;
-}
-
-.countdown__sub {
-  display: block;
-  color: var(--color-text-muted);
-  font-size: var(--font-size-base);
 }
 
 .week-card__emoji {
@@ -658,7 +667,7 @@ select.input--short {
 }
 
 .tag {
-  font-size: 0.75rem;
+  font-size: var(--font-size-sm);
   font-weight: 700;
   padding: 0.1rem 0.5rem;
   border-radius: var(--radius-pill);

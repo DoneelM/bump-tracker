@@ -157,7 +157,7 @@
 /* Home summary tiles */
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
   gap: var(--space-3);
 }
 
@@ -198,6 +198,28 @@
   display: flex;
   align-items: center;
   gap: var(--space-4);
+}
+
+/* The picture sits first on screen, but the link's accessible name starts with the week. */
+.week-card .size-comparison,
+.week-card .week-card__emoji {
+  order: -1;
+}
+
+/* Home help card: call buttons first, then the quieter links. */
+.help-row h2 {
+  margin-bottom: var(--space-1);
+}
+
+.help-row .button-row {
+  margin-top: var(--space-3);
+}
+
+.help-row__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-4);
+  margin-top: var(--space-2);
 }
 
 .plain-list {
