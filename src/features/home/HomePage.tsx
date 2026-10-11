@@ -37,7 +37,7 @@ const TIMER_QUICK_ACTION_WEEK = 37;
 const HELP_FIRST_WEEK = 36;
 
 export function HomePage({ profile, today }: { profile: PregnancyProfile; today: LocalDate }) {
-  if (profile.ending?.kind === 'born') return <BornHome profile={profile} ending={profile.ending} />;
+  if (profile.ending?.kind === 'born') return <BornHome profile={profile} ending={profile.ending} today={today} />;
   if (profile.ending?.kind === 'ended') return <EndedHome />;
   return <PregnancyHome profile={profile} today={today} />;
 }

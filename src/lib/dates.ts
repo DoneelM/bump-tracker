@@ -83,6 +83,30 @@ export function addDays(date: LocalDate, days: number): LocalDate {
   return fromDayNumber(toDayNumber(date) + days);
 }
 
+/**
+ * Same day-of-month `months` later, clamped to the month's last day (31 Jan + 1 month = 28/29 Feb).
+ * Used for ages and schedules counted in months, like immunisations.
+ */
+export function addMonths(date: LocalDate, months: number): LocalDate {
+  if (!Number.isInteger(months)) throw new RangeError(`Months must be an integer: ${months}`);
+  const p = parseLocalDate(date);
+  if (!p) throw new RangeError(`Invalid date: ${String(date)}`);
+  const total = p.year * 12 + (p.month - 1) + months;
+  const year = Math.floor(total / 12);
+  const month = (total % 12) + 1;
+  return formatLocalDate({ year, month, day: Math.min(p.day, daysInMonth(year, month)) });
+}
+
+/** Whole calendar months from `from` to `to` (0 if `to` is earlier). */
+export function diffMonths(from: LocalDate, to: LocalDate): number {
+  if (to < from) return 0;
+  const a = parseLocalDate(from)!;
+  const b = parseLocalDate(to)!;
+  let m = (b.year - a.year) * 12 + (b.month - a.month);
+  if (addMonths(from, m) > to) m -= 1;
+  return m;
+}
+
 /** Whole days from `from` to `to` (positive when `to` is later). */
 export function diffDays(from: LocalDate, to: LocalDate): number {
   return toDayNumber(to) - toDayNumber(from);

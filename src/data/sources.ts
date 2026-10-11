@@ -168,6 +168,27 @@ export const SOURCES: readonly Source[] = [
     usedFor: 'Folic acid and iodine: how much, when, and that they are free on prescription (supplements screen).',
   },
   {
+    id: 'healthnz-choking',
+    title: 'Choking',
+    publisher: 'Health NZ',
+    url: 'https://www.healthnz.govt.nz/health-topics/tests-and-treatments/emergencies-and-first-aid/choking',
+    usedFor: 'What to do if your baby is choking (Help tab), word for word.',
+  },
+  {
+    id: 'stjohn-baby-cpr',
+    title: 'Resuscitation: baby CPR',
+    publisher: 'Hato Hone St John',
+    url: 'https://www.stjohn.org.nz/first-aid/first-aid-library/resuscitation/baby-cpr/',
+    usedFor: 'What to do if your baby is not breathing (Help tab), word for word.',
+  },
+  {
+    id: 'kidshealth-is-my-child-sick',
+    title: 'Is my child sick?',
+    publisher: 'KidsHealth',
+    url: 'https://www.kidshealth.org.nz/is-my-child-sick',
+    usedFor: 'When to call 111, see a health professional urgently, or call Healthline about your baby (Help tab).',
+  },
+  {
     id: 'plunketline',
     title: 'PlunketLine',
     publisher: 'Whānau Āwhina Plunket',
