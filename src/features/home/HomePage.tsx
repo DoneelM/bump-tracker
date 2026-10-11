@@ -29,6 +29,10 @@ import { parseWeightEntries, sortByDate, type WeightEntry } from '../../lib/weig
 
 const NO_WEIGHTS: WeightEntry[] = [];
 const NO_SCANS: ScanEntry[] = [];
+/** Labels under the progress bar, at their true positions (14 and 28 weeks are the trimester boundaries). */
+const SCALE_WEEKS = [0, 14, 28, 40] as const;
+/** The contraction timer joins the quick actions at term; before that it stays in Tools. */
+const TIMER_QUICK_ACTION_WEEK = 37;
 
 export function HomePage({ profile, today }: { profile: PregnancyProfile; today: LocalDate }) {
   if (profile.ending?.kind === 'born') return <BornHome profile={profile} ending={profile.ending} />;
@@ -54,7 +58,7 @@ function PregnancyHome({ profile, today }: { profile: PregnancyProfile; today: L
   return (
     <Page
       title="Home"
-      icon="🏡"
+      hideTitle
       footer={
         <p className="page-footer">
           <a href="./privacy.html" className="text-link">
@@ -74,55 +78,59 @@ function PregnancyHome({ profile, today }: { profile: PregnancyProfile; today: L
           valueText={`${Math.max(0, ga.weeks)} of 40 weeks`}
         />
         <p className="hero__scale" aria-hidden="true">
-          <span>0</span>
-          <span>14</span>
-          <span>28</span>
-          <span>40 wks</span>
+          {SCALE_WEEKS.map((w) => (
+            <span key={w} style={{ left: `${(w / 40) * 100}%` }}>
+              {w === 40 ? '40 wks' : w}
+            </span>
+          ))}
         </p>
-      </section>
-
-      <section className="card countdown" aria-labelledby="countdown-heading">
-        <h2 id="countdown-heading">Countdown to {name}</h2>
-        {daysLeft > 0 ? (
-          <p className="countdown__numbers">
-            <span className="countdown__big">{daysLeft}</span> {daysLeft === 1 ? 'day' : 'days'} to go
-            <span className="countdown__sub">({formatWeeksDays(left.weeks, left.days)})</span>
-          </p>
-        ) : daysLeft === 0 ? (
-          <p className="countdown__numbers">Today is your due date! 💛</p>
-        ) : (
-          <p className="countdown__numbers">
-            Your due date was {-daysLeft} {daysLeft === -1 ? 'day' : 'days'} ago.
-          </p>
-        )}
-        <p className="muted">Estimated due date: {formatDisplayDate(profile.dueDate)}</p>
-        <Link to="/settings" className="text-link">
-          Change dates
-        </Link>
+        <p className="hero__countdown">
+          {daysLeft > 0 ? (
+            <>
+              <span className="hero__days">{daysLeft}</span> {daysLeft === 1 ? 'day' : 'days'} until you meet {name}
+            </>
+          ) : daysLeft === 0 ? (
+            'Today is your due date! 💛'
+          ) : (
+            `Your due date was ${-daysLeft} ${daysLeft === -1 ? 'day' : 'days'} ago.`
+          )}
+        </p>
+        <p className="muted">
+          {daysLeft > 0 && `${formatWeeksDays(left.weeks, left.days)} to go. `}Due {formatDisplayDate(profile.dueDate)}
+        </p>
       </section>
 
       {pastDue !== 'none' && (
         <GuidanceCard g={{ ...PAST_DUE, body: pastDue === 'overdue' ? `${PAST_DUE.body} ${PAST_DUE_OVERDUE_LINE}` : PAST_DUE.body }} />
       )}
 
-      <Link to={`/weeks/${guideWeek}`} className="card card--link week-card">
-        {weekInfo ? (
-          <SizeComparison info={weekInfo} size={96} />
-        ) : (
-          <span className="week-card__emoji" aria-hidden="true">
-            📖
+      <Link to={`/weeks/${guideWeek}`} className="card card--link week-feature">
+        <span className="week-feature__head">
+          <span className="week-feature__title">Week {guideWeek} guide</span>
+          <span className="hub__chevron" aria-hidden="true">
+            ›
           </span>
-        )}
-        <span>
-          <span className="week-card__title">Week {guideWeek} guide</span>
-          <span className="week-card__desc">What’s happening with you and {name} this week</span>
         </span>
-        <span className="hub__chevron" aria-hidden="true">
-          ›
-        </span>
+        {weekInfo && <SizeComparison info={weekInfo} size={112} />}
       </Link>
 
-      <ComingUpCard dueDate={profile.dueDate} today={today} />
+      <HelpRow />
+
+      <nav className="quick-actions" aria-label="Quick actions">
+        {ga.weeks >= TIMER_QUICK_ACTION_WEEK && (
+          <Link to="/tools/contractions" className="btn btn--primary">
+            Contraction timer
+          </Link>
+        )}
+        {ga.weeks >= KICKS_UNLOCK_WEEK && (
+          <Link to="/tools/kicks" className="btn btn--ghost">
+            Kick counter
+          </Link>
+        )}
+        <Link to="/journal" className="btn btn--ghost">
+          Log symptom
+        </Link>
+      </nav>
 
       <div className="summary-grid">
         <Link to="/tools/weight" className="card card--link summary-tile">
@@ -144,31 +152,14 @@ function PregnancyHome({ profile, today }: { profile: PregnancyProfile; today: L
               <span className="muted">{formatDisplayDate(next.date)}</span>
             </>
           ) : (
-            <span className="muted">None planned. Add one in your scans log.</span>
+            <span className="muted">None planned yet</span>
           )}
         </Link>
       </div>
 
-      <HelpRow />
+      <ComingUpCard dueDate={profile.dueDate} today={today} />
 
       <SyncPromo />
-
-      <section className="card" aria-labelledby="quick-heading">
-        <h2 id="quick-heading">Quick actions</h2>
-        <div className="button-row">
-          <Link to="/tools/contractions" className="btn btn--ghost">
-            Start contraction timer
-          </Link>
-          <Link to="/journal" className="btn btn--ghost">
-            Log symptom
-          </Link>
-          {ga.weeks >= KICKS_UNLOCK_WEEK && (
-            <Link to="/tools/kicks" className="btn btn--ghost">
-              Kick counter
-            </Link>
-          )}
-        </div>
-      </section>
     </Page>
   );
 }

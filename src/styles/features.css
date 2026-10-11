@@ -154,10 +154,10 @@
   color: var(--color-text-muted);
 }
 
-/* Home summary tiles */
+/* Home summary tiles: two up even on a 320px phone; long values wrap inside the tile. */
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-3);
 }
 
@@ -175,8 +175,43 @@
 }
 
 .summary-tile__value {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-base);
   font-weight: 700;
+  overflow-wrap: break-word;
+}
+
+.summary-tile .muted {
+  font-size: var(--font-size-sm);
+}
+
+/* Home: this week's guide, the visual centrepiece */
+.card--link.week-feature {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-2);
+}
+
+.week-feature__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.week-feature__title {
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+}
+
+.week-feature .size-comparison__caption {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+/* Home: quick actions, a light row rather than a card */
+.quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
 }
 
 /* Partner summary + print summary */
