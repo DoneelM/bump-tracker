@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Page } from '../../components/Page';
+import type { LocalDate } from '../../lib/dates';
 import {
   averagesLastHour,
   detect511,
@@ -16,6 +17,8 @@ import {
   validSorted,
   type ContractionState,
 } from '../../lib/contractions';
+import { gestationalAge } from '../../lib/pregnancy';
+import type { PregnancyProfile } from '../../lib/profile';
 import { STORAGE_KEYS } from '../../lib/storage';
 import { useStoredState } from '../../lib/useStoredState';
 
@@ -71,7 +74,11 @@ function useWakeLock(on: boolean): boolean {
   return held;
 }
 
-export function ContractionsPage() {
+/** Before 37+0 any regular contractions need a call, so this can't wait for the 5-1-1 pattern. */
+const TERM_WEEKS = 37;
+
+export function ContractionsPage({ profile, today }: { profile: PregnancyProfile; today: LocalDate }) {
+  const preterm = gestationalAge(profile.dueDate, today).weeks < TERM_WEEKS;
   const [state, setState] = useStoredState<ContractionState>(STORAGE_KEYS.contractions, EMPTY_STATE, parseContractionState);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
@@ -127,6 +134,17 @@ export function ContractionsPage() {
           <p>This app alerts a little earlier than Health NZ’s guidance on purpose, so you are told sooner rather than later.</p>
           <p>Always follow your midwife’s advice. In an emergency call 111.</p>
         </div>
+      )}
+
+      {preterm && (
+        <section className="card card--warning" aria-label="Under 37 weeks">
+          <p>
+            <strong>You’re under 37 weeks.</strong> If you’re having regular tightenings or contractions, period-type pains or
+            a backache that comes and goes, or your waters break, contact your midwife/LMC or maternity unit now. Don’t wait
+            for a 5-1-1 pattern.
+          </p>
+          <p>In an emergency call 111.</p>
+        </section>
       )}
 
       <section className="timer-panel" aria-label="Contraction timer">

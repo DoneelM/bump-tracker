@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { FormField } from '../../components/FormField';
 import { Page } from '../../components/Page';
-import { formatDisplayDate, isLocalDate, todayLocal, type LocalDate } from '../../lib/dates';
+import { formatDisplayDate, isPlausibleDate, MAX_PLAUSIBLE_DATE, MIN_PLAUSIBLE_DATE, todayLocal, type LocalDate } from '../../lib/dates';
 import {
   flaggedEntries,
   MAX_JOURNAL_ENTRIES,
@@ -136,7 +136,8 @@ function EntryForm({
   function submit(ev: FormEvent) {
     ev.preventDefault();
     const next: typeof errors = {};
-    if (!isLocalDate(date)) next.date = 'Please enter a valid date.';
+    // Same range the stored journal accepts, so a saved entry can't vanish on the next read.
+    if (!isPlausibleDate(date)) next.date = 'Please enter a valid date (2000 to 2099).';
     if (!mood) next.mood = 'Please pick how you’re feeling.';
     if (notes.trim().length > MAX_NOTES_LENGTH) next.notes = `Notes can be up to ${MAX_NOTES_LENGTH} characters.`;
     setErrors(next);
@@ -155,7 +156,7 @@ function EntryForm({
       <h2 id="j-form">{initial ? 'Edit entry' : 'New entry'}</h2>
       {full && <p className="field__error">The journal is full. Delete an old entry to add more.</p>}
       <FormField id="j-date" label="Date" error={errors.date}>
-        {(aria) => <input {...aria} type="date" className="input" value={date} onChange={(e) => setDate(e.target.value)} />}
+        {(aria) => <input {...aria} type="date" className="input" min={MIN_PLAUSIBLE_DATE} max={MAX_PLAUSIBLE_DATE} value={date} onChange={(e) => setDate(e.target.value)} />}
       </FormField>
 
       <fieldset className="choice" aria-describedby={errors.mood ? 'j-mood-error' : undefined}>

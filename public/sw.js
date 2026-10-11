@@ -1,7 +1,7 @@
 /*
  * Bump Tracker service worker: offline app shell.
  *
- * After `vite build`, scripts/sw-precache.mjs (part of `npm run build`) fills PRECACHE with every file in dist/
+ * After `vite build`, scripts/sw-precache.mjs (part of `npm run build`) fills PRECACHE with every app file in dist/
  * and VERSION with a content hash, so each deploy is a new worker with its own cache.
  * The new worker caches ALL of its files before it activates, so it never serves an
  * index.html whose bundles are missing. Old caches are deleted on activate.
@@ -36,6 +36,12 @@ self.addEventListener('fetch', (event) => {
   // Hash routing: every navigation is the shell.
   const key = request.mode === 'navigate' ? SHELL : request;
   event.respondWith(
-    caches.open(CACHE_NAME).then((cache) => cache.match(key, { ignoreSearch: request.mode === 'navigate' })).then((hit) => hit || fetch(request)),
+    caches.open(CACHE_NAME).then((cache) => cache.match(key, { ignoreSearch: request.mode === 'navigate' })).then((hit) => (hit ? unredirect(hit) : fetch(request))),
   );
 });
+
+// Hosts that redirect /index.html to / (e.g. Cloudflare Pages) make the cached shell a redirected response,
+// which browsers reject as the answer to a navigation. A fresh Response drops the redirected flag.
+function unredirect(res) {
+  return res.redirected ? new Response(res.body, { status: res.status, statusText: res.statusText, headers: res.headers }) : res;
+}

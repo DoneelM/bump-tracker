@@ -3,6 +3,7 @@ import { ErrorBoundary } from '../components/ErrorBoundary';
 import { OnboardingPage } from '../features/onboarding/OnboardingPage';
 import { NotFoundPage } from '../features/notfound/NotFoundPage';
 import { PartnerViewPage } from '../features/partner/PartnerViewPage';
+import { RestorePage } from '../features/data/RestorePage';
 import { useProfile } from '../lib/useProfile';
 import { useToday } from '../lib/useToday';
 import { useRoutePath } from './router';
@@ -22,11 +23,12 @@ function AppContent() {
   const today = useToday();
 
   // Read-only shared snapshot: works without a profile and never writes to storage.
-  if (path === '/partner-view') {
+  // Restore: works without a profile, so a new device can import a backup before onboarding.
+  if (path === '/partner-view' || path === '/restore') {
     return (
       <div className="app">
         <main id="main" className="app-main app-main--standalone">
-          <PartnerViewPage />
+          {path === '/restore' ? <RestorePage /> : <PartnerViewPage />}
         </main>
       </div>
     );

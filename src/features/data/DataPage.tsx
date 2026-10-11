@@ -64,7 +64,7 @@ function ExportSection() {
   );
 }
 
-function ImportSection() {
+export function ImportSection() {
   const [pending, setPending] = useState<ParsedBackup | null>(null);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
