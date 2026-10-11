@@ -1,0 +1,10 @@
+// Cloudflare Workers (static assets only, no Worker script). Workers Builds runs `npm test && npm run build`,
+// then `npm run deploy` on every push to main. See docs/DEPLOY-NOTES.md.
+{
+  "name": "bump-tracker",
+  "compatibility_date": "2026-09-25",
+  "send_metrics": false,
+  "assets": {
+    "directory": "./dist"
+  }
+}

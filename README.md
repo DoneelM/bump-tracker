@@ -46,9 +46,10 @@ npm run build     # type-check + production build to dist/
 npm run preview   # serve dist/ (service worker is registered here, not in dev)
 npm test          # vitest (runs in Pacific/Auckland time, see vite.config.ts)
 npm run check:offline  # headless offline check of dist/ (needs: npm i --no-save playwright && npx playwright install chromium)
+npm run deploy    # deploy dist/ to Cloudflare (Workers Builds runs this; needs Cloudflare login if run by hand)
 ```
 
-`npm run build` also fills `dist/sw.js` with the precache list (`scripts/sw-precache.mjs`). Before deploying, read [docs/DEPLOY-NOTES.md](docs/DEPLOY-NOTES.md): it covers the dedicated origin and the security headers.
+`npm run build` also fills `dist/sw.js` with the precache list (`scripts/sw-precache.mjs`). Pushes to `main` deploy to Cloudflare Workers automatically (`wrangler.jsonc`, `public/_headers`). [docs/DEPLOY-NOTES.md](docs/DEPLOY-NOTES.md) has the one-time dashboard setup, the security headers and the caching rules.
 
 > Note: with npm 9, adding or upgrading packages can crash with `Cannot read properties of null (reading 'edgesOut')`.
 > This is an npm 9 bug, triggered by Vitest 4's optional peer dependencies. Use `npx npm@10 install <pkg>` for that.

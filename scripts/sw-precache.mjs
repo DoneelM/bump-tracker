@@ -17,8 +17,10 @@ export function injectPrecache(dist) {
   const all = walk(dist).map((f) => relative(dist, f).split('\\').join('/')).filter((f) => f !== 'sw.js').sort();
   const files = all.filter(isAppFile);
   const skipped = all.filter((f) => !isAppFile(f));
+  // Hash every file, precached or not: a header-only change (_headers) still ships a new worker, so pages it
+  // serves from cache pick up the new headers.
   const hash = createHash('sha256');
-  for (const f of files) hash.update(f).update(readFileSync(join(dist, f)));
+  for (const f of all) hash.update(f).update(readFileSync(join(dist, f)));
   const version = hash.digest('hex').slice(0, 12);
   const list = files.map((f) => './' + f);
   const swPath = join(dist, 'sw.js');
