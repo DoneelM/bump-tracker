@@ -18,6 +18,8 @@ import { ScansPage } from '../features/scans/ScansPage';
 import { SettingsPage } from '../features/settings/SettingsPage';
 import { SourcesPage } from '../features/sources/SourcesPage';
 import { SyncPage } from '../features/sync/SyncPage';
+import { BabyNamesPage } from '../features/names/BabyNamesPage';
+import { FoodSafetyPage } from '../features/food/FoodSafetyPage';
 import { SupplementsPage } from '../features/supplements/SupplementsPage';
 import { BpPage } from '../features/monitoring/BpPage';
 import { GlucosePage } from '../features/monitoring/GlucosePage';
@@ -71,13 +73,15 @@ export const ROUTES: readonly RouteDef[] = [
       return week === null ? <NotFoundPage /> : <WeekDetailPage key={week} week={week} />;
     },
   },
-  { pattern: '/tools', tab: 'tools', render: () => <ToolsPage /> },
+  { pattern: '/tools', tab: 'tools', render: ({ profile }) => <ToolsPage ending={profile.ending?.kind} /> },
   { pattern: '/tools/weight', tab: 'tools', render: ({ profile, today }) => <WeightPage profile={profile} today={today} /> },
   { pattern: '/tools/contractions', tab: 'tools', render: ({ profile, today }) => <ContractionsPage profile={profile} today={today} /> },
   { pattern: '/tools/scans', tab: 'tools', render: ({ profile, today }) => <ScansPage profile={profile} today={today} /> },
   { pattern: '/tools/kicks', tab: 'tools', render: ({ profile, today }) => <KicksPage profile={profile} today={today} /> },
   { pattern: '/tools/photos', tab: 'tools', render: ({ profile, today }) => <PhotosPage profile={profile} today={today} /> },
   { pattern: '/tools/checklists', tab: 'tools', render: () => <ChecklistsPage /> },
+  { pattern: '/tools/names', tab: 'tools', render: () => <BabyNamesPage /> },
+  { pattern: '/tools/food', tab: 'tools', render: () => <FoodSafetyPage /> },
   { pattern: '/tools/supplements', tab: 'tools', render: ({ today }) => <SupplementsPage today={today} /> },
   { pattern: '/tools/bp', tab: 'tools', render: ({ today }) => <BpPage today={today} /> },
   { pattern: '/tools/glucose', tab: 'tools', render: ({ today }) => <GlucosePage today={today} /> },

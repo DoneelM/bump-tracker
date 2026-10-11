@@ -7,6 +7,7 @@
  * a default instead of crashing the UI.
  */
 import { BAG_SECTIONS, PLAN_SECTIONS } from '../data/checklists';
+import { parseBabyNames } from './babyNames';
 import { parseCareTeam } from './careTeam';
 import { parseChecklist } from './checklists';
 import { parseContractionState } from './contractions';
@@ -40,6 +41,7 @@ const REGISTRY = {
   bpReadings: { key: 'bp-readings', label: 'Blood pressure readings', validate: parseBpReadings },
   glucoseReadings: { key: 'glucose-readings', label: 'Glucose readings', validate: parseGlucoseReadings },
   monitoringTargets: { key: 'monitoring-targets', label: 'Home monitoring targets', validate: parseTargets },
+  babyNames: { key: 'baby-names', label: 'Baby name shortlist', validate: parseBabyNames },
   supplements: { key: 'supplements', label: 'Supplements taken', validate: parseSupplements },
 } as const;
 
