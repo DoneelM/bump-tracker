@@ -4,6 +4,9 @@
  *   --color-text-muted on bg / peach-100 / sage-100: 6.6 / 6.1 / 5.8
  *   white on --color-primary: 5.4;  --color-primary on bg / peach-100: 5.2 / 4.8
  *   --color-sage-700 on --color-sage-100: 6.5;  --color-error on --color-error-bg: 6.4
+ * Dark theme (same pairs): text on bg 15.2, muted on bg / peach-100 9.3 / 7.6, primary on bg / surface 8.1 / 7.4,
+ *   on-primary on primary 7.6, sage-700 on sage-100 8.4, error on error-bg 7.6, on-error on error 8.9.
+ * The dark block appears twice (explicit choice, and system setting); keep them identical (tested).
  */
 :root {
   /* Palette */
@@ -26,6 +29,9 @@
   --color-success-bg: #e5efe0;
   --color-warning-bg: #fff3d6;
   --color-focus: #2f5ea8;
+  --color-on-primary: #ffffff;
+  --color-on-error: #ffffff;
+  color-scheme: light;
 
   /* Type */
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -53,4 +59,60 @@
   /* Layout */
   --content-max: 40rem;
   --tabbar-height: 64px;
+}
+
+/* Dark theme: chosen in Settings */
+:root[data-theme='dark'] {
+  --color-bg: #1b1412;
+  --color-surface: #261d1a;
+  --color-peach-100: #33251f;
+  --color-peach-200: #45302a;
+  --color-peach-300: #8c5a48;
+  --color-coral-500: #e8785a;
+  --color-primary: #f2957c;
+  --color-primary-hover: #f7b09d;
+  --color-sage-100: #1f2b22;
+  --color-sage-300: #4e6b54;
+  --color-sage-700: #a8cdb0;
+  --color-text: #f3e9e4;
+  --color-text-muted: #c9b6ae;
+  --color-border: #3e2f29;
+  --color-error: #ff9d92;
+  --color-error-bg: #3b1d1b;
+  --color-success-bg: #1f2b22;
+  --color-warning-bg: #352b17;
+  --color-focus: #9bbcff;
+  --color-on-primary: #2a1712;
+  --color-on-error: #2a0f0d;
+  --shadow-card: 0 2px 10px rgb(0 0 0 / 0.35);
+  color-scheme: dark;
+}
+
+/* Dark theme: following the system setting */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-bg: #1b1412;
+    --color-surface: #261d1a;
+    --color-peach-100: #33251f;
+    --color-peach-200: #45302a;
+    --color-peach-300: #8c5a48;
+    --color-coral-500: #e8785a;
+    --color-primary: #f2957c;
+    --color-primary-hover: #f7b09d;
+    --color-sage-100: #1f2b22;
+    --color-sage-300: #4e6b54;
+    --color-sage-700: #a8cdb0;
+    --color-text: #f3e9e4;
+    --color-text-muted: #c9b6ae;
+    --color-border: #3e2f29;
+    --color-error: #ff9d92;
+    --color-error-bg: #3b1d1b;
+    --color-success-bg: #1f2b22;
+    --color-warning-bg: #352b17;
+    --color-focus: #9bbcff;
+    --color-on-primary: #2a1712;
+    --color-on-error: #2a0f0d;
+    --shadow-card: 0 2px 10px rgb(0 0 0 / 0.35);
+    color-scheme: dark;
+  }
 }

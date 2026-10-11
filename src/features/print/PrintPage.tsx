@@ -11,6 +11,8 @@ import type { PregnancyProfile } from '../../lib/profile';
 import { MEASUREMENTS, parseScanEntries, scanTypeLabel, type ScanEntry } from '../../lib/scans';
 import { STORAGE_KEYS } from '../../lib/storage';
 import { useStoredState } from '../../lib/useStoredState';
+import { openQuestions } from '../../lib/questions';
+import { useQuestions } from '../questions/QuestionsPage';
 import { parsePrePregnancy, parseWeightEntries, sortByDate, type PrePregnancy, type WeightEntry } from '../../lib/weightGain';
 
 const NO_WEIGHTS: WeightEntry[] = [];
@@ -30,6 +32,8 @@ export function PrintPage({ profile, today }: { profile: PregnancyProfile; today
   const [pre] = useStoredState<PrePregnancy | null>(STORAGE_KEYS.prePregnancy, null, parsePrePregnancy);
   const [weights] = useStoredState<WeightEntry[]>(STORAGE_KEYS.weightEntries, NO_WEIGHTS, parseWeightEntries);
   const [scans] = useStoredState<ScanEntry[]>(STORAGE_KEYS.scanEntries, NO_SCANS, parseScanEntries);
+  const [questions] = useQuestions();
+  const openQs = openQuestions(questions);
   const [journal] = useStoredState<JournalEntry[]>(STORAGE_KEYS.journal, NO_JOURNAL, parseJournalEntries);
   const [kicks] = useStoredState<KickSession[]>(STORAGE_KEYS.kickSessions, NO_KICKS, parseKickSessions);
   const [contractions] = useStoredState<ContractionState>(STORAGE_KEYS.contractions, EMPTY_STATE, parseContractionState);
@@ -129,6 +133,19 @@ export function PrintPage({ profile, today }: { profile: PregnancyProfile; today
                   </li>
                 );
               })}
+            </ul>
+          )}
+        </section>
+
+        <section className="card print-card" aria-labelledby="pr-questions">
+          <h2 id="pr-questions">Questions to ask</h2>
+          {openQs.length === 0 ? (
+            <p className="muted">No open questions.</p>
+          ) : (
+            <ul className="plain-list">
+              {openQs.map((q) => (
+                <li key={q.id}>{q.text}</li>
+              ))}
             </ul>
           )}
         </section>

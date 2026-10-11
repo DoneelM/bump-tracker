@@ -7,6 +7,7 @@ import { DataPage } from '../features/data/DataPage';
 import { WarningSignsPage } from '../features/help/WarningSignsPage';
 import { HomePage } from '../features/home/HomePage';
 import { JournalPage } from '../features/journal/JournalPage';
+import { QuestionsPage } from '../features/questions/QuestionsPage';
 import { KicksPage } from '../features/kicks/KicksPage';
 import { MorePage } from '../features/more/MorePage';
 import { NotFoundPage } from '../features/notfound/NotFoundPage';
@@ -73,6 +74,7 @@ export const ROUTES: readonly RouteDef[] = [
   { pattern: '/tools/checklists', tab: 'tools', render: () => <ChecklistsPage /> },
   { pattern: '/tools/timeline', tab: 'tools', render: ({ profile, today }) => <TimelinePage profile={profile} today={today} /> },
   { pattern: '/journal', tab: 'journal', render: () => <JournalPage /> },
+  { pattern: '/journal/questions', tab: 'journal', render: ({ today }) => <QuestionsPage today={today} /> },
   { pattern: '/more', tab: 'more', render: () => <MorePage /> },
   { pattern: '/more/partner', tab: 'more', render: ({ profile, today }) => <PartnerPage profile={profile} today={today} /> },
   { pattern: '/more/print', tab: 'more', render: ({ profile, today }) => <PrintPage profile={profile} today={today} /> },

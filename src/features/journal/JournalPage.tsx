@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { Link } from '../../app/router';
 import { FormField } from '../../components/FormField';
 import { Page } from '../../components/Page';
 import { GuidanceCard } from '../../components/GuidanceCard';
@@ -46,6 +47,17 @@ export function JournalPage() {
           away, or call 111 in an emergency.
         </p>
       </div>
+
+      <Link to="/journal/questions" className="card card--link question-link">
+        <span aria-hidden="true">❓</span>
+        <span>
+          <strong>Questions for my midwife</strong>
+          <span className="muted"> Keep a list for your next appointment</span>
+        </span>
+        <span className="hub__chevron" aria-hidden="true">
+          ›
+        </span>
+      </Link>
 
       {saveError && (
         <p className="field__error" role="alert">
