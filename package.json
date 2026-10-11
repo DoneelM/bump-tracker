@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "check:offline": "node scripts/offline-check.mjs"
+    "check:offline": "node scripts/offline-check.mjs",
+    "deploy": "npx -y wrangler@4.141.0 deploy"
   },
   "dependencies": {
     "react": "^18.3.1",

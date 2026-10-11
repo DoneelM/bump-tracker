@@ -79,6 +79,16 @@ describe('service worker', () => {
     expect(skipped).toEqual(['.DS_Store', '_headers', '_redirects', 'icons/.DS_Store']);
   });
 
+  it('hashes _headers into the version but never precaches it', () => {
+    const a = fakeDist('index-aaa.js');
+    const b = fakeDist('index-aaa.js');
+    writeFileSync(join(a, '_headers'), '/*\n  X-Test: 1\n');
+    writeFileSync(join(b, '_headers'), '/*\n  X-Test: 2\n');
+    const ra = injectPrecache(a);
+    expect(ra.list).not.toContain('./_headers');
+    expect(injectPrecache(b).version).not.toBe(ra.version);
+  });
+
   it('serves a shell cached through a redirect as a plain response', async () => {
     const v = fakeDist('index-ddd.js');
     injectPrecache(v);
