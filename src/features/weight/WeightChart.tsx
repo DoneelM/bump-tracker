@@ -41,8 +41,8 @@ export function WeightChart({ points, category, gain }: { points: WeightPoint[];
           />
           <YAxis width={44} tick={{ fontSize: 12 }} domain={['auto', 'auto']} label={{ value: unit, angle: -90, position: 'insideLeft', fontSize: 12 }} />
           <Tooltip formatter={(v) => (Array.isArray(v) ? `${v[0]} to ${v[1]} kg` : `${v} kg`)} labelFormatter={(w) => `Week ${w}`} />
-          {category && <Area dataKey="band" name="Approximate recommended range" stroke="none" fill="#b7cfae" fillOpacity={0.6} isAnimationActive={false} />}
-          <Line dataKey="value" name={gain ? 'Your gain' : 'Your weight'} stroke="#b04a32" strokeWidth={2.5} dot={{ r: 4, fill: '#b04a32' }} connectNulls isAnimationActive={false} />
+          {category && <Area className="chart-band" dataKey="band" name="Approximate recommended range" stroke="none" fill="#b7cfae" fillOpacity={0.6} isAnimationActive={false} />}
+          <Line className="chart-you" dataKey="value" name={gain ? 'Your gain' : 'Your weight'} stroke="#b04a32" strokeWidth={2.5} dot={{ r: 4, fill: '#b04a32' }} connectNulls isAnimationActive={false} />
         </ComposedChart>
       </ResponsiveContainer>
     </div>

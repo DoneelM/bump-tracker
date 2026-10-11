@@ -304,7 +304,7 @@
 .week-grid__item.is-current {
   background: var(--color-primary);
   border-color: var(--color-primary);
-  color: #fff;
+  color: var(--color-on-primary);
 }
 
 .pager {
@@ -366,7 +366,7 @@
 
 .btn--primary {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-on-primary);
 }
 
 .btn--primary:hover {
@@ -399,7 +399,7 @@
   border: 0;
   border-radius: 50%;
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-on-primary);
   font-size: 1.75rem;
   font-weight: 800;
   cursor: pointer;
@@ -668,4 +668,84 @@ select.input--short {
 
 .details-summary-heading {
   display: inline;
+}
+
+/* ---------- Charts: colours from the theme (CSS beats the SVG attributes Recharts sets) ---------- */
+.chart .recharts-cartesian-grid line {
+  stroke: var(--color-border);
+}
+
+.chart .recharts-text {
+  fill: var(--color-text-muted);
+}
+
+.chart .recharts-cartesian-axis-line,
+.chart .recharts-cartesian-axis-tick-line {
+  stroke: var(--color-text-muted);
+}
+
+.chart .chart-band path {
+  fill: var(--color-sage-300);
+}
+
+.chart .chart-mid path {
+  stroke: var(--color-sage-700);
+}
+
+.chart .chart-you path,
+.chart .chart-you .recharts-dot {
+  stroke: var(--color-primary);
+}
+
+.chart .chart-you .recharts-dot,
+.chart .chart-you .recharts-symbols {
+  fill: var(--color-primary);
+}
+
+.chart .recharts-default-tooltip {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text);
+}
+
+/* ---------- Questions ---------- */
+.question-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.question {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.question__check {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  min-height: var(--tap-target);
+  cursor: pointer;
+}
+
+.question__check input {
+  width: 1.4rem;
+  height: 1.4rem;
+  margin-top: 0.15rem;
+  flex: none;
+}
+
+.question--asked .question__check > span {
+  text-decoration: line-through;
+  color: var(--color-text-muted);
+}
+
+.question-link {
+  margin-bottom: var(--space-4);
 }

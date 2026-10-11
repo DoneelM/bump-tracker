@@ -44,9 +44,9 @@ export function ScanChart({ points }: { points: ScanPoint[] }) {
             itemStyle={{ color: 'var(--color-text)' }}
             labelStyle={{ color: 'var(--color-text)' }}
             formatter={(v) => (Array.isArray(v) ? `${v[0]} to ${v[1]} g` : `${v} g`)} labelFormatter={(w) => `Week ${w}`} />
-          <Area dataKey="band" name="Typical range (10th to 90th)" stroke="none" fill="#b7cfae" fillOpacity={0.6} isAnimationActive={false} />
-          <Line dataKey="p50" name="Typical middle (50th)" stroke="#3d5a40" strokeWidth={2} strokeDasharray="6 3" dot={false} isAnimationActive={false} />
-          <Scatter dataKey="efw" name="Your scan estimate" fill="#b04a32" isAnimationActive={false} />
+          <Area className="chart-band" dataKey="band" name="Typical range (10th to 90th)" stroke="none" fill="#b7cfae" fillOpacity={0.6} isAnimationActive={false} />
+          <Line className="chart-mid" dataKey="p50" name="Typical middle (50th)" stroke="#3d5a40" strokeWidth={2} strokeDasharray="6 3" dot={false} isAnimationActive={false} />
+          <Scatter className="chart-you" dataKey="efw" name="Your scan estimate" fill="#b04a32" isAnimationActive={false} />
         </ComposedChart>
       </ResponsiveContainer>
     </div>

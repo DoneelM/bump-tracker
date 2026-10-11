@@ -13,6 +13,7 @@ import { parseContractionState } from './contractions';
 import { parseJournalEntries } from './journal';
 import { parseKickSessions } from './kicks';
 import { parseProfile } from './profile';
+import { parseQuestions } from './questions';
 import { parseScanEntries } from './scans';
 import type { Validator } from './validate';
 import { parsePrePregnancy, parseWeightEntries } from './weightGain';
@@ -33,6 +34,7 @@ const REGISTRY = {
   bagChecklist: { key: 'checklist-bag', label: 'Hospital bag checklist', validate: parseChecklist(BAG_SECTIONS) },
   birthPlan: { key: 'checklist-birth-plan', label: 'Birth plan', validate: parseChecklist(PLAN_SECTIONS) },
   careTeam: { key: 'care-team', label: 'Care team contacts', validate: parseCareTeam },
+  questions: { key: 'midwife-questions', label: 'Questions for my midwife', validate: parseQuestions },
 } as const;
 
 export interface StorageEntry {

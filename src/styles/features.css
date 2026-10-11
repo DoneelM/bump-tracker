@@ -217,7 +217,7 @@
 
 .btn--danger {
   background: var(--color-error);
-  color: #fff;
+  color: var(--color-on-error);
 }
 
 .btn--danger:disabled {

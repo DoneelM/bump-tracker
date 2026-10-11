@@ -24,6 +24,8 @@ More screens are in [`docs/screenshots/`](docs/screenshots/) (390 px mobile view
 - **Bump photo timeline**: one photo per week, stored in IndexedDB (downscaled, metadata stripped), with slideshow.
 - **Symptom & mood journal** with a "mention to midwife" flag.
 - **Hospital bag and birth plan checklists** (editable).
+- **Questions for my midwife**: a running list from the Journal; tick them off as you ask, and open ones go on the print summary.
+- **Dark mode**: follows the device, or choose Light/Dark in Settings (per device). Every colour pair meets WCAG AA in both themes; charts follow the theme.
 - **Partner summary**: copyable text or a read-only snapshot link (selected fields encoded in the URL hash; nothing is uploaded; it does not update).
 - **Printable appointment summary** (print stylesheet / Save as PDF).
 - **NZ antenatal timeline**: the usual checks, tests and vaccines from Health NZ (LMC, first bloods, optional screening, whooping cough and flu vaccines, anatomy scan, glucose test) placed on your own dates, with a "Coming up" card on Home and a calendar file (.ics) made on the device. Upcoming appointments go in by type and date only, never notes.

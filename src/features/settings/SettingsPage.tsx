@@ -5,6 +5,7 @@ import { useProfile } from '../../lib/useProfile';
 import { PregnancyForm } from '../onboarding/PregnancyForm';
 import { CareTeamSection } from './CareTeamSection';
 import { EndingSection } from './EndingSection';
+import { ThemeSection } from './ThemeSection';
 
 export function SettingsPage({ today }: { today: LocalDate }) {
   const [profile, setProfile] = useProfile();
@@ -66,6 +67,7 @@ export function SettingsPage({ today }: { today: LocalDate }) {
           </div>
         </section>
       )}
+      {!editing && <ThemeSection />}
       {!editing && <CareTeamSection />}
       {!editing && profile && <EndingSection key={profile.ending?.kind ?? 'none'} profile={profile} today={today} />}
     </Page>
