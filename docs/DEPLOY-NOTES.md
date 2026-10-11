@@ -20,7 +20,7 @@ The app deploys to Cloudflare Workers as static assets only (no Worker script). 
    | Deploy command | `npm run deploy` |
    | Root directory | leave empty |
 
-   Add one build variable: `VITE_GOOGLE_CLIENT_ID` (see "Google Drive sync" below). Without it the app builds with sync turned off.
+   Add one build variable: `VITE_GOOGLE_CLIENT_ID` = `626836380740-79lmpemmqhe936isbhd9k2m75bbpjtj1.apps.googleusercontent.com` (see "Google Drive sync" below). Without it the app builds with sync turned off.
 4. **Custom domain.** `wrangler.jsonc` routes `bump-tracker.aiagents.nz` to the Worker as a Custom Domain. For that, `aiagents.nz` must be an **active zone in the same Cloudflare account** (its nameservers pointing to Cloudflare), and `bump-tracker.aiagents.nz` must not already have a CNAME record. Cloudflare then creates the DNS record and certificate. **Until the zone is active, `wrangler deploy` fails**, so set the zone up first, or remove `routes` from `wrangler.jsonc` to deploy on `workers.dev` only.
 5. **Save and Deploy.** The app is served at `https://bump-tracker.aiagents.nz`.
 
@@ -79,6 +79,12 @@ Users can sync their data between devices through the hidden app folder (`appDat
    - `http://localhost:4173`, for `npm run preview`
    - `http://localhost:5173` if you want sync in `npm run dev`
 4. Put the client ID in `VITE_GOOGLE_CLIENT_ID`. Locally that's `.env.local`, which is ignored by git; copy `.env.example`. On Cloudflare it's the Workers Builds build variable. The ID is public, not a secret.
+
+   The production client ID is:
+
+   ```
+   VITE_GOOGLE_CLIENT_ID=626836380740-79lmpemmqhe936isbhd9k2m75bbpjtj1.apps.googleusercontent.com
+   ```
 5. **Before publishing:** add a contact email to `public/privacy.html` (it is marked "add a contact email").
 
 **Limits to know about:**
