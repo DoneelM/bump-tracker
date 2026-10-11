@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="referrer" content="no-referrer" />
-    <meta name="description" content="A private, on-device pregnancy tracker. No accounts, no tracking." />
+    <meta name="description" content="A private, on-device pregnancy tracker with optional encrypted sync. No tracking." />
     <meta name="theme-color" content="#fff8f0" />
     <link rel="icon" type="image/svg+xml" href="./icons/icon.svg" />
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
@@ -12,7 +12,19 @@
     <title>Bump Tracker</title>
   </head>
   <body>
-    <div id="root"></div>
+    <!-- Shown until the app loads, and to anything that reads the page without running it (e.g. Google's
+         homepage check, which needs a link to the privacy policy). React replaces it on start. -->
+    <div id="root">
+      <main class="onboarding">
+        <h1>Bump Tracker</h1>
+        <p>
+          A free, private pregnancy tracker for Aotearoa New Zealand: due date, week-by-week guide, weight, scans,
+          contraction timer, baby movements, journal and checklists. Your data stays on your device, with optional
+          end-to-end encrypted sync through your own Google Drive.
+        </p>
+        <p><a href="./privacy.html">Privacy policy</a></p>
+      </main>
+    </div>
     <noscript>Bump Tracker needs JavaScript to run. Your data stays on this device.</noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -1,6 +1,7 @@
 import { Link } from '../../app/router';
 import { Page } from '../../components/Page';
 import { useProfile } from '../../lib/useProfile';
+import { SyncPanel } from '../sync/SyncPanel';
 import { ImportSection } from './DataPage';
 
 /**
@@ -10,7 +11,8 @@ import { ImportSection } from './DataPage';
 export function RestorePage() {
   const [profile] = useProfile();
   return (
-    <Page title="Restore from a backup" icon="💾" health={false}>
+    <Page title="Restore your data" icon="💾" health={false}>
+      <SyncPanel newDevice />
       <ImportSection />
       <Link to="/" className="text-link">
         {profile ? 'Open Bump Tracker' : 'Back to set up'}

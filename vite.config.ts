@@ -7,11 +7,14 @@ import react from '@vitejs/plugin-react';
  */
 const CSP = [
   "default-src 'self'",
-  "script-src 'self'",
-  "style-src 'self'",
+  // Google Identity Services, loaded only when the user turns on sync (see src/lib/sync/googleAuth.ts).
+  "script-src 'self' https://accounts.google.com/gsi/client",
+  "style-src 'self' https://accounts.google.com/gsi/style",
+  "frame-src https://accounts.google.com/gsi/",
   "img-src 'self' blob: data:",
   "font-src 'self'",
-  "connect-src 'self'",
+  // Sync: GIS, and the Drive API for the hidden app folder.
+  "connect-src 'self' https://accounts.google.com/gsi/ https://www.googleapis.com",
   "manifest-src 'self'",
   "worker-src 'self'",
   "object-src 'none'",

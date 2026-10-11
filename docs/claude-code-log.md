@@ -155,3 +155,57 @@ Done by hand in this session, no Claude Code run. Four parallel reviewers (data 
 - **Earlier check no longer applies:** the "zero mismatches" check against NHS in the runs section above describes the old lengths. `scripts/week-lengths.test.mjs` now checks lengths against perinatology.com, and weights against the WHO medians, as part of `npm test`.
 - **Weights:** unchanged.
 - **Week 17 movements line:** now follows Health NZ ("between 16 and 22 weeks"), plus NHS's first-baby caveat.
+
+## Optional Google Drive sync (end-to-end encrypted)
+
+Done by hand in this session, no Claude Code run.
+
+**Why Google Drive:** it costs $0 to run, there's no backend, and we store nothing. The data lives in the user's own hidden app folder (`drive.appdata`, a non-sensitive scope).
+
+**Options compared first:** Evolu, Firebase, and Auth0 + a Cloudflare Worker. Auth0 + Worker is the planned second provider, behind the same `SyncProvider` interface.
+
+**Encryption library:**
+
+- Ported `src/lib/crypto.ts` and its tests from `feat/cloud-sync`.
+- Fixed its WIP state: a syntax error in `scripts/crypto-vectors.py`, and stale vectors.
+- Regenerated the known-answer vectors for the AAD that binds the vault counter. Nothing had been stored in the old format, so there was no data to migrate.
+
+**New code:**
+
+- `src/lib/sync/`: key store (IndexedDB), provider interface, Google sign-in (GIS token client, token in memory only), Drive provider, a three-way merge engine, and the controller with auto-sync.
+- `SyncPanel`, used on `#/more/sync` and on the new-device restore screen.
+- `public/privacy.html`.
+- CSP and COOP changes for GIS.
+- `sw.js` serves the app shell only for root navigations.
+- Delete-all turns sync off first.
+- The custom domain `bump-tracker.aiagents.nz` in `wrangler.jsonc`.
+
+**Checked:**
+
+- typecheck; `npm test` (336, including engine merge cases and the Drive provider against a fake Drive); build; `check:offline`; Wrangler dry run.
+- Two-device end-to-end on `wrangler dev`, with GIS and Drive stubbed at their real URLs:
+  - setup, then unlock on a new device from onboarding;
+  - pulls in both directions;
+  - a conflict prompt;
+  - auto-sync after a journal entry;
+  - a network failure;
+  - deleting the synced copy;
+  - the privacy page through the service worker;
+  - no CSP violations.
+- Not tested: real Google sign-in and the real Drive API. That needs the OAuth client ID.
+
+**Follow-up: sync was hard to find.** The user couldn't find a login on the preview.
+
+- **Cause:** the only entry on first visit was a small link below the fold.
+- **Entry points added:**
+  - a **Restore from Google Drive** card above the welcome form;
+  - a dismissible "sync" card on Home while sync is off.
+- **Sign-in:** Google sign-in is now preloaded when a sync screen opens, so the popup opens within the tap. Before, a script load came first, which Safari can block.
+- **Update banner:** the app now shows "A new version is ready, Reload" after a deploy. Before, the service worker kept showing the old cached build until a later reload.
+- **Checked on `wrangler dev` at 390×844:**
+  - the button sits above the fold, and no Google code loads on the welcome screen or Home;
+  - the popup is requested while the tap's user activation is still active;
+  - **Not now** persists;
+  - the banner appears on a simulated redeploy, and Reload loads the new bundle;
+  - the full two-device sync test still passes.
+

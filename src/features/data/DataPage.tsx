@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { navigate } from '../../app/router';
+import { Link, navigate } from '../../app/router';
 import { Page } from '../../components/Page';
 import {
   applyBackup,
@@ -17,6 +17,8 @@ import { todayLocal } from '../../lib/dates';
 import { download } from '../../lib/download';
 import { clearPhotos, exportPhotos, importPhotos, listPhotos, planPhotoRestore, replaceAllPhotos } from '../../lib/photoStore';
 import { clearAllStored, exportAll } from '../../lib/storage';
+import { signOut } from '../../lib/sync/googleAuth';
+import { clearSyncState } from '../../lib/sync/keyStore';
 
 const DELETE_WORD = 'DELETE';
 const MAX_IMPORT_MB = MAX_IMPORT_BYTES / (1024 * 1024);
@@ -208,6 +210,15 @@ function DeleteSection() {
 
   const wipe = async () => {
     setBusy(true);
+    // Stop syncing first, or the next sync would push the now-empty data over the synced copy.
+    try {
+      await clearSyncState();
+    } catch {
+      setError('Sync couldn’t be turned off, so nothing was deleted. Try again, or turn off sync on the Sync page first.');
+      setBusy(false);
+      return;
+    }
+    signOut();
     clearAllStored();
     try {
       await clearPhotos();
@@ -224,7 +235,8 @@ function DeleteSection() {
       <h2 id="delete-heading">Delete all my data</h2>
       <p>
         This permanently removes your due date, logs, journal, checklists and bump photos from this browser. It can’t be undone, so
-        download a backup first if you might want anything back. You’ll return to the start.
+        download a backup first if you might want anything back. You’ll return to the start. Sync is turned off on this device; to remove the
+        synced copy from Google Drive too, use “Delete synced copy” on the Sync page first.
       </p>
       <div className="field">
         <label className="field__label" htmlFor="delete-confirm">
@@ -255,8 +267,8 @@ export function DataPage() {
     <Page title="Your data" icon="💾" back={{ to: '/more', label: 'More' }} health={false}>
       <section className="card card--soft" aria-label="Privacy">
         <p>
-          <strong>Private by design.</strong> No accounts, no servers, no analytics. Your data lives only in this browser, and is lost if
-          you clear your browser data, so keep a backup.
+          <strong>Private by design.</strong> No accounts with us, no servers, no analytics. Your data lives in this browser, and is lost if
+          you clear your browser data, so keep a backup or turn on <Link to="/more/sync">sync</Link>.
         </p>
       </section>
       {unprotected && (

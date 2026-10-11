@@ -3,6 +3,7 @@ import { HealthDisclaimer } from '../../components/HealthDisclaimer';
 import { writeStored, STORAGE_KEYS, isStorageAvailable, requestPersistentStorage } from '../../lib/storage';
 import { useToday } from '../../lib/useToday';
 import { Link, navigate } from '../../app/router';
+import { syncAvailable } from '../../lib/sync/controller';
 import { PregnancyForm } from './PregnancyForm';
 
 /** First-launch setup, shown instead of the app until a profile is saved. */
@@ -21,8 +22,8 @@ export function OnboardingPage() {
         </span>
         <h1>Kia ora, welcome to Bump Tracker</h1>
         <p>
-          Let’s work out your estimated due date. Everything you enter stays private on this device. There are no
-          accounts and nothing is sent anywhere.
+          Let’s work out your estimated due date. Everything you enter stays private on this device. Nothing is sent
+          anywhere unless you turn on sync, and then only encrypted.
         </p>
       </div>
       {!isStorageAvailable() && (
@@ -31,6 +32,26 @@ export function OnboardingPage() {
           settings or try a different browser.
         </p>
       )}
+      <section className="card card--soft" aria-labelledby="restore-heading">
+        <h2 id="restore-heading">Already using Bump Tracker?</h2>
+        {syncAvailable ? (
+          <>
+            <p>Sign in with the Google account you sync with, and enter your recovery code.</p>
+            <div className="button-row">
+              <Link to="/restore" className="btn btn--primary">
+                Restore from Google Drive
+              </Link>
+            </div>
+            <Link to="/restore" className="text-link">
+              Restore from a backup file instead
+            </Link>
+          </>
+        ) : (
+          <Link to="/restore" className="text-link">
+            Restore from a backup file
+          </Link>
+        )}
+      </section>
       <PregnancyForm
         today={today}
         initial={null}
@@ -43,13 +64,12 @@ export function OnboardingPage() {
           return null;
         }}
       />
-      <p>
-        Moving from another device?{' '}
-        <Link to="/restore" className="text-link">
-          Restore from a backup
-        </Link>
-      </p>
       <HealthDisclaimer />
+      <p className="muted">
+        <a href="./privacy.html" className="text-link">
+          Privacy policy
+        </a>
+      </p>
     </main>
   );
 }

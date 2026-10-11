@@ -1,6 +1,6 @@
 # Bump Tracker
 
-A privacy-first pregnancy tracker demo for Aotearoa New Zealand (Vite + React + TypeScript, installable PWA). All data stays in your browser: no backend, no accounts, no analytics, no third-party trackers.
+A privacy-first pregnancy tracker demo for Aotearoa New Zealand (Vite + React + TypeScript, installable PWA). All data stays in your browser: no backend, no analytics, no third-party trackers. Optional sync stores an end-to-end encrypted copy in the user's own Google Drive; we store nothing.
 
 > General information only, not medical advice. Contact your midwife/LMC with any concerns, or call 111 in an emergency (NZ).
 
@@ -58,7 +58,8 @@ npm run deploy    # deploy dist/ to Cloudflare (Workers Builds runs this; needs 
 ## Limitations
 
 - Demo project: content is general information, paraphrased from the sources listed, and has not been clinically reviewed.
-- Data lives only in this browser; clearing site data deletes it. Use the JSON backup.
+- Without sync, data lives only in this browser; clearing site data deletes it. Use the JSON backup or turn on sync.
+- Sync (Google Drive) needs a Google account and the recovery code shown at setup. Photos aren't synced.
 - The partner link is a static snapshot; anyone with the link can read the fields you chose.
 - Baby illustrations are AI-generated stylised art (not medical images). Seven stages exist (weeks 6, 8, 12, 16, 20, 24, 28); weeks 28-40 reuse the week 28 image.
 - How this was built: see [docs/claude-code-log.md](docs/claude-code-log.md).

@@ -4,7 +4,14 @@
   "name": "bump-tracker",
   "compatibility_date": "2026-09-25",
   "send_metrics": false,
+  // Served at a subdomain of a domain we own: Google brand verification needs a verified domain, and it's the
+  // app's own origin. aiagents.nz must be an active zone in the same Cloudflare account.
+  "routes": [{ "pattern": "bump-tracker.aiagents.nz", "custom_domain": true }],
   "assets": {
     "directory": "./dist"
-  }
+  },
+  // Required by `wrangler preview`, which Workers Builds runs for non-main branches. Empty: previews use the
+  // top-level settings (assets only; no vars or bindings). Preview URLs are their own origins, so Google sync
+  // sign-in won't work there unless that origin is added to the OAuth client.
+  "previews": {}
 }

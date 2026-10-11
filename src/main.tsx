@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { App } from './app/App';
 import { registerServiceWorker } from './lib/registerServiceWorker';
 import { requestPersistentStorage } from './lib/storage';
+import { startAutoSync } from './lib/sync/controller';
 import './styles/tokens.css';
 import './styles/base.css';
 import './styles/layout.css';
@@ -22,3 +23,6 @@ createRoot(root).render(
 void requestPersistentStorage();
 
 registerServiceWorker();
+
+// Optional Google Drive sync: syncs after changes, only while signed in this session (no-op if sync is off).
+startAutoSync();

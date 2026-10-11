@@ -1,5 +1,6 @@
 import { BottomNav } from '../components/BottomNav';
 import { ErrorBoundary } from '../components/ErrorBoundary';
+import { UpdateBanner } from '../components/UpdateBanner';
 import { OnboardingPage } from '../features/onboarding/OnboardingPage';
 import { NotFoundPage } from '../features/notfound/NotFoundPage';
 import { PartnerViewPage } from '../features/partner/PartnerViewPage';
@@ -12,6 +13,7 @@ import { resolveRoute } from './routes';
 export function App() {
   return (
     <ErrorBoundary>
+      <UpdateBanner />
       <AppContent />
     </ErrorBoundary>
   );
