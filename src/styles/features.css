@@ -305,3 +305,61 @@
   gap: 0 var(--space-4);
   margin-top: var(--space-2);
 }
+
+/* Baby log */
+.hero__ga--log {
+  font-size: var(--font-size-xl);
+}
+
+.log-group {
+  margin: var(--space-4) 0 var(--space-2);
+  font-size: var(--font-size-base);
+}
+
+.log-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.log-buttons .btn {
+  padding-inline: var(--space-2);
+}
+
+.log-bottle {
+  margin-top: var(--space-3);
+}
+
+.log-status {
+  min-height: 1.5em;
+  margin-top: var(--space-4);
+  color: var(--color-text-muted);
+}
+
+.log-undo {
+  min-height: var(--tap-target);
+  padding: 0 var(--space-2);
+  border: 0;
+  background: none;
+  color: var(--color-primary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.log-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+
+.log-entry__time {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A lone button (sleep) takes the whole row. */
+.log-buttons > .btn:only-child {
+  grid-column: 1 / -1;
+}
