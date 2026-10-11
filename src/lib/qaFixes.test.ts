@@ -60,6 +60,9 @@ describe('journal pre-eclampsia signs', () => {
     expect(validateJournalDate('2026-10-10', '2026-10-11').ok).toBe(true);
     expect(validateJournalDate('2026-12-01', '2026-10-11')).toEqual({ ok: false, error: 'The date can’t be in the future.' });
     expect(validateJournalDate('nope', '2026-10-11').ok).toBe(false);
+    // Valid dates outside the range the stored journal keeps would save and then vanish on the next read.
+    expect(validateJournalDate('1995-03-04', '2026-10-11')).toEqual({ ok: false, error: 'Please enter a date from 2000 onwards.' });
+    expect(validateJournalDate('2000-01-01', '2026-10-11').ok).toBe(true);
   });
 });
 

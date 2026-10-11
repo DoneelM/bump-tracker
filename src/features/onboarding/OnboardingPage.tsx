@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { HealthDisclaimer } from '../../components/HealthDisclaimer';
 import { writeStored, STORAGE_KEYS, isStorageAvailable, requestPersistentStorage } from '../../lib/storage';
 import { useToday } from '../../lib/useToday';
-import { navigate } from '../../app/router';
+import { Link, navigate } from '../../app/router';
 import { PregnancyForm } from './PregnancyForm';
 
 /** First-launch setup, shown instead of the app until a profile is saved. */
@@ -43,6 +43,12 @@ export function OnboardingPage() {
           return null;
         }}
       />
+      <p>
+        Moving from another device?{' '}
+        <Link to="/restore" className="text-link">
+          Restore from a backup
+        </Link>
+      </p>
       <HealthDisclaimer />
     </main>
   );

@@ -34,6 +34,7 @@ export function WeekDetailPage({ week }: { week: number }) {
             </dl>
             <p className="muted">{MEASURE_NOTE[info.lengthNote]}</p>
             <p className="muted">Every baby grows at their own pace - these are typical averages, not targets.</p>
+            <p className="muted">The size comparison follows the NHS guide, so it won’t always match the length above.</p>
           </section>
           <section className="card">
             <h2>What’s developing</h2>
@@ -56,7 +57,7 @@ export function WeekDetailPage({ week }: { week: number }) {
             <a href={info.sourceUrl} target="_blank" rel="noopener noreferrer">
               NHS week-by-week guide, week {week}
             </a>{' '}
-            (paraphrased). Size data: WHO fetal growth charts. See <Link to="/more/sources">Sources</Link>.
+            (paraphrased). Length: perinatology.com. Weight: WHO fetal growth charts. See <Link to="/more/sources">Sources</Link>.
           </p>
         </>
       ) : (

@@ -41,7 +41,8 @@ function loadWorker(dir, storage, server, net) {
   };
   const caches = { open, keys: async () => [...storage.keys()], delete: async (k) => storage.delete(k) };
   class Request { constructor(url) { this.url = new URL(url, SCOPE).href; } }
-  vm.runInNewContext(readFileSync(join(dir, 'sw.js'), 'utf8'), { self, caches, fetch: fetchImpl, Request, URL });
+  class Response { constructor(body, init) { Object.assign(this, init, { body, redirected: false }); } }
+  vm.runInNewContext(readFileSync(join(dir, 'sw.js'), 'utf8'), { self, caches, fetch: fetchImpl, Request, Response, URL });
   const run = (type, ev) => new Promise((done, fail) => {
     let p;
     handlers[type]({ ...ev, waitUntil: (x) => (p = x), respondWith: (x) => (p = x) });
@@ -65,6 +66,29 @@ describe('service worker', () => {
     expect(list).toEqual(['./assets/index-aaa.js', './assets/index-x.css', './index.html']);
     expect(version).toMatch(/^[0-9a-f]{12}$/);
     expect(readFileSync(join(dir, 'sw.js'), 'utf8')).toContain('"./assets/index-aaa.js"');
+  });
+
+  it('precaches only app files, not host config or dotfiles', () => {
+    const dir = fakeDist('index-aaa.js');
+    mkdirSync(join(dir, 'icons'));
+    writeFileSync(join(dir, 'icons', 'icon.svg'), '<svg/>');
+    writeFileSync(join(dir, 'icons', '.DS_Store'), '');
+    for (const f of ['_headers', '_redirects', '.DS_Store', 'manifest.webmanifest']) writeFileSync(join(dir, f), 'x');
+    const { list, skipped } = injectPrecache(dir);
+    expect(list).toEqual(['./assets/index-aaa.js', './assets/index-x.css', './icons/icon.svg', './index.html', './manifest.webmanifest']);
+    expect(skipped).toEqual(['.DS_Store', '_headers', '_redirects', 'icons/.DS_Store']);
+  });
+
+  it('serves a shell cached through a redirect as a plain response', async () => {
+    const v = fakeDist('index-ddd.js');
+    injectPrecache(v);
+    const server = serverFor(v, 'index-ddd.js');
+    server['index.html'] = { status: 200, statusText: 'OK', headers: {}, redirected: true, blob: async () => 'html' };
+    const w = loadWorker(v, new Map(), server, { online: true });
+    await w.install();
+    await w.activate();
+    const res = await w.get('', 'navigate');
+    expect(res).toMatchObject({ body: 'html', status: 200, redirected: false });
   });
 
   it('works offline after one online visit, and after a redeploy', async () => {

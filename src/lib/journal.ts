@@ -51,6 +51,8 @@ export const hasPreEclampsiaSigns = (symptoms: readonly string[]): boolean =>
 
 export function validateJournalDate(date: string, today: LocalDate): ValidationResult {
   if (!isLocalDate(date)) return { ok: false, error: 'Please enter a valid date.' };
+  // Same range parseEntry keeps, so a saved entry can't vanish on the next read (e.g. a 1995 typo).
+  if (!isPlausibleDate(date)) return { ok: false, error: 'Please enter a date from 2000 onwards.' };
   return date > today ? { ok: false, error: 'The date can’t be in the future.' } : { ok: true };
 }
 
