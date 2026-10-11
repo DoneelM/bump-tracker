@@ -1,6 +1,8 @@
 /**
  * Sync state kept on this device, in its own IndexedDB database (separate from photos, so no schema bump there).
  * The data key is a non-extractable CryptoKey: script on this origin can use it but can't read its bytes.
+ * The recovery code is kept too, so any synced device can show it again. That adds no exposure: whoever can read
+ * this database can already use the data key, and the data itself sits unencrypted in localStorage.
  * Access tokens are never stored; they live in memory only (see googleAuth.ts).
  */
 
@@ -12,6 +14,8 @@ export interface SyncState {
   /** SHA-256 per storage key of the last agreed value, for three-way merging. Missing = never synced. */
   base: Record<string, string>;
   lastSyncedAt: number | null;
+  /** The formatted recovery code. Missing on devices set up before codes were kept. */
+  recoveryCode?: string;
 }
 
 /** Load/save/clear for SyncState; IndexedDB in the app, in-memory in tests. */
@@ -57,7 +61,8 @@ function isSyncState(v: unknown): v is SyncState {
     Number.isSafeInteger(s.highestSeen) &&
     typeof s.base === 'object' &&
     s.base !== null &&
-    (s.lastSyncedAt === null || typeof s.lastSyncedAt === 'number')
+    (s.lastSyncedAt === null || typeof s.lastSyncedAt === 'number') &&
+    (s.recoveryCode === undefined || typeof s.recoveryCode === 'string')
   );
 }
 

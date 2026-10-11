@@ -109,6 +109,9 @@ export function useSyncEnabled(): SyncEnabled & { refresh: () => void } {
   return { ...snap, refresh: refreshSyncEnabled };
 }
 
+/** The recovery code kept on this device, or null when sync is off or the device was set up before codes were kept. */
+export const getRecoveryCode = async (): Promise<string | null> => (await syncDeps.store.load())?.recoveryCode ?? null;
+
 const AUTO_SYNC_DELAY_MS = 4000;
 
 /**

@@ -95,7 +95,8 @@ Users can sync their data between devices through the hidden app folder (`appDat
 
 **Limits to know about:**
 
-- **Recovery code:** losing it means the synced copy can't be opened. There is no reset, by design. Data on devices is unaffected.
+- **Recovery code:** every synced device keeps the code next to its data key and shows it again (**Sync → Show recovery code**). That adds no exposure: anyone who can read that storage already has the key and the plain data. Devices set up before this was added ask for the code once to keep it. The synced copy can't be opened only if the code and every synced device are both lost. There's no reset of the encryption itself, by design.
+- **Forgot your code? Start over:** on the screen that asks for the code. It deletes the synced copy from Drive (after a confirm), and the user turns sync on again to get a new code. Other devices see the copy was replaced, turn sync off with a message, and rejoin with the new code. Data that differs comes up as a choice, so nothing is overwritten silently. Data on devices is never touched.
 - **Simultaneous pushes:** Drive v3 has no conditional write. The app checks the file's `version` right before uploading, and retries after a merge if another device wrote first. If two devices upload within the same moment, the later upload can replace the earlier one, and the earlier device's change from that sync is lost. The device that lost it already counts it as synced, so the next sync won't bring it back. Drive offers no way to prevent this. It needs two devices syncing at the same instant, so it's rare for one person's devices.
 - **Size:** the encrypted vault is capped at 1 MiB, details only. Typical data is far smaller. Past the cap, sync pauses with a message and the data stays on the device.
 - **Delete all my data** turns sync off on that device before wiping, so it never pushes an empty state. Deleting the Drive copy is a separate button on the Sync page.
