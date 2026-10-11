@@ -634,3 +634,38 @@ select.input--short {
   flex-direction: column;
   gap: var(--space-3);
 }
+
+/* ---------- Timeline ---------- */
+.milestone-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.milestone h3 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.milestone__when {
+  font-weight: 700;
+  color: var(--color-sage-700);
+}
+
+.tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.1rem 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-peach-100);
+  color: var(--color-primary);
+}
+
+.details-summary-heading {
+  display: inline;
+}

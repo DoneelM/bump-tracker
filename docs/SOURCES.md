@@ -28,6 +28,13 @@ Keep in sync with `src/data/sources.ts`.
 | [1737, Need to talk?](https://1737.org.nz/) | 1737 | Free call or text 1737, 24/7, shown if a pregnancy has ended. Checked 11/10/2026. |
 | [Sands New Zealand](https://www.sands.org.nz/) | Sands New Zealand | Support after the death of a baby at any stage of pregnancy, including medical termination, shown if a pregnancy has ended. Checked 11/10/2026. |
 | [Miscarriage Support](https://www.miscarriagesupport.org.nz/) | Miscarriage Support NZ | Support and information after miscarriage, shown if a pregnancy has ended. Checked 11/10/2026. |
+| [Finding out you are pregnant](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/finding-out-you-are-pregnant) | Health NZ | Timeline: find a lead maternity carer as soon as you know you're pregnant. Checked 11/10/2026. |
+| [Lead maternity carers](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/lead-maternity-carers) | Health NZ | Timeline: what an LMC does; care until pēpi is 6 weeks old. Checked 11/10/2026. |
+| [Blood tests in pregnancy](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/pregnancy-newborn-screening/blood-tests-pregnancy) | Health NZ | Timeline: first antenatal blood tests as soon as possible. Its anti-D section covers bleeding events only, so the timeline has no routine anti-D milestone. Checked 11/10/2026. |
+| [Diabetes testing in pregnancy](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/pregnancy-newborn-screening/diabetes-testing-pregnancy) | Health NZ | Timeline: HbA1c with the first bloods; oral glucose challenge test at 24-28 weeks if not at high risk. Checked 11/10/2026. |
+| [Screening for Down syndrome and other conditions](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/pregnancy-newborn-screening/down-syndrome-other-conditions) | Health NZ | Timeline: blood test best at 9-10 weeks (to 13w6d) plus nuchal translucency scan best 12w0d-13w6d; or blood test only at 14-20 weeks (best 14-18). Checked 11/10/2026. |
+| [Checking the growth, development and heart health of your pēpi](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/pregnancy-newborn-screening/baby-health-checks) | Health NZ | Timeline: fetal anatomy scan between 18 and 20 weeks. Note: this page gives the nuchal translucency scan as "between 11 and 14 weeks, best at 12", wider than the screening page; the timeline uses the screening page's window. Checked 11/10/2026. |
+| [Pregnancy and immunisations](https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/pregnancy-and-immunisations) | Health NZ | Timeline: whooping cough vaccine free from 13 weeks, most effective from 16; flu vaccine free at any stage. Checked 11/10/2026. |
 
 ## Notes
 
