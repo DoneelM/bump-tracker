@@ -30,7 +30,7 @@ The app deploys to Cloudflare Workers as static assets only (no Worker script). 
 - **Wrangler version:** `npm run deploy` runs a pinned Wrangler (`npx -y wrangler@4.141.0 deploy`) instead of a devDependency, to keep installs small. `compatibility_date` in `wrangler.jsonc` must be a date that Wrangler version supports; 4.141.0 rejects anything after 2026-10-02.
 - **Telemetry:** `send_metrics: false` turns off Wrangler's anonymous usage telemetry.
 - **Checking a change locally:** run `npm run build && npx -y wrangler@4.141.0 dev` to serve `dist/` with Cloudflare's runtime, `_headers` included.
-- **Preview builds for other branches** are optional (Worker → **Settings** → **Builds**). Each preview gets its own URL, which is a separate origin, so it has separate storage.
+- **Preview builds for other branches** are optional (Worker → **Settings** → **Builds**). Each preview gets its own URL, which is a separate origin, so it has separate storage. `wrangler.jsonc` sets `preview_urls: true` on purpose: with a custom-domain route, Wrangler turns the workers.dev subdomain off by default, and a deploy from `main` without that line switched preview URLs off for every branch. Google sign-in works on a preview only if its origin (e.g. `https://<branch>-bump-tracker.picme-nz.workers.dev`) is added to the OAuth client.
 - **Cloudflare behaviours the app relies on:**
   - Cloudflare answers `/index.html` with a 307 to `/`. `sw.js` serves that redirected cached copy as a clean response (#3).
   - Cloudflare returns 404 for `/_headers`, so it is never precached (#4).
