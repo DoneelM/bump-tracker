@@ -749,3 +749,29 @@ select.input--short {
 .question-link {
   margin-bottom: var(--space-4);
 }
+
+.chart .chart-limit line {
+  stroke: var(--color-error);
+}
+
+.chart .chart-limit text {
+  fill: var(--color-error);
+}
+
+.chart .chart-alt path,
+.chart .chart-alt .recharts-dot {
+  stroke: var(--color-sage-700);
+}
+
+.chart .chart-alt .recharts-dot {
+  fill: var(--color-sage-700);
+}
+
+.reading--above {
+  border-color: var(--color-error);
+}
+
+.tag--warn {
+  background: var(--color-error-bg);
+  color: var(--color-error);
+}

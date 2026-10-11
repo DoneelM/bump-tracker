@@ -8,6 +8,8 @@ export const TOOL_ITEMS: readonly HubItem[] = [
   { to: '/tools/scans', title: 'Scans & appointments', description: 'Keep track of scans and visits', icon: '🩺' },
   { to: '/tools/kicks', title: 'Kicks', description: 'Notice baby’s movements', icon: '👣' },
   { to: '/tools/photos', title: 'Bump photos', description: 'A private photo diary of your bump', icon: '📸' },
+  { to: '/tools/bp', title: 'Blood pressure', description: 'If your care team asked you to check at home', icon: '💓' },
+  { to: '/tools/glucose', title: 'Glucose', description: 'If your care team asked you to check at home', icon: '🩸' },
   { to: '/tools/checklists', title: 'Checklists', description: 'Hospital bag and birth plan', icon: '✅' },
 ];
 

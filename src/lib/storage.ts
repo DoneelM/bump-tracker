@@ -12,6 +12,7 @@ import { parseChecklist } from './checklists';
 import { parseContractionState } from './contractions';
 import { parseJournalEntries } from './journal';
 import { parseKickSessions } from './kicks';
+import { parseBpReadings, parseGlucoseReadings, parseTargets } from './monitoring';
 import { parseProfile } from './profile';
 import { parseQuestions } from './questions';
 import { parseScanEntries } from './scans';
@@ -35,6 +36,9 @@ const REGISTRY = {
   birthPlan: { key: 'checklist-birth-plan', label: 'Birth plan', validate: parseChecklist(PLAN_SECTIONS) },
   careTeam: { key: 'care-team', label: 'Care team contacts', validate: parseCareTeam },
   questions: { key: 'midwife-questions', label: 'Questions for my midwife', validate: parseQuestions },
+  bpReadings: { key: 'bp-readings', label: 'Blood pressure readings', validate: parseBpReadings },
+  glucoseReadings: { key: 'glucose-readings', label: 'Glucose readings', validate: parseGlucoseReadings },
+  monitoringTargets: { key: 'monitoring-targets', label: 'Home monitoring targets', validate: parseTargets },
 } as const;
 
 export interface StorageEntry {
