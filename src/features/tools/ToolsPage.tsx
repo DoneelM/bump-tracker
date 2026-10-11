@@ -1,5 +1,6 @@
 import { HubList, type HubItem } from '../../components/HubList';
 import { Page } from '../../components/Page';
+import type { PregnancyEnding } from '../../lib/profile';
 
 export const TOOL_ITEMS: readonly HubItem[] = [
   { to: '/tools/timeline', title: 'Timeline', description: 'Checks, tests and vaccines, with calendar dates', icon: '🗓️' },
@@ -11,13 +12,18 @@ export const TOOL_ITEMS: readonly HubItem[] = [
   { to: '/tools/bp', title: 'Blood pressure', description: 'If your care team asked you to check at home', icon: '💓' },
   { to: '/tools/glucose', title: 'Glucose', description: 'If your care team asked you to check at home', icon: '🩸' },
   { to: '/tools/checklists', title: 'Checklists', description: 'Hospital bag and birth plan', icon: '✅' },
+  { to: '/tools/names', title: 'Baby names', description: 'Your private shortlist', icon: '🏷️' },
   { to: '/tools/food', title: 'Food safety', description: 'What’s OK to eat, from NZ Food Safety', icon: '🥗' },
 ];
 
-export function ToolsPage() {
+/** Pregnancy-only tools, hidden once the pregnancy has ended (birth or loss). Their pages still open by link. */
+const PREGNANCY_ONLY = new Set(['/tools/timeline', '/tools/contractions', '/tools/kicks', '/tools/names']);
+
+export function ToolsPage({ ending }: { ending?: PregnancyEnding['kind'] }) {
+  const items = ending ? TOOL_ITEMS.filter((i) => !PREGNANCY_ONLY.has(i.to)) : TOOL_ITEMS;
   return (
     <Page title="Tools" icon="🧰" health={false}>
-      <HubList items={TOOL_ITEMS} />
+      <HubList items={items} />
     </Page>
   );
 }

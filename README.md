@@ -24,6 +24,7 @@ More screens are in [`docs/screenshots/`](docs/screenshots/) (390 px mobile view
 - **Bump photo timeline**: one photo per week, stored in IndexedDB (downscaled, metadata stripped), with slideshow.
 - **Symptom & mood journal** with a "mention to midwife" flag.
 - **Hospital bag and birth plan checklists** (editable).
+- **Baby name shortlist**: your own names with an optional note; star favourites to keep them at the top. No name database, nothing shared.
 - **Food safety**: New Zealand Food Safety's (MPI) pregnancy food table, searchable: OK to eat, take care, only if cooked, don't eat, plus fish servings for mercury.
 - **Blood pressure and glucose logs**: for people whose care team asked them to check at home. Readings, a chart and the print summary. The app sets no targets and doesn't interpret readings: it only flags readings above upper limits the user enters from their own team, and then points to their care team.
 - **Questions for my midwife**: a running list from the Journal; tick them off as you ask, and open ones go on the print summary.
