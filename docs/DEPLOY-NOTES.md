@@ -76,7 +76,7 @@ Users can sync their data between devices through the hidden app folder (`appDat
 2. Configure the **OAuth consent screen** (Google Auth Platform → Branding, Audience, Data Access):
    - User type: External. App name: Bump Tracker.
    - Homepage `https://bump-tracker.aiagents.nz`; privacy policy `https://bump-tracker.aiagents.nz/privacy.html`.
-   - Google's branding check needs the homepage to link to the privacy policy. The link is visible without scrolling on every screen: **Privacy policy** in the app header on Home and every other screen (restore and partner view included), and "Read our privacy policy" in the welcome screen's opening paragraph. `index.html` also carries a short description and the link inside `#root`, for checkers that don't run JavaScript; the app replaces it on start.
+   - Google's branding check needs the homepage to link to the privacy policy. A **Privacy policy** link sits at the bottom of the homepage: the welcome screen for new visitors, and Home once set up. Other screens don't carry it. `index.html` also carries a short description and the link inside `#root`, for checkers that don't run JavaScript; the app replaces it on start.
    - Authorized domain: `aiagents.nz`. Verify it once in Google Search Console with a DNS TXT record. That covers the subdomain, and brand verification (app name and logo on the consent screen) needs it.
    - Scope: only `https://www.googleapis.com/auth/drive.appdata`. Google classes it as non-sensitive, so full app verification isn't required.
    - **Publish the app to production.** In testing mode, only listed test users can sign in.

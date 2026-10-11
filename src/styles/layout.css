@@ -37,18 +37,6 @@
   font-size: 1.5rem;
 }
 
-/* Privacy policy link, pushed to the right of the app name */
-.app-header__link {
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-primary);
-  white-space: nowrap;
-}
-
 .app-main {
   max-width: var(--content-max);
   margin: 0 auto;
@@ -220,4 +208,11 @@
     font-size: 0.85em;
     overflow-wrap: anywhere;
   }
+}
+
+/* Small centred footer line at the bottom of Home and the welcome screen (privacy policy link) */
+.page-footer {
+  margin-top: var(--space-4);
+  text-align: center;
+  font-size: 0.875rem;
 }

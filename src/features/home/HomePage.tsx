@@ -43,7 +43,17 @@ export function HomePage({ profile, today }: { profile: PregnancyProfile; today:
   const next = nextAppointment(scans, today);
 
   return (
-    <Page title="Home" icon="🏡">
+    <Page
+      title="Home"
+      icon="🏡"
+      footer={
+        <p className="page-footer">
+          <a href="./privacy.html" className="text-link">
+            Privacy policy
+          </a>
+        </p>
+      }
+    >
       <section className="card hero" aria-labelledby="hero-heading">
         <p className="hero__eyebrow">{TRIMESTER_LABEL[tri]}</p>
         <h2 id="hero-heading" className="hero__ga">
