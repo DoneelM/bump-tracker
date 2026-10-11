@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { deleteSyncedCopy, startSetup, sync, unlock, type LocalData, type SyncDeps } from './engine';
+import { deleteSyncedCopy, rememberCode, startSetup, sync, unlock, type LocalData, type SyncDeps } from './engine';
 import type { SyncState, SyncStateStore } from './keyStore';
 import type { KeysFile, RemoteVault, SyncProvider } from './provider';
 
@@ -190,6 +190,49 @@ describe('sync engine', () => {
     expect(b.store.state).toBeNull();
     expect(await sync(a.deps)).toEqual({ status: 'gone' });
     expect(a.local.data).toEqual({ profile: profile('Bean') }); // device data untouched
+  });
+
+  it('keeps the recovery code on every synced device, in standard form', async () => {
+    const p = new FakeProvider();
+    const { a, code } = await setUp(p, { profile: profile('Bean') });
+    expect(a.store.state!.recoveryCode).toBe(code);
+    const b = device(p);
+    await unlock(b.deps, code.toLowerCase().replace(/-/g, ' '));
+    expect(b.store.state!.recoveryCode).toBe(code);
+    await sync(b.deps);
+    expect(b.store.state!.recoveryCode).toBe(code);
+  });
+
+  it('lets a device set up before codes were kept save it once, without resetting sync', async () => {
+    const p = new FakeProvider();
+    const { a, code } = await setUp(p, { profile: profile('Bean') });
+    delete a.store.state!.recoveryCode; // as stored by the earlier version
+    const before = structuredClone(a.store.state!.base);
+    a.local.data.profile = profile('Peanut');
+    await sync(a.deps);
+    expect(a.store.state!.recoveryCode).toBeUndefined();
+
+    await expect(rememberCode(a.deps, 'AAAAA-AAAAA-AAAAA-AAAAA-AAAAAA')).rejects.toThrow('doesn’t match');
+    const { highestSeen, base } = a.store.state!;
+    expect(base).not.toEqual(before);
+    expect(await rememberCode(a.deps, code.toLowerCase())).toBe(code);
+    expect(a.store.state).toMatchObject({ highestSeen, base, recoveryCode: code });
+    expect(await sync(a.deps)).toEqual({ status: 'synced', pushed: false, updated: [] });
+  });
+
+  it('starts over after a forgotten code: other devices stop, then rejoin with the new code', async () => {
+    const p = new FakeProvider();
+    const { a } = await setUp(p, { profile: profile('Bean') });
+    const b = device(p, { profile: profile('Peanut') });
+    await deleteSyncedCopy(b.deps); // "Forgot your code? Start over" on B
+    const { code, finish } = await startSetup(b.deps);
+    await finish();
+
+    expect(await sync(a.deps)).toEqual({ status: 'gone' });
+    await expect(rememberCode(a.deps, code)).rejects.toThrow('replaced from another device');
+    a.store.state = null; // the app turns sync off on "gone"
+    expect(await unlock(a.deps, code)).toEqual({ status: 'conflict', conflicts: [{ key: 'profile', label: 'Pregnancy details' }] });
+    expect(a.local.data).toEqual({ profile: profile('Bean') }); // nothing overwritten without asking
   });
 
   it('reports not-set-up before setup', async () => {
