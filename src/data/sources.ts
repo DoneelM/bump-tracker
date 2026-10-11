@@ -18,14 +18,21 @@ export const SOURCES: readonly Source[] = [
     title: 'Week-by-week guide to pregnancy',
     publisher: 'NHS',
     url: 'https://www.nhs.uk/best-start-in-life/pregnancy/week-by-week-guide-to-pregnancy/',
-    usedFor: 'Typical baby length each week, what’s developing and what you might notice (paraphrased), and the size-comparison objects.',
+    usedFor: 'What’s developing and what you might notice each week (paraphrased), the size-comparison objects, and baby length for weeks 4-5.',
+  },
+  {
+    id: 'perinatology-fetal-development',
+    title: 'Fetal development',
+    publisher: 'Perinatology.com',
+    url: 'https://www.perinatology.com/Reference/Fetal%20development.htm',
+    usedFor: 'Typical baby length for weeks 6-40 in the week guide (crown-rump to week 13, crown-heel from week 14).',
   },
   {
     id: 'who-fetal-growth',
     title: 'WHO Fetal Growth Charts - Kiserud et al. 2017, PLOS Medicine 14(1): e1002220',
     publisher: 'PLOS Medicine / WHO',
     url: 'https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1002220',
-    usedFor: 'Typical estimated fetal weight (50th percentile) for weeks 14-40, and the typical range on the scans chart.',
+    usedFor: 'Typical baby weight (estimated fetal weight, 50th percentile) for weeks 14-40 in the week guide, and the typical range on the scans chart.',
   },
   {
     id: 'mayo-pregnancy-week-by-week',
@@ -73,8 +80,8 @@ export const SOURCES: readonly Source[] = [
     id: 'healthnz-movements',
     title: 'Pregnancy and your baby’s movements',
     publisher: 'Health NZ',
-    url: 'https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/having-a-healthy-pregnancy/pregnancy-and-your-babys-movements',
-    usedFor: 'Baby movement guidance (kick counter).',
+    url: 'https://info.health.nz/pregnancy-maternity/having-a-healthy-pregnancy/pregnancy-and-your-babys-movements',
+    usedFor: 'Baby movement guidance (kick counter) and when first movements are usually felt (16-22 weeks, week guide).',
   },
   {
     id: 'healthnz-labour',
@@ -88,7 +95,7 @@ export const SOURCES: readonly Source[] = [
     title: 'Your baby’s movements',
     publisher: 'NHS',
     url: 'https://www.nhs.uk/pregnancy/keeping-well/your-babys-movements/',
-    usedFor: 'Baby movement guidance (kick counter).',
+    usedFor: 'Baby movement guidance (kick counter), and the note that first movements may come after 20 weeks with a first baby.',
   },
   {
     id: 'iom-weight-gain',

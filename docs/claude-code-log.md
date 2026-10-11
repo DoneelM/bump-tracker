@@ -16,7 +16,7 @@ claude -p --model <opus|sonnet> --output-format json --permission-mode acceptEdi
   - NHS week-by-week pages for lengths, size objects and weekly text.
   - WHO fetal growth chart Table 11 for EFW percentiles.
   - IOM 2009 Table S-1 for weight gain ranges.
-- The reviewer checked all 37 weeks' lengths and weights against the source data with a script. There were zero mismatches.
+- The reviewer checked all 37 weeks' lengths and weights against the source data with a script. There were zero mismatches at the time. Review round 4 replaced the lengths for weeks 6-40 with perinatology.com's figures (see below), so this check no longer describes them.
 
 ## Runs
 
@@ -113,3 +113,15 @@ These came from Iron Man's re-review 2 and Wolverine's recheck at `bfd546f`:
 - The photo file cap is now 30 MB.
 
 Checked in a headless browser: the contraction line reads "over 7 min" 14 minutes after the last contraction ended, and `check:offline` passes.
+
+## Review round 4: week guide lengths moved from NHS to perinatology.com
+
+Done by hand in this session, no Claude Code run.
+
+- **Why:** the NHS lengths jumped from 30.0 cm at week 24 to 34.6 cm at week 25, while neighbouring weeks change by about 1 to 1.5 cm.
+- **Source:** perinatology.com's week-by-week figures have no such step (32.2 cm, then 33.7 cm). Weeks 6-40 now use them. That page gives no figure for weeks 4-5, so those keep the NHS 0.2 cm.
+- **Measurement switch:** perinatology.com switches from crown-rump to crown-heel at week 14, not week 20, so the labels and the "measured from head to heel" bullet moved to week 14.
+- **Size comparisons:** the size-comparison objects are still NHS's, and the week page says they won't always match the length.
+- **Earlier check no longer applies:** the "zero mismatches" check against NHS in the runs section above describes the old lengths. `scripts/week-lengths.test.mjs` now checks lengths against perinatology.com, and weights against the WHO medians, as part of `npm test`.
+- **Weights:** unchanged.
+- **Week 17 movements line:** now follows Health NZ ("between 16 and 22 weeks"), plus NHS's first-baby caveat.
