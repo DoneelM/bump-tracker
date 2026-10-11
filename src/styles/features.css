@@ -154,10 +154,10 @@
   color: var(--color-text-muted);
 }
 
-/* Home summary tiles */
+/* Home summary tiles: two up even on a 320px phone; long values wrap inside the tile. */
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-3);
 }
 
@@ -175,8 +175,43 @@
 }
 
 .summary-tile__value {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-base);
   font-weight: 700;
+  overflow-wrap: break-word;
+}
+
+.summary-tile .muted {
+  font-size: var(--font-size-sm);
+}
+
+/* Home: this week's guide, the visual centrepiece */
+.card--link.week-feature {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-2);
+}
+
+.week-feature__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.week-feature__title {
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+}
+
+.week-feature .size-comparison__caption {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+/* Home: quick actions, a light row rather than a card */
+.quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
 }
 
 /* Partner summary + print summary */
@@ -198,28 +233,6 @@
   display: flex;
   align-items: center;
   gap: var(--space-4);
-}
-
-/* The picture sits first on screen, but the link's accessible name starts with the week. */
-.week-card .size-comparison,
-.week-card .week-card__emoji {
-  order: -1;
-}
-
-/* Home help card: call buttons first, then the quieter links. */
-.help-row h2 {
-  margin-bottom: var(--space-1);
-}
-
-.help-row .button-row {
-  margin-top: var(--space-3);
-}
-
-.help-row__links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 var(--space-4);
-  margin-top: var(--space-2);
 }
 
 .plain-list {
@@ -275,4 +288,20 @@
   background: var(--color-sage-100);
   color: var(--color-sage-700);
   font-weight: 700;
+}
+
+/* Home help card: call buttons first, then the quieter links. */
+.help-row h2 {
+  margin-bottom: var(--space-1);
+}
+
+.help-row .button-row {
+  margin-top: var(--space-3);
+}
+
+.help-row__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-4);
+  margin-top: var(--space-2);
 }

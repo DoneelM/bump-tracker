@@ -237,7 +237,10 @@ The contraction timer and kick counter's circular button: up to 18rem across (80
 - **Shadow Strategy:** Card rest; Card lift on hover for link cards.
 - **Border:** 1px Card Edge.
 - **Internal Padding:** 1.5rem.
-- **Stage card (Home):** a 160deg gradient from Peach Blush to Surface. The gestational age is the headline; below it, the trimester in bold Kawakawa Leaf and the countdown on one line. A pill progress bar with week labels (0, 14, 28, 40) placed at their true positions, then the due date in muted text. One card, one fact.
+- **Stage card (Home):** a 160deg gradient from Peach Blush to Surface. The gestational age is the headline, with the trimester below it in bold Kawakawa Leaf. A pill progress bar with week labels (0, 14, 28, 40) at their true positions, then the days to go as the one Display number in terracotta, and the due date in muted text.
+
+### Week Guide Card (Home)
+The week's guide as a feature card: title and chevron on one row, then a large size comparison (baby illustration, everyday object, caption).
 
 ### Inputs / Fields
 - **Style:** 2px Peach Edge border, Surface fill, 16px radius, 48px min height. Labels are bold and sit above; hints are muted small text.
@@ -250,7 +253,7 @@ The contraction timer and kick counter's circular button: up to 18rem across (80
 - **Hub lists (Tools, More):** 72px rows with a 48px Peach Blush icon well, bold title, muted description and a chevron.
 
 ### Help Card (Home)
-"Worried?" as a real heading, one line of guidance, then call buttons: the saved midwife first (primary), Healthline (ghost), 111 (danger). Quieter text links below: "Add your midwife's number" when none is saved, and "When to call". Before 36 weeks it sits right under the stage card; from 36 weeks it moves to the top of Home and the contraction timer becomes the primary quick action.
+"Worried?" as a real heading, one line of guidance, then call buttons: the saved midwife first (primary), Healthline (ghost), 111 (danger). Quieter text links below: "Add your midwife's number" when none is saved, and "When to call". Before 36 weeks it sits right under the stage card; from 36 weeks it moves to the top of Home. The contraction timer joins the quick actions, as the primary button, from 37 weeks.
 
 ### Call Card
 The safety component. A card titled "Need help?" listing the user's own care team first (primary buttons), then Healthline (ghost) and 111 (danger). With no care team saved it links to Settings. A compact Help Row version sits on Home.

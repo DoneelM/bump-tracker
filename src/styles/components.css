@@ -124,14 +124,25 @@
 
 .hero__ga {
   font-size: var(--font-size-2xl);
+  margin: var(--space-1) 0 var(--space-4);
+}
+
+/* Home: the trimester sits under the headline, not above it as an eyebrow. */
+.hero__ga--tight {
   margin: 0 0 var(--space-1);
 }
 
-/* Week labels sit at their true point on the 40-week bar (left set inline); ends align to the edges. */
+.hero__tri {
+  margin-bottom: var(--space-4);
+  color: var(--color-sage-700);
+  font-weight: 700;
+}
+
+/* Week labels sit at their true positions on the bar; the end labels align to the edges. */
 .hero__scale {
   position: relative;
   height: 1.5em;
-  margin: var(--space-1) 0 var(--space-3);
+  margin: var(--space-1) 0 var(--space-4);
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
 }
@@ -151,14 +162,16 @@
   transform: translateX(-100%);
 }
 
-.hero__meta {
-  margin-bottom: var(--space-4);
+.hero__countdown {
+  margin-bottom: var(--space-1);
   font-size: var(--font-size-lg);
 }
 
-.hero__tri {
-  color: var(--color-sage-700);
-  font-weight: 700;
+.hero__days {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  line-height: 1;
 }
 
 .progress {
@@ -172,10 +185,6 @@
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, var(--color-coral-500), var(--color-primary));
-}
-
-.week-card__emoji {
-  font-size: 2.25rem;
 }
 
 .size-comparison {

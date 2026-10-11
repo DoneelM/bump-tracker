@@ -56,7 +56,10 @@ export const ROUTES: readonly RouteDef[] = [
     pattern: '/weeks',
     tab: 'weeks',
     render: ({ profile, today }) => (
-      <WeeksPage currentWeek={clampGuideWeek(gestationalAge(profile.dueDate, today).weeks)} />
+      <WeeksPage
+        currentWeek={clampGuideWeek(gestationalAge(profile.dueDate, today).weeks)}
+        ending={profile.ending?.kind}
+      />
     ),
   },
   {

@@ -12,7 +12,7 @@ interface PageProps {
   health?: boolean;
   /** Shown at the very bottom, after the disclaimer (e.g. Home's privacy policy link). */
   footer?: ReactNode;
-  /** Keep the h1 for screen readers but hide it on screen, when the tab bar already says where you are. */
+  /** Keep the heading for screen readers and focus, but don't show it (Home, where the hero leads). */
   hideTitle?: boolean;
   children?: ReactNode;
 }
