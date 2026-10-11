@@ -22,6 +22,7 @@ import { KICKS_UNLOCK_WEEK } from '../../lib/kicks';
 import { nextAppointment, parseScanEntries, scanTypeLabel, type ScanEntry } from '../../lib/scans';
 import { STORAGE_KEYS } from '../../lib/storage';
 import { SyncPromo } from '../sync/SyncPromo';
+import { ComingUpCard } from './ComingUpCard';
 import { BornHome, EndedHome } from './EndingHome';
 import { useStoredState } from '../../lib/useStoredState';
 import { parseWeightEntries, sortByDate, type WeightEntry } from '../../lib/weightGain';
@@ -120,6 +121,8 @@ function PregnancyHome({ profile, today }: { profile: PregnancyProfile; today: L
           ›
         </span>
       </Link>
+
+      <ComingUpCard dueDate={profile.dueDate} today={today} />
 
       <div className="summary-grid">
         <Link to="/tools/weight" className="card card--link summary-tile">
