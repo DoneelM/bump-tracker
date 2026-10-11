@@ -3,6 +3,9 @@ import { CallCard } from '../../components/CallCard';
 import { HubList, type HubItem } from '../../components/HubList';
 import { Page } from '../../components/Page';
 import { EMERGENCY, HEALTHLINE, MISCARRIAGE_SUPPORT, NEED_TO_TALK, PLUNKETLINE, SANDS } from '../../data/helplines';
+import { VISITS } from '../../data/immunisations';
+import { useImmunisationsDone } from '../immunisations/ImmunisationsPage';
+import { nextVisit } from '../../lib/immunisations';
 import { formatBabyAge } from '../../lib/babyAge';
 import { formatDisplayDate, type LocalDate } from '../../lib/dates';
 import { formatWeeksDays, gestationalAge } from '../../lib/pregnancy';
@@ -38,6 +41,8 @@ export function BornHome({
   today: LocalDate;
 }) {
   const ga = gestationalAge(profile.dueDate, ending.date);
+  const [done] = useImmunisationsDone();
+  const nextJab = nextVisit(VISITS, ending.date, done);
   const name = ending.name || profile.nickname;
   return (
     <Page title="Home" hideTitle footer={footer}>
@@ -79,6 +84,22 @@ export function BornHome({
           </Link>
         </div>
       </section>
+      {nextJab && (
+        <Link to="/baby/immunisations" className="card card--link imm-home">
+          <span className="hub__icon" aria-hidden="true">
+            💉
+          </span>
+          <span className="hub__text">
+            <span className="hub__title">Next immunisations: {nextJab.visit.label}</span>
+            <span className="hub__desc">
+              {nextJab.due < today ? 'Was due' : 'Due'} {formatDisplayDate(nextJab.due)}
+            </span>
+          </span>
+          <span className="hub__chevron" aria-hidden="true">
+            ›
+          </span>
+        </Link>
+      )}
       <HubList items={BABY_TOOLS} />
       <CallCard title="Help with your baby" lines={[PLUNKETLINE, HEALTHLINE, EMERGENCY]} />
       <section aria-labelledby="keepsakes-heading">

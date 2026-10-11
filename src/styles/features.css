@@ -605,3 +605,35 @@
 .aid-when + .aid-when {
   margin-top: var(--space-4);
 }
+
+/* Immunisations */
+.imm-visit__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.imm-visit__title {
+  margin: 0;
+}
+
+.imm-visit--done {
+  background: var(--color-success-bg);
+  border-color: var(--color-sage-300);
+}
+
+.imm-visit__check {
+  margin-top: var(--space-3);
+  font-weight: 700;
+}
+
+.imm-home {
+  padding: var(--space-3) var(--space-4);
+}
+
+.imm-visit__check input {
+  accent-color: var(--color-sage-700);
+}

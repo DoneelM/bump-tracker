@@ -189,6 +189,13 @@ export const SOURCES: readonly Source[] = [
     usedFor: 'When to call 111, see a health professional urgently, or call Healthline about your baby (Help tab).',
   },
   {
+    id: 'healthnz-immunisation',
+    title: 'National Immunisation Schedule',
+    publisher: 'Health NZ',
+    url: 'https://www.healthnz.govt.nz/health-topics/immunisations/national-immunisation-schedule',
+    usedFor: 'Baby immunisation visits, the vaccines at each, and that they are free (immunisations screen).',
+  },
+  {
     id: 'plunketline',
     title: 'PlunketLine',
     publisher: 'Whānau Āwhina Plunket',

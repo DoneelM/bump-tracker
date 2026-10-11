@@ -23,6 +23,7 @@ import { FoodSafetyPage } from '../features/food/FoodSafetyPage';
 import { SupplementsPage } from '../features/supplements/SupplementsPage';
 import { BabyLogPage } from '../features/babylog/BabyLogPage';
 import { HelpPage } from '../features/help/HelpPage';
+import { ImmunisationsPage } from '../features/immunisations/ImmunisationsPage';
 import { BpPage } from '../features/monitoring/BpPage';
 import { GlucosePage } from '../features/monitoring/GlucosePage';
 import { TimelinePage } from '../features/timeline/TimelinePage';
@@ -59,6 +60,7 @@ export const ROUTES: readonly RouteDef[] = [
   { pattern: '/', tab: 'home', render: ({ profile, today }) => <HomePage profile={profile} today={today} /> },
   { pattern: '/baby', tab: 'baby', render: ({ profile }) => <BabyLogPage profile={profile} /> },
   { pattern: '/help', tab: 'help', render: () => <HelpPage /> },
+  { pattern: '/baby/immunisations', tab: 'home', render: ({ profile, today }) => <ImmunisationsPage profile={profile} today={today} /> },
   {
     pattern: '/weeks',
     tab: 'weeks',

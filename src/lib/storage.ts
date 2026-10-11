@@ -12,6 +12,7 @@ import { parseBabyLog } from './babyLog';
 import { parseCareTeam } from './careTeam';
 import { parseChecklist } from './checklists';
 import { parseContractionState } from './contractions';
+import { parseImmunisationsDone } from './immunisations';
 import { parseJournalEntries } from './journal';
 import { parseKickSessions } from './kicks';
 import { parseBpReadings, parseGlucoseReadings, parseTargets } from './monitoring';
@@ -45,6 +46,7 @@ const REGISTRY = {
   babyNames: { key: 'baby-names', label: 'Baby name shortlist', validate: parseBabyNames },
   supplements: { key: 'supplements', label: 'Supplements taken', validate: parseSupplements },
   babyLog: { key: 'baby-log', label: 'Baby log (feeds, nappies, sleep)', validate: parseBabyLog },
+  immunisations: { key: 'immunisations', label: 'Immunisations done', validate: parseImmunisationsDone },
 } as const;
 
 export interface StorageEntry {
