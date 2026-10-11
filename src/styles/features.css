@@ -305,3 +305,98 @@
   gap: 0 var(--space-4);
   margin-top: var(--space-2);
 }
+
+/* Supplements: big toggles for today, a quiet 7-day strip */
+.supp-toggles {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.supp-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 64px;
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--color-peach-300);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.supp-toggle:hover {
+  background: var(--color-peach-100);
+}
+
+.supp-toggle.is-on {
+  border-color: var(--color-sage-300);
+  background: var(--color-sage-100);
+  color: var(--color-sage-700);
+}
+
+.supp-toggle__name {
+  font-size: var(--font-size-lg);
+}
+
+.supp-week,
+.supp-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.supp-week li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.supp-week__name {
+  font-weight: 700;
+}
+
+.supp-week__days {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.supp-day {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-peach-100);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.supp-day.is-on {
+  background: var(--color-sage-700);
+  color: var(--color-surface);
+}
+
+.supp-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.supp-reminder,
+.supp-add {
+  margin-top: var(--space-4);
+}
+
+.supp-time {
+  width: 9rem;
+}

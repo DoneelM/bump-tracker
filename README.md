@@ -24,6 +24,7 @@ More screens are in [`docs/screenshots/`](docs/screenshots/) (390 px mobile view
 - **Bump photo timeline**: one photo per week, stored in IndexedDB (downscaled, metadata stripped), with slideshow.
 - **Symptom & mood journal** with a "mention to midwife" flag.
 - **Hospital bag and birth plan checklists** (editable).
+- **Supplements**: tick off folic acid, iodine or anything your care team suggested, see the last 7 days, and add a daily reminder to your phone's calendar (a repeating .ics event made on the device). Health NZ guidance on folic acid and iodine alongside.
 - **Blood pressure and glucose logs**: for people whose care team asked them to check at home. Readings, a chart and the print summary. The app sets no targets and doesn't interpret readings: it only flags readings above upper limits the user enters from their own team, and then points to their care team.
 - **Questions for my midwife**: a running list from the Journal; tick them off as you ask, and open ones go on the print summary.
 - **Dark mode**: follows the device, or choose Light/Dark in Settings (per device). Every colour pair meets WCAG AA in both themes; charts follow the theme.

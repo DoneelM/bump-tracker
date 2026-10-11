@@ -154,6 +154,13 @@ export const SOURCES: readonly Source[] = [
     usedFor: 'Healthline number (0800 611 116) on the call cards and the Warning signs page.',
   },
   {
+    id: 'healthnz-supplements',
+    title: 'Nutrients and supplements in pregnancy',
+    publisher: 'Health NZ',
+    url: 'https://www.healthnz.govt.nz/health-topics/pregnancy-maternity/having-a-healthy-pregnancy/nutrients-and-supplements-in-pregnancy',
+    usedFor: 'Folic acid and iodine: how much, when, and that they are free on prescription (supplements screen).',
+  },
+  {
     id: 'plunketline',
     title: 'PlunketLine',
     publisher: 'Whānau Āwhina Plunket',

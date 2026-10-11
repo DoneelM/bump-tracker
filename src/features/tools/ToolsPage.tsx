@@ -11,6 +11,7 @@ export const TOOL_ITEMS: readonly HubItem[] = [
   { to: '/tools/bp', title: 'Blood pressure', description: 'If your care team asked you to check at home', icon: '💓' },
   { to: '/tools/glucose', title: 'Glucose', description: 'If your care team asked you to check at home', icon: '🩸' },
   { to: '/tools/checklists', title: 'Checklists', description: 'Hospital bag and birth plan', icon: '✅' },
+  { to: '/tools/supplements', title: 'Supplements', description: 'Tick off folic acid, iodine and more', icon: '💊' },
 ];
 
 export function ToolsPage() {
