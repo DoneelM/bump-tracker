@@ -3,6 +3,8 @@ import { Page } from '../../components/Page';
 import { formatDisplayDate, type LocalDate } from '../../lib/dates';
 import { useProfile } from '../../lib/useProfile';
 import { PregnancyForm } from '../onboarding/PregnancyForm';
+import { CareTeamSection } from './CareTeamSection';
+import { EndingSection } from './EndingSection';
 
 export function SettingsPage({ today }: { today: LocalDate }) {
   const [profile, setProfile] = useProfile();
@@ -23,7 +25,8 @@ export function SettingsPage({ today }: { today: LocalDate }) {
           submitLabel="Save changes"
           onCancel={() => setEditing(false)}
           onSave={(next) => {
-            const result = setProfile(next);
+            // Keep the birth/ending details when the dates or nickname change.
+            const result = setProfile(profile?.ending ? { ...next, ending: profile.ending } : next);
             if (!result.ok) return result.error;
             setEditing(false);
             setSaved(true);
@@ -63,6 +66,8 @@ export function SettingsPage({ today }: { today: LocalDate }) {
           </div>
         </section>
       )}
+      {!editing && <CareTeamSection />}
+      {!editing && profile && <EndingSection key={profile.ending?.kind ?? 'none'} profile={profile} today={today} />}
     </Page>
   );
 }

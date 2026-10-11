@@ -4,6 +4,7 @@ import { AboutPage } from '../features/about/AboutPage';
 import { ChecklistsPage } from '../features/checklists/ChecklistsPage';
 import { ContractionsPage } from '../features/contractions/ContractionsPage';
 import { DataPage } from '../features/data/DataPage';
+import { WarningSignsPage } from '../features/help/WarningSignsPage';
 import { HomePage } from '../features/home/HomePage';
 import { JournalPage } from '../features/journal/JournalPage';
 import { KicksPage } from '../features/kicks/KicksPage';
@@ -74,6 +75,7 @@ export const ROUTES: readonly RouteDef[] = [
   { pattern: '/more/partner', tab: 'more', render: ({ profile, today }) => <PartnerPage profile={profile} today={today} /> },
   { pattern: '/more/print', tab: 'more', render: ({ profile, today }) => <PrintPage profile={profile} today={today} /> },
   { pattern: '/more/data', tab: 'more', render: () => <DataPage /> },
+  { pattern: '/more/warning-signs', tab: 'more', render: () => <WarningSignsPage /> },
   { pattern: '/more/sync', tab: 'more', render: () => <SyncPage /> },
   { pattern: '/more/sources', tab: 'more', render: () => <SourcesPage /> },
   { pattern: '/more/about', tab: 'more', render: () => <AboutPage /> },

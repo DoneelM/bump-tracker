@@ -593,3 +593,44 @@ select.input--short {
   margin: 0;
   padding-left: var(--space-5);
 }
+
+/* ---------- Call cards ---------- */
+.call-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.call-list__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+}
+
+.call-list__item > span:first-child {
+  flex: 1 1 12rem;
+}
+
+.call-list__name {
+  font-weight: 700;
+}
+
+.call-list__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.care-fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}

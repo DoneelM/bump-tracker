@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { CallCard } from '../../components/CallCard';
 import { GuidanceCard } from '../../components/GuidanceCard';
 import { Page } from '../../components/Page';
 import { CONTACT_MIDWIFE, PATTERN_511, PRETERM } from '../../data/guidance';
@@ -151,6 +152,7 @@ export function ContractionsPage({ profile, today }: { profile: PregnancyProfile
 
       {pattern && <GuidanceCard g={PATTERN_511} alert />}
       {preterm && <GuidanceCard g={PRETERM} alert />}
+      <CallCard />
       <GuidanceCard g={CONTACT_MIDWIFE} />
 
       <section className="card" aria-labelledby="c-summary">

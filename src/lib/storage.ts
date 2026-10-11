@@ -7,6 +7,7 @@
  * a default instead of crashing the UI.
  */
 import { BAG_SECTIONS, PLAN_SECTIONS } from '../data/checklists';
+import { parseCareTeam } from './careTeam';
 import { parseChecklist } from './checklists';
 import { parseContractionState } from './contractions';
 import { parseJournalEntries } from './journal';
@@ -31,6 +32,7 @@ const REGISTRY = {
   journal: { key: 'journal-entries', label: 'Journal entries', validate: parseJournalEntries },
   bagChecklist: { key: 'checklist-bag', label: 'Hospital bag checklist', validate: parseChecklist(BAG_SECTIONS) },
   birthPlan: { key: 'checklist-birth-plan', label: 'Birth plan', validate: parseChecklist(PLAN_SECTIONS) },
+  careTeam: { key: 'care-team', label: 'Care team contacts', validate: parseCareTeam },
 } as const;
 
 export interface StorageEntry {
