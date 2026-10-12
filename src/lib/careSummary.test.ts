@@ -23,14 +23,15 @@ describe('buildCareSummary', () => {
       ...base,
       journal: [
         { id: 'a', date: '2026-10-01', mood: 2, symptoms: ['headache'], notes: 'Since\nlunch', flagged: true },
-        { id: 'b', date: '2026-10-10', mood: 4, symptoms: [], notes: '', flagged: false },
+        { id: 'b', date: '2026-10-10', mood: 4, symptoms: [], notes: 'Better today', flagged: false },
       ],
       questions: [{ id: 'q', text: 'Is the itching normal?', askedOn: null }],
       bp: [{ id: 'r', date: '2026-10-12', time: '08:30', systolic: 128, diastolic: 84, pulse: null, note: '' }],
       targets: { bpSystolicMax: 140, bpDiastolicMax: 90, glucoseMax: {} },
     });
     expect(text).toContain('JOURNAL');
-    expect(text.indexOf('10 October')).toBeLessThan(text.indexOf('1 October'));
+    // Order by content, not formatted dates: CI's Node may format en-NZ dates differently.
+    expect(text.indexOf('Better today')).toBeLessThan(text.indexOf('Since lunch'));
     expect(text).toContain('feeling low (flagged to mention)');
     expect(text).toContain('  Since lunch');
     expect(text).toContain('- Is the itching normal?');
