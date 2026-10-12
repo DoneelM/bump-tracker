@@ -102,8 +102,13 @@ Users can sync their data between devices through the hidden app folder (`appDat
 - **Delete all my data** turns sync off on that device before wiping, so it never pushes an empty state. Deleting the Drive copy is a separate button on the Sync page.
 
 
+## Feedback form
+
+"Contact us" opens the **Bump Tracker feedback** Google Form (owned by picme.nz@gmail.com) with answers pre-filled. Settings: email addresses not collected, no sign-in, anyone with the link, email notifications on for new responses.
+The form's field IDs live in `FEEDBACK_FORM` in `src/lib/feedback.ts`. If you edit the form's questions or the "What's it about?" options, check the IDs and option text still match (Google Form → ⋮ → Get pre-filled link). A mismatched option just isn't pre-selected; a changed question loses its pre-fill.
+
 ## Later: in-app feedback sending
 
-"Contact us" opens an email draft today, so the app stays backend-free. Sending from inside the app would need a Worker endpoint on the same origin:
+Sending from inside the app (instead of the Google Form) would need a Worker endpoint on the same origin:
 `main` script with `assets.binding: "ASSETS"` and `run_worker_first: ["/api/*"]`, a `send_email` binding locked to `destination_address: "dons-bot@agentmail.to"`, a `ratelimits` binding, and `env.EMAIL.send({ from, to, subject, text, replyTo })`.
 Cloudflare Email Sending needs the Workers paid plan (public beta since April 2026) and `aiagents.nz` onboarded as a sending domain. Only the form's send step in `src/features/feedback/FeedbackPage.tsx` would change; validation and the message body (`src/lib/feedback.ts`) stay.

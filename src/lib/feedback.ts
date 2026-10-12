@@ -1,9 +1,20 @@
 /**
- * Feedback by email: builds a mailto: draft the user sends from their own mail app. The app itself sends
- * nothing, so there is no server and no CSP change. Pure.
+ * Feedback. The main route opens our Google Form with the user's answers pre-filled; they press Submit there,
+ * and it doesn't collect who they are. An email draft is the fallback. The app itself sends nothing, so there
+ * is no server and no CSP change (both are navigations). Pure.
  */
 
 export const FEEDBACK_EMAIL = 'dons-bot@agentmail.to';
+
+/** "Bump Tracker feedback" Google Form (owned by picme.nz@gmail.com; doesn't collect email addresses). */
+export const FEEDBACK_FORM = {
+  url: 'https://docs.google.com/forms/d/e/1FAIpQLSdI3gh_GsUNPHpcfdMAQuX5HyYRU9GSR4iiMvpkC9_wqJ4cTw/viewform',
+  type: 'entry.1680745637',
+  message: 'entry.1377646905',
+  replyTo: 'entry.2138009459',
+  appInfo: 'entry.280625334',
+} as const;
+
 export const MIN_MESSAGE = 5;
 /** Keeps the mailto: URL a length every mail app accepts. */
 export const MAX_MESSAGE = 1500;
@@ -75,4 +86,22 @@ export function buildFeedbackBody(d: FeedbackDraft): string {
 export function buildMailto(d: FeedbackDraft): string {
   const enc = (s: string) => encodeURIComponent(s.replace(/\r?\n/g, '\r\n'));
   return `mailto:${FEEDBACK_EMAIL}?subject=${enc(`[Bump Tracker] ${FEEDBACK_LABEL[d.type]}`)}&body=${enc(buildFeedbackBody(d))}`;
+}
+
+/** Must match the form's option text exactly (straight apostrophe), or the choice isn't pre-selected. */
+const FORM_TYPE_VALUE: Record<FeedbackType, string> = {
+  feedback: 'Feedback',
+  feature: 'Feature request',
+  bug: "Something's broken",
+  other: 'Other',
+};
+
+/** Google Form link with the user's answers pre-filled. */
+export function buildFormUrl(d: FeedbackDraft): string {
+  const p = new URLSearchParams({ usp: 'pp_url' });
+  p.set(FEEDBACK_FORM.type, FORM_TYPE_VALUE[d.type]);
+  p.set(FEEDBACK_FORM.message, d.message.trim());
+  if (d.replyTo.trim()) p.set(FEEDBACK_FORM.replyTo, d.replyTo.trim());
+  if (d.appInfo) p.set(FEEDBACK_FORM.appInfo, d.appInfo);
+  return `${FEEDBACK_FORM.url}?${p.toString()}`;
 }
