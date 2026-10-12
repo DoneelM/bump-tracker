@@ -1,36 +1,25 @@
 import { CallCard } from '../../components/CallCard';
+import { SourceNote as Source } from '../../components/SourceNote';
 import { LIFELINE, NEED_TO_TALK, PADA, PLUNKETLINE, SAMARITANS } from '../../data/helplines';
 import {
   NOT_ALONE,
   PADA_SOURCE_ID,
-  RECOVERY_ACTION,
-  RECOVERY_INTRO,
-  RECOVERY_SIGNS,
-  RECOVERY_SOURCE_ID,
+  RECOVERY_GROUPS,
+  RECOVERY_MORE_SOURCE_ID,
+  RECOVERY_NOTES,
+  RECOVERY_SOURCE_IDS,
+  RECOVERY_URGENT,
   SAFE_SLEEP_ABC,
   SAFE_SLEEP_SOURCE_ID,
   SAFE_SLEEP_TIPS,
   TALK_TO,
 } from '../../data/parentSupport';
-import { SOURCES } from '../../data/sources';
 import { answer, FEELING_LABEL, FEELINGS, parseCheckIns, recentCheckIn, type CheckIn } from '../../lib/checkins';
 import type { LocalDate } from '../../lib/dates';
 import { STORAGE_KEYS } from '../../lib/storage';
 import { useStoredState } from '../../lib/useStoredState';
 
 const NONE: CheckIn[] = [];
-
-function Source({ id }: { id: string }) {
-  const s = SOURCES.find((x) => x.id === id);
-  return s ? (
-    <p className="muted">
-      Source:{' '}
-      <a href={s.url} target="_blank" rel="noopener noreferrer">
-        {s.publisher}: {s.title}
-      </a>
-    </p>
-  ) : null;
-}
 
 /** Lines for the parent's own wellbeing, from PADA's "Get help now". */
 export function SupportForYou({ as: H = 'h2' }: { as?: 'h2' | 'h3' }) {
@@ -117,20 +106,33 @@ export function SafeSleepCard() {
   );
 }
 
-/** The parent's own warning signs after the birth (Healthify), for the Help tab. */
+/** The parent's own warning signs after the birth (Health NZ), for the Help tab. */
 export function RecoveryCard() {
   return (
     <section className="card" aria-labelledby="recovery-h">
       <h2 id="recovery-h">After the birth: your health</h2>
-      <p>{RECOVERY_INTRO}</p>
-      <p>Things to look out for are:</p>
-      <ul className="bullets">
-        {RECOVERY_SIGNS.map((s) => (
-          <li key={s}>{s}</li>
+      <p className="aid-note">{RECOVERY_URGENT}</p>
+      {RECOVERY_GROUPS.map((g) => (
+        <div key={g.title} className="aid-when">
+          <h3>{g.title}</h3>
+          <p>{g.lead}</p>
+          <ul className="bullets">
+            {g.items.map((i) => (
+              <li key={i}>{i}</li>
+            ))}
+          </ul>
+        </div>
+      ))}
+      <div className="aid-when">
+        <h3>Stitches and stinging</h3>
+        {RECOVERY_NOTES.map((n) => (
+          <p key={n}>{n}</p>
         ))}
-      </ul>
-      <p className="aid-note">{RECOVERY_ACTION}</p>
-      <Source id={RECOVERY_SOURCE_ID} />
+      </div>
+      {RECOVERY_SOURCE_IDS.map((id) => (
+        <Source key={id} id={id} />
+      ))}
+      <Source id={RECOVERY_MORE_SOURCE_ID} label="More signs to look out for" />
     </section>
   );
 }

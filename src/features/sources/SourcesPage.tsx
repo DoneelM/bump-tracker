@@ -1,5 +1,5 @@
 import { Page } from '../../components/Page';
-import { SOURCES } from '../../data/sources';
+import { LICENCE_LABEL, SOURCES } from '../../data/sources';
 
 export function SourcesPage() {
   return (
@@ -16,7 +16,9 @@ export function SourcesPage() {
               ) : (
                 s.title
               )}{' '}
-              ({s.publisher}). <span className="muted">{s.usedFor}</span>
+              ({s.publisher}). <span className="muted">
+                {s.usedFor} {LICENCE_LABEL[s.licence]}{s.changed ? ', adapted' : ''}.
+              </span>
             </li>
           ))}
         </ul>

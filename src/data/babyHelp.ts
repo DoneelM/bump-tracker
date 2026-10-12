@@ -3,14 +3,13 @@
  * reword or change these from memory. Keep `docs/SOURCES.md` in sync.
  *
  * - Choking: Health NZ, "Choking" (baby steps only).
- * - Not breathing: Hato Hone St John, "Baby CPR" ("Quick help" and "How to do CPR on babies"). Their
- *   DRSABCD airway step mentions sweeping the mouth, which Health NZ's choking page warns against unless
- *   the object can be seen and grabbed; that step is left out pending clinical review.
+ * - Not breathing: KidsHealth, "CPR for babies under 12 months" (last reviewed 7 October 2026), all
+ *   seven steps unchanged, as KidsHealth's terms require. Health NZ's CPR page sends readers there for babies.
  * - When to get help: KidsHealth, "Is my child sick?".
  */
 
 export const CHOKING_SOURCE_ID = 'healthnz-choking';
-export const CPR_SOURCE_ID = 'stjohn-baby-cpr';
+export const CPR_SOURCE_ID = 'kidshealth-baby-cpr';
 export const SICK_SOURCE_ID = 'kidshealth-is-my-child-sick';
 export const CPR_VIDEO_URL = 'https://www.youtube.com/watch?v=gtbUB1XPW_o';
 export const FIRST_AID_COURSES_URL = 'https://www.stjohn.org.nz/first-aid/';
@@ -33,32 +32,45 @@ export const CHOKING = {
   then: 'Swap between back blows and chest thrusts until the object has come out or an ambulance has arrived. If the person stops breathing, start CPR.',
 } as const;
 
-export const CPR = {
-  intro: 'If a baby (a child one year old or younger) becomes unresponsive and isn’t breathing normally:',
-  quick: [
-    'Call 111 and ask for an ambulance.',
-    'Using two fingers, push on the baby’s chest hard and fast 30 times.',
-    'Breathe into their mouth 2 times.',
-    'Keep going until an ambulance arrives.',
-  ],
-  quickNote:
-    'Chest compressions (pushing on the baby’s chest) are the most important part of CPR. If you can’t give breath to the baby, continue with chest compressions, pushing hard and fast.',
-  pushes: [
-    'Place the baby on a flat surface, or support them on your lap or arm.',
-    'Place two fingers of one hand in the centre of their chest, just below an imaginary line between the nipples.',
-    'Push down hard and fast 30 times. Push down one-third of chest depth.',
-    'Don’t worry about pushing too hard – you need to push hard and fast.',
-  ],
-  breaths: [
-    'Keep the baby’s head in a neutral position with one hand.',
-    'Seal your lips around the baby’s mouth and nose.',
-    'Gently puff into the baby until you see the chest rise.',
-    'Remove your mouth, take a fresh breath, and puff into the baby again.',
-  ],
-  then: 'Continue with the cycle of 30 pushes and 2 breaths until the ambulance arrives. DO NOT GIVE UP.',
-  alone:
-    'If you are on your own, and a phone is not readily available, do CPR for about a minute and then call 111 for help. Then, go back to doing CPR as quickly as you can.',
-} as const;
+export const CPR_LEARN = 'Learn CPR before you need it.';
+
+/** KidsHealth's DRSABCD steps, in order. */
+export const CPR_STEPS: readonly { title: string; lines: readonly string[] }[] = [
+  { title: 'Dangers', lines: ['Check for any danger to you, the baby, or people nearby. Do what you can to reduce the danger.'] },
+  { title: 'Response', lines: ['Check the baby for a response. Talk loudly and gently squeeze the baby\'s shoulder. See if the baby moves or cries.'] },
+  { title: 'Send for help', lines: ['Call 111 (in New Zealand) and ask for urgent medical help.'] },
+  {
+    title: 'Airway',
+    lines: [
+      'Tilt the baby\'s head back and lift their chin. This will help open their airway.',
+      'If you can see anything obvious in the mouth, like food, use a finger to sweep it out.',
+    ],
+  },
+  {
+    title: 'Breathing',
+    lines: [
+      'Check for breathing. Listen and feel for air coming out of their mouth or nose.',
+      'If you are worried the baby is not breathing - start CPR.',
+    ],
+  },
+  {
+    title: 'CPR',
+    lines: [
+      'Put the baby on their back, on a firm surface.',
+      'Place 2 fingers of one hand in the centre of the chest just below the nipples. Start chest compressions at a rate of 100 per minute.',
+      'Once you have completed 30 compressions, seal your lips around the baby\'s mouth and nose and give 2 breaths.',
+      'Keep giving 30 compressions followed by 2 breaths until help arrives.',
+    ],
+  },
+  {
+    title: 'Defibrillator',
+    lines: [
+      'If there is an AED nearby, attach it to the baby as soon as possible. Turn it on and follow the instructions on the AED. The defibrillator will talk to you.',
+      'Place one pad on the chest and the other pad on the back of the baby.',
+      'Return to CPR (step 6) and keep going until the baby starts breathing normally, or help arrives.',
+    ],
+  },
+];
 
 /** KidsHealth's three levels, most urgent first. */
 export const WHEN_TO_GET_HELP: readonly { title: string; items: readonly string[] }[] = [

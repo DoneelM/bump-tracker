@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Page } from '../../components/Page';
-import { SOURCES } from '../../data/sources';
+import { SourceNote } from '../../components/SourceNote';
 import { SUPPLEMENT_FREE_LINE, SUPPLEMENT_INFO, SUPPLEMENT_SOURCE_ID } from '../../data/supplements';
 import { type LocalDate } from '../../lib/dates';
 import { download } from '../../lib/download';
@@ -22,7 +22,6 @@ import {
 import { useStoredState } from '../../lib/useStoredState';
 import { newId } from '../../lib/validate';
 
-const source = SOURCES.find((s) => s.id === SUPPLEMENT_SOURCE_ID);
 const weekday = (d: LocalDate) => new Date(`${d}T12:00:00`).toLocaleDateString('en-NZ', { weekday: 'short' });
 
 /** Tick off supplements each day, see the last week, and put a daily reminder in your own calendar. */
@@ -155,14 +154,7 @@ export function SupplementsPage({ today }: { today: LocalDate }) {
             </p>
           ))}
           <p>{SUPPLEMENT_FREE_LINE}</p>
-          {source && (
-            <p className="muted">
-              Source:{' '}
-              <a href={source.url} target="_blank" rel="noopener noreferrer">
-                {source.publisher}: {source.title}
-              </a>
-            </p>
-          )}
+          <SourceNote id={SUPPLEMENT_SOURCE_ID} />
         </section>
       )}
 

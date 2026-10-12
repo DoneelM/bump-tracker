@@ -112,3 +112,14 @@ The form's field IDs live in `FEEDBACK_FORM` in `src/lib/feedback.ts`. If you ed
 Sending from inside the app (instead of the Google Form) would need a Worker endpoint on the same origin:
 `main` script with `assets.binding: "ASSETS"` and `run_worker_first: ["/api/*"]`, a `send_email` binding locked to `destination_address: "dons-bot@agentmail.to"`, a `ratelimits` binding, and `env.EMAIL.send({ from, to, subject, text, replyTo })`.
 Cloudflare Email Sending needs the Workers paid plan (public beta since April 2026) and `aiagents.nz` onboarded as a sending domain. Only the form's send step in `src/features/feedback/FeedbackPage.tsx` would change; validation and the message body (`src/lib/feedback.ts`) stay.
+
+## Before charging for the app
+
+Content licences were checked on 13/10/2026 (see `docs/SOURCES.md`, "Licences"). Most of the reused text is Health NZ or MPI (CC BY 4.0), which allows commercial use. Before the app is paid:
+
+- **KidsHealth** (baby CPR, "Is my child sick?"): their terms say the information must not be sold. Ask the Paediatric Society of NZ in writing, or replace it.
+- **Starship Safekids** (safe sleep card): same "not sold" condition. Email safekidsaotearoa@adhb.govt.nz.
+- **PADA** ("you are not alone" line): terms not checked. Confirm or reword.
+- **NHS** (paraphrased week guide): the OGL credit is shown. NHS terms also ask that content isn't presented as NHS-endorsed; re-check before charging.
+- **Baby illustrations**: note which tool made them and check its commercial-use terms.
+- St John and Healthify text has already been replaced (Health NZ and KidsHealth). Linking to them is fine.

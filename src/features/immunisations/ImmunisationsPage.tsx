@@ -1,5 +1,6 @@
 import { Link } from '../../app/router';
 import { Page } from '../../components/Page';
+import { SourceNote } from '../../components/SourceNote';
 import {
   FLU_LINE,
   FREE_LINE,
@@ -9,7 +10,6 @@ import {
   PREMATURE_LINE,
   VISITS,
 } from '../../data/immunisations';
-import { SOURCES } from '../../data/sources';
 import { formatDisplayDate, type LocalDate } from '../../lib/dates';
 import { download } from '../../lib/download';
 import { buildCalendar } from '../../lib/ics';
@@ -19,7 +19,6 @@ import { STORAGE_KEYS } from '../../lib/storage';
 import { useStoredState } from '../../lib/useStoredState';
 
 const NONE: ImmunisationsDone = {};
-const source = SOURCES.find((s) => s.id === IMMUNISATION_SOURCE_ID);
 
 export function useImmunisationsDone() {
   return useStoredState<ImmunisationsDone>(STORAGE_KEYS.immunisations, NONE, parseImmunisationsDone);
@@ -111,14 +110,7 @@ export function ImmunisationsPage({ profile, today }: { profile: PregnancyProfil
         <p>{PREMATURE_LINE}</p>
         <p>{MISSED_LINE}</p>
         <p>Dates may vary with earlier doses or health reasons. Your doctor, nurse or Well Child provider can confirm.</p>
-        {source && (
-          <p className="muted">
-            Source:{' '}
-            <a href={source.url} target="_blank" rel="noopener noreferrer">
-              {source.publisher}: {source.title}
-            </a>
-          </p>
-        )}
+        <SourceNote id={IMMUNISATION_SOURCE_ID} />
       </section>
     </Page>
   );

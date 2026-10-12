@@ -706,3 +706,8 @@
   font-size: var(--font-size-sm);
   white-space: pre-wrap;
 }
+
+/* CPR: each numbered step has a short title, then its lines. */
+.aid-steps--titled p {
+  margin: var(--space-1) 0 0;
+}
