@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { buildAppInfo, buildFeedbackBody, buildMailto, FEEDBACK_EMAIL, MAX_MESSAGE, validateFeedback, type FeedbackDraft } from './feedback';
+import {
+  buildAppInfo,
+  buildFeedbackBody,
+  buildFormUrl,
+  buildMailto,
+  FEEDBACK_EMAIL,
+  FEEDBACK_FORM,
+  MAX_MESSAGE,
+  validateFeedback,
+  type FeedbackDraft,
+} from './feedback';
 
 const draft = (over: Partial<FeedbackDraft> = {}): FeedbackDraft => ({
   type: 'feature',
@@ -42,5 +52,23 @@ describe('buildMailto', () => {
 
   it('leaves out the reply line and app info when not given', () => {
     expect(buildFeedbackBody(draft())).toBe('Kia ora, pēpi tracker idea');
+  });
+});
+
+describe('buildFormUrl', () => {
+  it('pre-fills the Google Form fields', () => {
+    const url = new URL(buildFormUrl(draft({ type: 'bug', replyTo: 'me@example.nz', appInfo: 'Mode: baby\nTheme: dark' })));
+    expect(`${url.origin}${url.pathname}`).toBe(FEEDBACK_FORM.url);
+    expect(url.searchParams.get('usp')).toBe('pp_url');
+    expect(url.searchParams.get(FEEDBACK_FORM.type)).toBe("Something's broken");
+    expect(url.searchParams.get(FEEDBACK_FORM.message)).toBe('Kia ora, pēpi tracker idea');
+    expect(url.searchParams.get(FEEDBACK_FORM.replyTo)).toBe('me@example.nz');
+    expect(url.searchParams.get(FEEDBACK_FORM.appInfo)).toBe('Mode: baby\nTheme: dark');
+  });
+
+  it('leaves out empty optional fields', () => {
+    const url = new URL(buildFormUrl(draft()));
+    expect(url.searchParams.has(FEEDBACK_FORM.replyTo)).toBe(false);
+    expect(url.searchParams.has(FEEDBACK_FORM.appInfo)).toBe(false);
   });
 });

@@ -5,6 +5,7 @@ import { copyText } from '../../lib/clipboard';
 import {
   buildAppInfo,
   buildFeedbackBody,
+  buildFormUrl,
   buildMailto,
   FEEDBACK_DESC,
   FEEDBACK_EMAIL,
@@ -19,8 +20,8 @@ import type { PregnancyProfile } from '../../lib/profile';
 import { readTheme } from '../../lib/theme';
 
 /**
- * Contact us: feedback, feature requests and problems. Builds an email draft the user sends from their
- * own mail app; the app sends nothing itself and keeps no copy.
+ * Contact us: feedback, feature requests and problems. Opens our Google Form with the answers pre-filled
+ * (anonymous unless they add an email); email is the fallback. The app sends nothing itself and keeps no copy.
  */
 export function FeedbackPage({ profile }: { profile: PregnancyProfile }) {
   const [type, setType] = useState<FeedbackType>('feedback');
@@ -28,7 +29,7 @@ export function FeedbackPage({ profile }: { profile: PregnancyProfile }) {
   const [replyTo, setReplyTo] = useState('');
   const [includeInfo, setIncludeInfo] = useState(true);
   const [errors, setErrors] = useState<ReturnType<typeof validateFeedback>>({});
-  const [opened, setOpened] = useState(false);
+  const [formUrl, setFormUrl] = useState<string | null>(null);
   const [copyStatus, setCopyStatus] = useState('');
 
   const appInfo = useMemo(
@@ -53,8 +54,10 @@ export function FeedbackPage({ profile }: { profile: PregnancyProfile }) {
       document.getElementById(errs.message ? 'fb-message' : 'fb-reply')?.focus();
       return;
     }
-    setOpened(true);
-    window.location.href = buildMailto(draft);
+    const url = buildFormUrl(draft);
+    setFormUrl(url);
+    // A new tab keeps the app open; the link in the status card covers browsers that block it.
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const copy = async () => {
@@ -115,26 +118,44 @@ export function FeedbackPage({ profile }: { profile: PregnancyProfile }) {
 
         <div className="button-row">
           <button type="submit" className="btn btn--primary">
-            Write the email
+            Send feedback
           </button>
         </div>
         <p className="muted">
-          This opens your mail app with everything filled in, to {FEEDBACK_EMAIL}. Nothing is sent until you tap Send there.
+          This opens our feedback form (Google Forms) with everything filled in. Tap Submit there to send it. We don’t see
+          who you are unless you add your email.
         </p>
       </form>
 
-      {opened && (
+      {formUrl && (
         <section className="card card--soft" role="status" aria-labelledby="fb-opened">
-          <h2 id="fb-opened">Your mail app should open now</h2>
-          <p>If it didn’t, copy your message and email it to {FEEDBACK_EMAIL}.</p>
-          <div className="button-row">
-            <button type="button" className="btn btn--ghost" onClick={() => void copy()}>
-              Copy message
-            </button>
-          </div>
-          {copyStatus && <p className="muted">{copyStatus}</p>}
+          <h2 id="fb-opened">Nearly done: tap Submit on the form</h2>
+          <p>
+            If the form didn’t open,{' '}
+            <a href={formUrl} target="_blank" rel="noopener noreferrer">
+              open it here
+            </a>
+            .
+          </p>
         </section>
       )}
+
+      <section className="card" aria-labelledby="fb-email">
+        <h2 id="fb-email">Prefer email?</h2>
+        <p>
+          Email us at <a href={`mailto:${FEEDBACK_EMAIL}`}>{FEEDBACK_EMAIL}</a>. It comes from your own email address, so
+          we’ll see it.
+        </p>
+        <div className="button-row">
+          <a className="btn btn--ghost" href={buildMailto(draft)}>
+            Write it as an email
+          </a>
+          <button type="button" className="btn btn--ghost" onClick={() => void copy()}>
+            Copy message
+          </button>
+        </div>
+        {copyStatus && <p className="muted">{copyStatus}</p>}
+      </section>
     </Page>
   );
 }
