@@ -8,7 +8,7 @@ export function MonitoringIntro({ what, sourceId, topic }: { what: string; sourc
   return (
     <section className="card card--soft">
       <p>
-        <strong>Only if your midwife, doctor or diabetes team has asked you to check your {what} at home.</strong> Bump Tracker doesn’t set targets or
+        <strong>Only if your midwife, doctor or diabetes team has asked you to check your {what} at home.</strong> Hey Baby doesn’t set targets or
         tell you what a reading means. It compares your readings with the upper limits your team gives you.
       </p>
       {s && (

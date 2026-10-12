@@ -4,7 +4,7 @@ export function AboutPage() {
   return (
     <Page title="About" icon="💡" back={{ to: '/more', label: 'More' }}>
       <section className="card">
-        <h2>Bump Tracker</h2>
+        <h2>Hey Baby</h2>
         <p>A demo pregnancy tracker made with aroha in Tāmaki Makaurau Auckland.</p>
       </section>
       <section className="card">

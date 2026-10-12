@@ -55,7 +55,7 @@ const icsStamp = (now: Date) =>
     .replace(/\.\d{3}/, '');
 
 export function buildCalendar(events: readonly CalendarEvent[], now: Date = new Date()): string {
-  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Bump Tracker//Timeline//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH'];
+  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Hey Baby//Timeline//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH'];
   for (const e of events) {
     lines.push('BEGIN:VEVENT', `UID:${escapeText(e.uid)}`, `DTSTAMP:${icsStamp(now)}`);
     if (isTimeOfDay(e.time)) {

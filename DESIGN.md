@@ -1,5 +1,5 @@
 ---
-name: Bump Tracker
+name: Hey Baby
 description: A private, NZ-specific pregnancy tracker that lives on your phone.
 colors:
   cream: "#fff8f0"
@@ -113,13 +113,13 @@ components:
     size: "min(18rem, 80vw)"
 ---
 
-# Design System: Bump Tracker
+# Design System: Hey Baby
 
 ## Overview
 
 **Creative North Star: "The Kitchen Table"**
 
-Bump Tracker should feel like the notebook kept on the kitchen table next to the fruit bowl: warm, domestic, always to hand, never a clinic form. The room is cream and peach, the ink is a warm brown, and the one strong colour is terracotta, saved for the thing you should press. A second voice, kawakawa green, marks calm facts: the trimester, a timeline date, a disclaimer, an "all good" state.
+Hey Baby should feel like the notebook kept on the kitchen table next to the fruit bowl: warm, domestic, always to hand, never a clinic form. The room is cream and peach, the ink is a warm brown, and the one strong colour is terracotta, saved for the thing you should press. A second voice, kawakawa green, marks calm facts: the trimester, a timeline date, a disclaimer, an "all good" state.
 
 The mood is gentle, tactile and hopeful. Surfaces are soft, rounded cards with a faint warm shadow, so they read as objects you can pick up. Emoji and the stylised baby illustrations add a light, human touch. Underneath the softness the system is strict: every colour pair is tested for WCAG AA in both themes, every tap target is at least 48px, and type is the device's own system font so nothing loads and nothing looks foreign on the phone.
 

@@ -11,7 +11,7 @@ export function OnboardingPage() {
   const today = useToday();
 
   useEffect(() => {
-    document.title = 'Welcome · Bump Tracker';
+    document.title = 'Welcome · Hey Baby';
   }, []);
 
   return (
@@ -20,7 +20,7 @@ export function OnboardingPage() {
         <span className="onboarding__emoji" aria-hidden="true">
           🤰
         </span>
-        <h1>Kia ora, welcome to Bump Tracker</h1>
+        <h1>Kia ora, welcome to Hey Baby</h1>
         <p>
           Let’s work out your estimated due date. Everything you enter stays private on this device. Nothing is sent
           anywhere unless you turn on sync, and then only encrypted.
@@ -28,12 +28,12 @@ export function OnboardingPage() {
       </div>
       {!isStorageAvailable() && (
         <p className="card card--warning" role="alert">
-          Your browser is blocking local storage, so Bump Tracker can’t save your details. Check your privacy
+          Your browser is blocking local storage, so Hey Baby can’t save your details. Check your privacy
           settings or try a different browser.
         </p>
       )}
       <section className="card card--soft" aria-labelledby="restore-heading">
-        <h2 id="restore-heading">Already using Bump Tracker?</h2>
+        <h2 id="restore-heading">Already using Hey Baby?</h2>
         {syncAvailable ? (
           <>
             <p>Sign in with the Google account you sync with, and enter your recovery code.</p>

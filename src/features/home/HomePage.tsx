@@ -121,7 +121,7 @@ function PregnancyHome({ profile, today }: { profile: PregnancyProfile; today: L
       {helpFirst && (
         <section className="card card--soft arrived" aria-labelledby="arrived-h">
           <h2 id="arrived-h">Has your baby arrived?</h2>
-          <p>Add the birth and Bump Tracker switches to baby mode: feeds and sleep, immunisation dates, and what to do in an emergency.</p>
+          <p>Add the birth and Hey Baby switches to baby mode: feeds and sleep, immunisation dates, and what to do in an emergency.</p>
           <div className="button-row">
             <Link to="/settings/baby-arrived" className="btn btn--ghost">
               Yes, add the birth

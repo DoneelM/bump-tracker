@@ -69,7 +69,7 @@ describe('timeline calendar events', () => {
     expect(titles).not.toContain('Dating scan');
     expect(events.find((e) => e.title === 'Fetal anatomy scan')?.date).toBe(today);
     expect(events.find((e) => e.title === 'Glucose test for diabetes in pregnancy')?.date).toBe(at(24));
-    expect(events.find((e) => e.title === 'Growth scan')).toMatchObject({ date: at(30), description: 'From your Bump Tracker scans and appointments.' });
+    expect(events.find((e) => e.title === 'Growth scan')).toMatchObject({ date: at(30), description: 'From your Hey Baby scans and appointments.' });
     expect(events.map((e) => e.date)).toEqual([...events.map((e) => e.date)].sort());
     expect(events.find((e) => e.title === 'Glucose test for diabetes in pregnancy')?.description).toContain(url('healthnz-diabetes-testing'));
   });

@@ -71,7 +71,7 @@ export function timelineEvents(
   }
   for (const a of appointments) {
     if (a.date < today) continue;
-    events.push({ uid: `appt-${a.id}@bump-tracker.aiagents.nz`, date: a.date, title: a.label, description: 'From your Bump Tracker scans and appointments.' });
+    events.push({ uid: `appt-${a.id}@bump-tracker.aiagents.nz`, date: a.date, title: a.label, description: 'From your Hey Baby scans and appointments.' });
   }
   return events.sort((x, y) => (x.date < y.date ? -1 : x.date > y.date ? 1 : 0));
 }

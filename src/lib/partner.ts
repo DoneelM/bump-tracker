@@ -140,4 +140,4 @@ export function summaryLines(p: PartnerPayload): string[] {
 }
 
 export const summaryText = (p: PartnerPayload): string =>
-  ['Pregnancy update from Bump Tracker', ...summaryLines(p), `Snapshot made ${formatDisplayDate(p.created)}.`].join('\n');
+  ['Pregnancy update from Hey Baby', ...summaryLines(p), `Snapshot made ${formatDisplayDate(p.created)}.`].join('\n');
