@@ -6,7 +6,7 @@
 
 export const FEEDBACK_EMAIL = 'dons-bot@agentmail.to';
 
-/** "Bump Tracker feedback" Google Form (owned by picme.nz@gmail.com; doesn't collect email addresses). */
+/** Feedback Google Form (title "Bump Tracker feedback" until renamed) (owned by picme.nz@gmail.com; doesn't collect email addresses). */
 export const FEEDBACK_FORM = {
   url: 'https://docs.google.com/forms/d/e/1FAIpQLSdI3gh_GsUNPHpcfdMAQuX5HyYRU9GSR4iiMvpkC9_wqJ4cTw/viewform',
   type: 'entry.1680745637',
@@ -32,7 +32,7 @@ export const FEEDBACK_LABEL: Record<FeedbackType, string> = {
 
 export const FEEDBACK_DESC: Record<FeedbackType, string> = {
   feedback: 'What you like, or what could be better',
-  feature: 'Something you’d like Bump Tracker to do',
+  feature: 'Something you’d like Hey Baby to do',
   bug: 'Something isn’t working as it should',
   other: 'Anything else',
 };
@@ -85,7 +85,7 @@ export function buildFeedbackBody(d: FeedbackDraft): string {
 /** mailto: link with subject and body; line breaks as CRLF, which mail apps expect. */
 export function buildMailto(d: FeedbackDraft): string {
   const enc = (s: string) => encodeURIComponent(s.replace(/\r?\n/g, '\r\n'));
-  return `mailto:${FEEDBACK_EMAIL}?subject=${enc(`[Bump Tracker] ${FEEDBACK_LABEL[d.type]}`)}&body=${enc(buildFeedbackBody(d))}`;
+  return `mailto:${FEEDBACK_EMAIL}?subject=${enc(`[Hey Baby] ${FEEDBACK_LABEL[d.type]}`)}&body=${enc(buildFeedbackBody(d))}`;
 }
 
 /** Must match the form's option text exactly (straight apostrophe), or the choice isn't pre-selected. */

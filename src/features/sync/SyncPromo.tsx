@@ -30,7 +30,7 @@ export function SyncPromo() {
 
   return (
     <section className="card card--soft" aria-labelledby="sync-promo-heading">
-      <h2 id="sync-promo-heading">Use Bump Tracker on more than one device?</h2>
+      <h2 id="sync-promo-heading">Use Hey Baby on more than one device?</h2>
       <p>Sync it through your own Google Drive. It’s encrypted on this device first, so only your devices can read it.</p>
       <div className="button-row">
         <Link to="/more/sync" className="btn btn--primary">

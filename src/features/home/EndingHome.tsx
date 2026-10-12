@@ -119,7 +119,7 @@ export function EndedHome() {
     <Page title="Home" icon="🤍" footer={footer} health={false}>
       <section className="card" aria-labelledby="ended-heading">
         <h2 id="ended-heading">We’re so sorry</h2>
-        <p>Bump Tracker has stopped showing pregnancy updates. There’s no right way to feel, and support is there whenever you want it.</p>
+        <p>The app has stopped showing pregnancy updates. There’s no right way to feel, and support is there whenever you want it.</p>
       </section>
       <CallCard title="Support" lines={[NEED_TO_TALK, SANDS, MISCARRIAGE_SUPPORT, HEALTHLINE, EMERGENCY]} />
       <section className="card" aria-labelledby="ended-data-heading">

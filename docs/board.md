@@ -1,4 +1,4 @@
-# Bump Tracker team board
+# Hey Baby team board
 
 Owner: Captain America (tech lead). Doneel merges to `main`.
 

@@ -64,9 +64,9 @@ export function parseBackup(text: string): ParseBackupResult {
   try {
     json = JSON.parse(text);
   } catch {
-    return fail('This file is not valid JSON, so it can’t be a Bump Tracker backup.');
+    return fail('This file is not valid JSON, so it can’t be a Hey Baby backup.');
   }
-  if (!isRecord(json) || json.app !== BACKUP_APP) return fail('This doesn’t look like a Bump Tracker backup file.');
+  if (!isRecord(json) || json.app !== BACKUP_APP) return fail('This doesn’t look like a Hey Baby backup file.');
   if (json.schemaVersion !== BACKUP_SCHEMA_VERSION) {
     return fail('This backup was made by a different version of the app and can’t be imported.');
   }

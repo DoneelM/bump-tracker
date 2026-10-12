@@ -25,7 +25,7 @@ export function PartnerViewPage() {
           <p>This link isn’t valid, or it was cut short when it was shared. Ask for a fresh link.</p>
         </section>
         <Link to="/" className="text-link">
-          Open Bump Tracker
+          Open Hey Baby
         </Link>
       </Page>
     );

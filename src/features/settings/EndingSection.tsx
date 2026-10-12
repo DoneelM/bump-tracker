@@ -110,7 +110,7 @@ export function EndingSection({
       <h2 id="ending-heading">{startBorn ? 'Your baby’s birth' : 'When your pregnancy ends'}</h2>
       {!form ? (
         <>
-          <p className="muted">Bump Tracker stops showing pregnancy updates. Everything you’ve logged stays, and you can undo this.</p>
+          <p className="muted">The app stops showing pregnancy updates. Everything you’ve logged stays, and you can undo this.</p>
           <div className="button-row">
             <button type="button" className="btn btn--ghost" onClick={() => setForm('born')}>
               Baby’s here
@@ -131,7 +131,7 @@ export function EndingSection({
         <form className="form" onSubmit={submit} noValidate>
           {form === 'ended' && (
             <p>
-              We’re so sorry. Bump Tracker will stop showing pregnancy updates. Your data stays on this device until you choose to delete it.
+              We’re so sorry. The app will stop showing pregnancy updates. Your data stays on this device until you choose to delete it.
             </p>
           )}
           <FormField id="ending-date" label={form === 'born' ? 'Date of birth' : 'Date (optional)'} error={errors.date}>

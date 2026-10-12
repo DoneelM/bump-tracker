@@ -56,7 +56,7 @@ export function SupplementsPage({ today }: { today: LocalDate }) {
         rrule: 'FREQ=DAILY',
         alert: true,
         title: 'Supplements',
-        description: `Time for: ${names}. Tick them off in Bump Tracker.`,
+        description: `Time for: ${names}. Tick them off in Hey Baby.`,
       },
     ]);
     download('bump-tracker-supplements.ics', ics, 'text/calendar');

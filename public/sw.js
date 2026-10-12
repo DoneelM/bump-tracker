@@ -1,5 +1,5 @@
 /*
- * Bump Tracker service worker: offline app shell.
+ * Hey Baby service worker: offline app shell.
  *
  * After `vite build`, scripts/sw-precache.mjs (part of `npm run build`) fills PRECACHE with every file in dist/
  * and VERSION with a content hash, so each deploy is a new worker with its own cache.

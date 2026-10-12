@@ -22,7 +22,7 @@ export function Page({ title, icon, back, health = true, footer, hideTitle = fal
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    document.title = `${title} · Bump Tracker`;
+    document.title = `${title} · Hey Baby`;
     headingRef.current?.focus({ preventScroll: true });
     window.scrollTo(0, 0);
   }, [title]);

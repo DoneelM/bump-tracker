@@ -15,7 +15,7 @@ export function RestorePage() {
       <SyncPanel newDevice />
       <ImportSection />
       <Link to="/" className="text-link">
-        {profile ? 'Open Bump Tracker' : 'Back to set up'}
+        {profile ? 'Open Hey Baby' : 'Back to set up'}
       </Link>
     </Page>
   );

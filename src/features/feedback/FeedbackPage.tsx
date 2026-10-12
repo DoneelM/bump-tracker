@@ -61,7 +61,7 @@ export function FeedbackPage({ profile }: { profile: PregnancyProfile }) {
   };
 
   const copy = async () => {
-    const ok = await copyText(`To: ${FEEDBACK_EMAIL}\nSubject: [Bump Tracker] ${FEEDBACK_LABEL[type]}\n\n${buildFeedbackBody(draft)}`);
+    const ok = await copyText(`To: ${FEEDBACK_EMAIL}\nSubject: [Hey Baby] ${FEEDBACK_LABEL[type]}\n\n${buildFeedbackBody(draft)}`);
     setCopyStatus(ok ? 'Copied. Paste it into an email to us.' : 'Couldn’t copy. Select the text and copy it yourself.');
   };
 

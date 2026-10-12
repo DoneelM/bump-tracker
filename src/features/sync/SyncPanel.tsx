@@ -8,7 +8,7 @@ import { SignInRequiredError } from '../../lib/sync/provider';
 
 const timeFmt = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' });
 const errorText = (err: unknown) => (err instanceof Error ? err.message : 'Something went wrong. Try again.');
-const downloadCode = (code: string) => download('bump-tracker-recovery-code.txt', `Bump Tracker sync recovery code\n\n${code}\n`, 'text/plain');
+const downloadCode = (code: string) => download('bump-tracker-recovery-code.txt', `Hey Baby sync recovery code\n\n${code}\n`, 'text/plain');
 
 function useSignedIn(): boolean {
   return useSyncExternalStore(onAuthChange, isSignedIn, () => false);
@@ -218,7 +218,7 @@ function UnlockFlow({ onDone, onStartedOver }: { onDone: () => void; onStartedOv
         <div className="card card--warning">
           <h3>Forgot your code?</h3>
           <p>
-            Open Bump Tracker on a device where sync is on, then go to <strong>More → Sync → Show recovery code</strong>.
+            Open Hey Baby on a device where sync is on, then go to <strong>More → Sync → Show recovery code</strong>.
           </p>
           <p>
             No device has it? Then the synced copy can’t be opened by anyone, us included. You can delete it and start over. Data on your devices isn’t
@@ -389,7 +389,7 @@ export function SyncPanel({ newDevice = false }: { newDevice?: boolean }) {
         <ul className="bullets">
           <li>Keeps your details, logs, journal and checklists the same on your devices. Photos stay on each device.</li>
           <li>Everything is encrypted on this device first. It’s stored in a hidden app folder in your own Google Drive, and only your devices can read it.</li>
-          <li>Google sees that you use Bump Tracker and when you sync, but not what you’ve written. We store nothing.</li>
+          <li>Google sees that you use Hey Baby and when you sync, but not what you’ve written. We store nothing.</li>
           <li>You get a recovery code to use sync on another device. You can see it again on any device where sync is on.</li>
         </ul>
         {!signedIn ? (
@@ -416,7 +416,7 @@ export function SyncPanel({ newDevice = false }: { newDevice?: boolean }) {
             {startedOver && (
               <p className="card card--success" role="status">
                 {newDevice
-                  ? 'The synced copy was deleted. Set up Bump Tracker here, then turn on sync from More → Sync to get a new recovery code.'
+                  ? 'The synced copy was deleted. Set up Hey Baby here, then turn on sync from More → Sync to get a new recovery code.'
                   : 'The synced copy was deleted. Turn on sync to get a new recovery code.'}
               </p>
             )}

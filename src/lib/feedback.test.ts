@@ -45,7 +45,7 @@ describe('buildMailto', () => {
     const url = buildMailto(draft({ replyTo: 'me@example.nz', appInfo: 'Mode: baby' }));
     expect(url.startsWith(`mailto:${FEEDBACK_EMAIL}?subject=`)).toBe(true);
     const params = new URLSearchParams(url.slice(url.indexOf('?') + 1));
-    expect(params.get('subject')).toBe('[Bump Tracker] Feature request');
+    expect(params.get('subject')).toBe('[Hey Baby] Feature request');
     expect(params.get('body')).toBe('Kia ora, pēpi tracker idea\r\n\r\nReply to: me@example.nz\r\n\r\n--\r\nMode: baby');
     expect(url).not.toMatch(/\s/);
   });

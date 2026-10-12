@@ -5,7 +5,7 @@ export function UpdateBanner() {
   if (!useUpdateReady()) return null;
   return (
     <div className="update-banner" role="status">
-      <span>A new version of Bump Tracker is ready.</span>
+      <span>A new version of Hey Baby is ready.</span>
       <button type="button" className="btn btn--primary" onClick={() => window.location.reload()}>
         Reload
       </button>

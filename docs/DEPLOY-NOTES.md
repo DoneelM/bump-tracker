@@ -50,7 +50,7 @@ The app deploys to Cloudflare Workers as static assets only (no Worker script). 
 - `assets/*` file names are content-hashed, so `_headers` caches them long-term (`immutable`).
 - After `vite build`, `scripts/sw-precache.mjs` writes the full file list and a content hash into `dist/sw.js`. It is part of `npm run build`, so don't deploy the output of a bare `vite build`.
 - The precache list is an allowlist: `index.html`, `manifest.webmanifest`, and `assets/`, `icons/` and `images/` (no dotfiles). Host config such as `_headers` stays out, because hosts don't serve it and one missing file fails the worker install. Every file in `dist/`, `_headers` included, still counts towards the worker version, so a header-only change ships a new worker and pages it serves from cache pick up the new headers. If you add a new top-level folder the app loads, add it to `DIRS` in `scripts/sw-precache.mjs`.
-- **Update banner:** after a deploy, the new worker takes over at once, but the open page keeps running the old code. When that happens, the app shows "A new version of Bump Tracker is ready" with **Reload**. It doesn't show on a first install. An app left open also checks for a new version when it's shown again, at most every 30 minutes.
+- **Update banner:** after a deploy, the new worker takes over at once, but the open page keeps running the old code. When that happens, the app shows "A new version of Hey Baby is ready" with **Reload**. It doesn't show on a first install. An app left open also checks for a new version when it's shown again, at most every 30 minutes.
 - A tab left open across a deploy can lose its old lazy chunks (e.g. the chart) when the new worker activates and deletes the old cache. Offline, that tab shows the recovery screen, and **Reload** fixes it because the new shell is cached. This is accepted.
 - End-to-end offline check (Playwright is deliberately not a devDependency, to keep installs small; install it ad hoc, and don't wire this into CI as is): `npm run build && npm i --no-save playwright && npx playwright install chromium && npm run check:offline`.
 
@@ -65,8 +65,8 @@ Users can sync their data between devices through the hidden app folder (`appDat
 - **Photos** are not synced.
 - **Sign-in** uses Google Identity Services, loaded only when a sync screen opens (the Sync page or the restore screen), never on Home or the welcome screen. It's loaded and prepared as the screen opens, so tapping **Sign in with Google** opens the popup within the tap; Safari blocks popups opened after a delay. The access token stays in memory, never in storage.
 - **Where users find it:**
-  - Welcome screen: "Already using Bump Tracker?", then **Restore from Google Drive**, above the due-date form.
-  - Home: a "Use Bump Tracker on more than one device?" card while sync is off. **Not now** hides it on that device.
+  - Welcome screen: "Already using Hey Baby?", then **Restore from Google Drive**, above the due-date form.
+  - Home: a "Use Hey Baby on more than one device?" card while sync is off. **Not now** hides it on that device.
   - **More → Sync**.
 - **Headers:** the CSP allows `accounts.google.com/gsi/*` and `www.googleapis.com`, and COOP is `same-origin-allow-popups` so the sign-in popup can report back. Both live in `public/_headers` and the meta CSP in `vite.config.ts`.
 
@@ -74,7 +74,7 @@ Users can sync their data between devices through the hidden app folder (`appDat
 
 1. Create a Google Cloud project and enable the **Google Drive API**.
 2. Configure the **OAuth consent screen** (Google Auth Platform → Branding, Audience, Data Access):
-   - User type: External. App name: Bump Tracker.
+   - User type: External. App name: Hey Baby.
    - Homepage `https://bump-tracker.aiagents.nz`; privacy policy `https://bump-tracker.aiagents.nz/privacy.html`.
    - Google's branding check needs the homepage to link to the privacy policy. A **Privacy policy** link sits at the bottom of the homepage: the welcome screen for new visitors, and Home once set up. Other screens don't carry it. `index.html` also carries a short description and the link inside `#root`, for checkers that don't run JavaScript; the app replaces it on start.
    - Authorized domain: `aiagents.nz`. Verify it once in Google Search Console with a DNS TXT record. That covers the subdomain, and brand verification (app name and logo on the consent screen) needs it.
@@ -104,7 +104,7 @@ Users can sync their data between devices through the hidden app folder (`appDat
 
 ## Feedback form
 
-"Contact us" opens the **Bump Tracker feedback** Google Form (owned by picme.nz@gmail.com) with answers pre-filled. Settings: email addresses not collected, no sign-in, anyone with the link, email notifications on for new responses.
+"Contact us" opens the **Hey Baby feedback** Google Form (owned by picme.nz@gmail.com) with answers pre-filled. Settings: email addresses not collected, no sign-in, anyone with the link, email notifications on for new responses.
 The form's field IDs live in `FEEDBACK_FORM` in `src/lib/feedback.ts`. If you edit the form's questions or the "What's it about?" options, check the IDs and option text still match (Google Form → ⋮ → Get pre-filled link). A mismatched option just isn't pre-selected; a changed question loses its pre-fill.
 
 ## Later: in-app feedback sending
@@ -137,3 +137,11 @@ Everything the app depends on should belong to one business identity (a company 
 - [ ] Any payment provider (Stripe) when added
 
 Also before charging: decide sole trader or company, register for GST once turnover reaches NZ$60,000, and check the Consumer Guarantees Act and Fair Trading Act duties that come with selling. A .com.au domain needs an Australian ABN.
+
+## Renamed to Hey Baby (October 2026)
+
+The app is shown as "Hey Baby". Internal names stay `bump-tracker` on purpose: the backup file's `app` field, the `bt:` storage prefix, IndexedDB names, crypto labels, Drive file names, the service worker cache and calendar UIDs. Changing any of them would break existing backups, synced data or recovery codes.
+
+Outside the code, rename these by hand:
+- Google Cloud OAuth consent screen: app name "Hey Baby" (the privacy policy tells people to look for "Hey Baby" under Manage apps).
+- The feedback Google Form title.

@@ -51,7 +51,7 @@ function AppContent() {
         <span className="app-header__logo" aria-hidden="true">
           {babyMode ? '👶' : '🤰'}
         </span>
-        <span className="app-header__name">Bump Tracker</span>
+        <span className="app-header__name">Hey Baby</span>
       </header>
       <main id="main" className="app-main" tabIndex={-1}>
         {match ? match.route.render({ params: match.params, profile, today }) : <NotFoundPage />}
