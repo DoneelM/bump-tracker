@@ -31,6 +31,8 @@ interface Base {
   note?: string;
   /** Who logged it: the caregiver name set on that device. */
   by?: string;
+  /** When it was last changed after being added (edit, timer change). Sync keeps the newer copy. */
+  editedAt?: number;
 }
 
 export type FeedEntry = Base & {
@@ -88,6 +90,7 @@ function parseEntry(e: unknown): BabyLogEntry | null {
   if (note) base.note = note;
   const by = cleanString(e.by, MAX_BY);
   if (by) base.by = by;
+  if (isEpochMs(e.editedAt)) base.editedAt = e.editedAt;
 
   switch (e.kind) {
     case 'feed': {
@@ -170,9 +173,9 @@ const byTime = (log: BabyLogEntry[]) => log.sort((a, b) => b.at - a.at).slice(0,
 
 export const addEntry = (log: readonly BabyLogEntry[], e: BabyLogEntry): BabyLogEntry[] => byTime([e, ...log]);
 
-/** Replaces the entry with the same id (an edit), keeping time order. */
-export const replaceEntry = (log: readonly BabyLogEntry[], e: BabyLogEntry): BabyLogEntry[] =>
-  byTime(log.map((x) => (x.id === e.id ? e : x)));
+/** Replaces the entry with the same id (an edit), keeping time order, and stamps when it changed. */
+export const replaceEntry = (log: readonly BabyLogEntry[], e: BabyLogEntry, now: number): BabyLogEntry[] =>
+  byTime(log.map((x) => (x.id === e.id ? { ...e, editedAt: now } : x)));
 
 export const removeEntry = (log: readonly BabyLogEntry[], id: string): BabyLogEntry[] => log.filter((x) => x.id !== id);
 
@@ -183,11 +186,11 @@ export function openOf<K extends TimedKind>(log: readonly BabyLogEntry[], kind: 
 export const openSleep = (log: readonly BabyLogEntry[]) => openOf(log, 'sleep');
 
 export const endSleep = (log: readonly BabyLogEntry[], now: number): BabyLogEntry[] =>
-  log.map((e) => (e.kind === 'sleep' && e.end === null ? { ...e, end: Math.max(now, e.at) } : e));
+  log.map((e) => (e.kind === 'sleep' && e.end === null ? { ...e, end: Math.max(now, e.at), editedAt: now } : e));
 
 /** Stops an open timer of this kind (pump, activity, sleep). Breast feeds use `stopBreast`. */
 export const stopTimer = (log: readonly BabyLogEntry[], kind: Exclude<TimedKind, 'feed'>, now: number): BabyLogEntry[] =>
-  log.map((e) => (e.kind === kind && isOpen(e) ? { ...e, end: Math.max(now, e.at) } : e));
+  log.map((e) => (e.kind === kind && isOpen(e) ? { ...e, end: Math.max(now, e.at), editedAt: now } : e));
 
 // Breast feed timer.
 
@@ -247,6 +250,54 @@ export function formatDuration(minutes: number): string {
   if (m < 60) return `${m} min`;
   const h = Math.floor(m / 60);
   return m % 60 ? `${h} h ${m % 60} min` : `${h} h`;
+}
+
+// Two caregivers: deletions and merging.
+
+/** A deleted entry's id, kept so another device's copy doesn't bring it back when syncing. */
+export interface Tombstone {
+  id: string;
+  at: number;
+}
+export const MAX_TOMBSTONES = 2000;
+const TOMBSTONE_DAYS = 60;
+
+export function parseTombstones(value: unknown): Tombstone[] | null {
+  if (!Array.isArray(value)) return null;
+  const seen = new Set<string>();
+  return value
+    .filter((t): t is Tombstone => isRecord(t) && typeof t.id === 'string' && !!t.id && isEpochMs(t.at))
+    .map((t) => ({ id: t.id, at: t.at }))
+    .sort((a, b) => b.at - a.at)
+    .filter((t) => !seen.has(t.id) && !!seen.add(t.id))
+    .slice(0, MAX_TOMBSTONES);
+}
+
+/** Records deletions, dropping records older than 60 days (long after any device would sync). */
+export const addTombstones = (tombs: readonly Tombstone[], ids: readonly string[], now: number): Tombstone[] =>
+  parseTombstones([...ids.map((id) => ({ id, at: now })), ...tombs.filter((t) => now - t.at < TOMBSTONE_DAYS * 24 * HOUR)]) ?? [];
+
+/** For Undo: an entry that comes back is no longer deleted. */
+export const dropTombstones = (tombs: readonly Tombstone[], ids: ReadonlySet<string>): Tombstone[] => tombs.filter((t) => !ids.has(t.id));
+
+export const mergeTombstones = (a: readonly Tombstone[], b: readonly Tombstone[]): Tombstone[] => parseTombstones([...a, ...b]) ?? [];
+
+/** How recent this copy of an entry is: its last edit, or when it started or ended. */
+const version = (e: BabyLogEntry) => Math.max(e.editedAt ?? 0, e.at, 'end' in e && typeof e.end === 'number' ? e.end : 0);
+
+/**
+ * Both devices changed the log: keep every entry from both, the newer copy where both have the same entry,
+ * and nothing that either deleted. Result is sorted, capped and validated like stored data.
+ */
+export function mergeLogs(a: readonly BabyLogEntry[], b: readonly BabyLogEntry[], tombs: readonly Tombstone[]): BabyLogEntry[] {
+  const dead = new Set(tombs.map((t) => t.id));
+  const byId = new Map<string, BabyLogEntry>();
+  for (const e of [...a, ...b]) {
+    if (dead.has(e.id)) continue;
+    const cur = byId.get(e.id);
+    if (!cur || version(e) > version(cur) || (version(e) === version(cur) && isOpen(cur) && !isOpen(e))) byId.set(e.id, e);
+  }
+  return parseBabyLog([...byId.values()]) ?? [];
 }
 
 /** "4:07" for a running timer. */

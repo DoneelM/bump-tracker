@@ -23,6 +23,7 @@ const footer = (
 
 const BABY_TOOLS: readonly HubItem[] = [
   { to: '/baby', title: 'Baby log', description: 'Feeds, nappies, sleep, solids, growth and more', icon: '🍼' },
+  { to: '/baby/firsts', title: 'Firsts', description: 'Keep the little moments: first smile, first bath', icon: '⭐' },
 ];
 
 const KEEPSAKES: readonly HubItem[] = [

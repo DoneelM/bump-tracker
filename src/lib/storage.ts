@@ -8,7 +8,8 @@
  */
 import { BAG_SECTIONS, PLAN_SECTIONS } from '../data/checklists';
 import { parseBabyNames } from './babyNames';
-import { parseBabyLog } from './babyLog';
+import { parseBabyLog, parseTombstones } from './babyLog';
+import { parseFirsts } from './firsts';
 import { parseCareTeam } from './careTeam';
 import { parseChecklist } from './checklists';
 import { parseCheckIns } from './checkins';
@@ -47,6 +48,8 @@ const REGISTRY = {
   babyNames: { key: 'baby-names', label: 'Baby name shortlist', validate: parseBabyNames },
   supplements: { key: 'supplements', label: 'Supplements taken', validate: parseSupplements },
   babyLog: { key: 'baby-log', label: 'Baby log', validate: parseBabyLog },
+  babyLogDeleted: { key: 'baby-log-deleted', label: 'Baby log deletions', validate: parseTombstones },
+  firsts: { key: 'firsts', label: 'Baby’s firsts', validate: parseFirsts },
   immunisations: { key: 'immunisations', label: 'Immunisations done', validate: parseImmunisationsDone },
   checkIns: { key: 'parent-checkins', label: 'How are you going check-ins', validate: parseCheckIns },
 } as const;
