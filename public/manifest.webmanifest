@@ -10,6 +10,11 @@
   "background_color": "#fff8f0",
   "theme_color": "#fff8f0",
   "categories": ["health", "lifestyle"],
+  "shortcuts": [
+    { "name": "Log a feed", "short_name": "Feed", "url": "./#/baby?log=feed" },
+    { "name": "Log a nappy", "short_name": "Nappy", "url": "./#/baby?log=nappy" },
+    { "name": "Log sleep", "short_name": "Sleep", "url": "./#/baby?log=sleep" }
+  ],
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },

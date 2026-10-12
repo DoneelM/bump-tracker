@@ -46,7 +46,7 @@ const REGISTRY = {
   monitoringTargets: { key: 'monitoring-targets', label: 'Home monitoring targets', validate: parseTargets },
   babyNames: { key: 'baby-names', label: 'Baby name shortlist', validate: parseBabyNames },
   supplements: { key: 'supplements', label: 'Supplements taken', validate: parseSupplements },
-  babyLog: { key: 'baby-log', label: 'Baby log (feeds, nappies, sleep)', validate: parseBabyLog },
+  babyLog: { key: 'baby-log', label: 'Baby log', validate: parseBabyLog },
   immunisations: { key: 'immunisations', label: 'Immunisations done', validate: parseImmunisationsDone },
   checkIns: { key: 'parent-checkins', label: 'How are you going check-ins', validate: parseCheckIns },
 } as const;
