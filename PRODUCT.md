@@ -8,7 +8,7 @@ web
 
 ## Users
 
-Pregnant people in Aotearoa New Zealand, and their partners. Today the main users are the owner's own household, using it for a real pregnancy. It is also public at bump-tracker.aiagents.nz.
+Pregnant people in Aotearoa New Zealand, and their partners. Today the main users are the owner's own household, using it for a real pregnancy. It is also public at heybaby.nz.
 
 They use it on a phone, often one-handed, sometimes tired or stressed: timing contractions, counting movements, checking whether a symptom means calling someone. Partners get a read-only summary or snapshot link, not their own account.
 
