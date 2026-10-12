@@ -16,8 +16,9 @@
     // Only the count endpoint runs code; every other request is served straight from the assets.
     "run_worker_first": ["/api/*"]
   },
-  // The Analytics Engine binding for the anonymous count (PINGS) is added once Analytics Engine is switched on
-  // in the Cloudflare account; deploys fail until then. Without it the Worker accepts pings and drops them.
+  // Anonymous daily and monthly counts (src/lib/ping.ts). Free plan: 100,000 writes a day. Analytics Engine must
+  // be switched on in the Cloudflare account first, or deploys fail.
+  "analytics_engine_datasets": [{ "binding": "PINGS", "dataset": "heybaby_pings" }],
   // Required by `wrangler preview`, which Workers Builds runs for non-main branches. Empty: previews use the
   // top-level settings (assets only; no vars or bindings). Preview URLs are their own origins, so Google sync
   // sign-in won't work there unless that origin is added to the OAuth client.
