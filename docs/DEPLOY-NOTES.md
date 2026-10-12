@@ -123,3 +123,17 @@ Content licences were checked on 13/10/2026 (see `docs/SOURCES.md`, "Licences").
 - **NHS** (paraphrased week guide): the OGL credit is shown. NHS terms also ask that content isn't presented as NHS-endorsed; re-check before charging.
 - **Baby illustrations**: note which tool made them and check its commercial-use terms.
 - St John and Healthify text has already been replaced (Health NZ and KidsHealth). Linking to them is fine.
+
+## Accounts to move before charging or selling
+
+Everything the app depends on should belong to one business identity (a company email and, ideally, a company), not personal logins. Then selling the app or adding a partner means handing over accounts, not moving data.
+
+- [ ] Cloudflare account (Workers, the heybaby.nz zone and DNS)
+- [ ] Domain registrar for heybaby.nz
+- [ ] Google Cloud project (OAuth client for sync, consent screen, Search Console verification)
+- [ ] GitHub repository (move to an organisation)
+- [ ] Feedback Google Form (currently owned by picme.nz@gmail.com)
+- [ ] Feedback and privacy email address (dons-bot@agentmail.to)
+- [ ] Any payment provider (Stripe) when added
+
+Also before charging: decide sole trader or company, register for GST once turnover reaches NZ$60,000, and check the Consumer Guarantees Act and Fair Trading Act duties that come with selling. A .com.au domain needs an Australian ABN.

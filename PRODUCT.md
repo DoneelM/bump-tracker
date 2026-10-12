@@ -40,6 +40,15 @@ Success: the household uses it through the whole pregnancy and trusts it with th
 - No new external origins, no CSS-in-JS (strict CSP), Recharts lazy-loaded.
 - Terminology: midwife/LMC, Health NZ, Healthline, PlunketLine.
 
+## Paying for it later
+
+The app may charge for extras one day. These rules hold whatever the model:
+
+- **Safety content stays free, always:** warning signs, first aid, 111, Healthline, PlunketLine, midwife/LMC routes, the immunisation schedule, and the support lines after a loss. Never put them behind a paywall, a sign-in or a "supporter" screen.
+- **No ads, no selling or sharing data, no tracking**, now or later. A paid unlock must work without an account (an offline licence key), so paying never means handing over who you are.
+- Paid extras are things like themes, more printables and family sharing. Never the basics of tracking a pregnancy or a baby.
+- Reused content must allow commercial use first. `docs/DEPLOY-NOTES.md` ("Before charging") lists what to clear.
+
 ## Brand Commitments
 
 None fixed. Name, illustrations and visual identity are all open to change.
