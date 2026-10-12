@@ -12,10 +12,14 @@ export const MORE_ITEMS: readonly HubItem[] = [
   { to: '/more/about', title: 'About', description: 'Privacy and how this app works', icon: '💡' },
 ];
 
-export function MorePage() {
+const TOOLS_ITEM: HubItem = { to: '/tools', title: 'Tools', description: 'Weight, photos, checklists, supplements and more', icon: '🧰' };
+
+/** In baby mode, Tools moves here (its tab goes to the baby log) and the pregnancy warning signs give way to Help. */
+export function MorePage({ babyMode = false }: { babyMode?: boolean }) {
+  const items = babyMode ? [TOOLS_ITEM, ...MORE_ITEMS.filter((i) => i.to !== '/more/warning-signs')] : MORE_ITEMS;
   return (
     <Page title="More" icon="✨" health={false}>
-      <HubList items={MORE_ITEMS} />
+      <HubList items={items} />
     </Page>
   );
 }

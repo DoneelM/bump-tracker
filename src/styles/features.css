@@ -561,3 +561,132 @@
 .log-buttons > .btn:only-child {
   grid-column: 1 / -1;
 }
+
+/* Help tab: emergency first aid. Big, plain and numbered; read under stress, maybe one-handed. */
+.aid-top {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.aid-call {
+  min-height: 64px;
+  font-size: var(--font-size-xl);
+}
+
+.aid-jump {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.aid-card {
+  scroll-margin-top: var(--space-4);
+}
+
+.aid-card h3 {
+  margin-top: var(--space-4);
+}
+
+.aid-steps {
+  margin: 0;
+  padding-left: var(--space-5);
+  font-size: var(--font-size-lg);
+}
+
+.aid-steps li + li {
+  margin-top: var(--space-2);
+}
+
+.aid-note,
+.aid-then {
+  font-weight: 700;
+}
+
+.aid-when + .aid-when {
+  margin-top: var(--space-4);
+}
+
+/* Immunisations */
+.imm-visit__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.imm-visit__title {
+  margin: 0;
+}
+
+.imm-visit--done {
+  background: var(--color-success-bg);
+  border-color: var(--color-sage-300);
+}
+
+.imm-visit__check {
+  margin-top: var(--space-3);
+  font-weight: 700;
+}
+
+.imm-home {
+  padding: var(--space-3) var(--space-4);
+}
+
+.imm-visit__check input {
+  accent-color: var(--color-sage-700);
+}
+
+/* Parent check-in and safe sleep (baby mode) */
+.checkin__options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.checkin__options .btn {
+  padding-inline: var(--space-2);
+}
+
+.checkin__support {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.safe-abc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  list-style: none;
+  font-weight: 700;
+}
+
+.safe-abc li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.safe-abc__letter {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-sage-700);
+  color: var(--color-surface);
+}
+
+/* Inside the check-in, the support lines are part of the card, not cards of their own. */
+.checkin__support .card {
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}

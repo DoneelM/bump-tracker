@@ -22,6 +22,8 @@ import { BabyNamesPage } from '../features/names/BabyNamesPage';
 import { FoodSafetyPage } from '../features/food/FoodSafetyPage';
 import { SupplementsPage } from '../features/supplements/SupplementsPage';
 import { BabyLogPage } from '../features/babylog/BabyLogPage';
+import { HelpPage } from '../features/help/HelpPage';
+import { ImmunisationsPage } from '../features/immunisations/ImmunisationsPage';
 import { BpPage } from '../features/monitoring/BpPage';
 import { GlucosePage } from '../features/monitoring/GlucosePage';
 import { TimelinePage } from '../features/timeline/TimelinePage';
@@ -33,7 +35,7 @@ import { gestationalAge } from '../lib/pregnancy';
 import type { PregnancyProfile } from '../lib/profile';
 import { matchPath, type RouteParams } from '../lib/route';
 
-export type TabId = 'home' | 'weeks' | 'tools' | 'journal' | 'more';
+export type TabId = 'home' | 'weeks' | 'tools' | 'journal' | 'more' | 'baby' | 'help';
 
 export interface RouteContext {
   params: RouteParams;
@@ -56,7 +58,9 @@ function parseWeekParam(raw: string | undefined): number | null {
 /** Add new screens here. Order matters only for overlapping patterns. */
 export const ROUTES: readonly RouteDef[] = [
   { pattern: '/', tab: 'home', render: ({ profile, today }) => <HomePage profile={profile} today={today} /> },
-  { pattern: '/baby', tab: 'home', render: ({ profile }) => <BabyLogPage profile={profile} /> },
+  { pattern: '/baby', tab: 'baby', render: ({ profile }) => <BabyLogPage profile={profile} /> },
+  { pattern: '/help', tab: 'help', render: () => <HelpPage /> },
+  { pattern: '/baby/immunisations', tab: 'home', render: ({ profile, today }) => <ImmunisationsPage profile={profile} today={today} /> },
   {
     pattern: '/weeks',
     tab: 'weeks',
@@ -90,7 +94,7 @@ export const ROUTES: readonly RouteDef[] = [
   { pattern: '/tools/timeline', tab: 'tools', render: ({ profile, today }) => <TimelinePage profile={profile} today={today} /> },
   { pattern: '/journal', tab: 'journal', render: () => <JournalPage /> },
   { pattern: '/journal/questions', tab: 'journal', render: ({ today }) => <QuestionsPage today={today} /> },
-  { pattern: '/more', tab: 'more', render: () => <MorePage /> },
+  { pattern: '/more', tab: 'more', render: ({ profile }) => <MorePage babyMode={profile.ending?.kind === 'born'} /> },
   { pattern: '/more/partner', tab: 'more', render: ({ profile, today }) => <PartnerPage profile={profile} today={today} /> },
   { pattern: '/more/print', tab: 'more', render: ({ profile, today }) => <PrintPage profile={profile} today={today} /> },
   { pattern: '/more/data', tab: 'more', render: () => <DataPage /> },

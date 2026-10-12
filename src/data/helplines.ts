@@ -68,3 +68,29 @@ export const MISCARRIAGE_SUPPORT: Helpline = {
   url: 'https://www.miscarriagesupport.org.nz/',
   source: 'miscarriage-support-nz',
 };
+
+export const LIFELINE: Helpline = {
+  id: 'lifeline',
+  name: 'Lifeline',
+  what: 'Free confidential support, 24/7. Or text HELP to 4357',
+  number: '0800 543 354',
+  tel: 'tel:0800543354',
+  source: 'pada-get-help',
+};
+
+export const SAMARITANS: Helpline = {
+  id: 'samaritans',
+  name: 'Samaritans',
+  what: 'Confidential, non-judgemental support, 24/7',
+  number: '0800 726 666',
+  tel: 'tel:0800726666',
+  source: 'pada-get-help',
+};
+
+export const PADA: Helpline = {
+  id: 'pada',
+  name: 'PADA',
+  what: 'Perinatal Anxiety & Depression Aotearoa: information and local support services',
+  url: 'https://pada.nz/get-help-now/',
+  source: 'pada-get-help',
+};

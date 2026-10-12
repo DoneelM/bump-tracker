@@ -13,6 +13,7 @@ export const TOOL_ITEMS: readonly HubItem[] = [
   { to: '/tools/glucose', title: 'Glucose', description: 'If your care team asked you to check at home', icon: '🩸' },
   { to: '/tools/checklists', title: 'Checklists', description: 'Hospital bag and birth plan', icon: '✅' },
   { to: '/baby', title: 'Baby log', description: 'Feeds, nappies and sleep', icon: '🍼' },
+  { to: '/baby/immunisations', title: 'Immunisations', description: 'Due dates and what’s given', icon: '💉' },
   { to: '/tools/names', title: 'Baby names', description: 'Your private shortlist', icon: '🏷️' },
   { to: '/tools/food', title: 'Food safety', description: 'What’s OK to eat, from NZ Food Safety', icon: '🥗' },
   { to: '/tools/supplements', title: 'Supplements', description: 'Tick off folic acid, iodine and more', icon: '💊' },
@@ -21,7 +22,7 @@ export const TOOL_ITEMS: readonly HubItem[] = [
 /** Pregnancy-only tools, hidden once the pregnancy has ended (birth or loss). Their pages still open by link. */
 const PREGNANCY_ONLY = new Set(['/tools/timeline', '/tools/contractions', '/tools/kicks', '/tools/names']);
 /** Shown only once the baby is born. */
-const BORN_ONLY = new Set(['/baby']);
+const BORN_ONLY = new Set(['/baby', '/baby/immunisations']);
 
 export function ToolsPage({ ending }: { ending?: PregnancyEnding['kind'] }) {
   const items = TOOL_ITEMS.filter((i) => (ending ? !PREGNANCY_ONLY.has(i.to) : true) && (BORN_ONLY.has(i.to) ? ending === 'born' : true));

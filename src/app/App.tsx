@@ -39,6 +39,7 @@ function AppContent() {
   if (!profile) return <OnboardingPage />;
 
   const match = resolveRoute(path);
+  const babyMode = profile.ending?.kind === 'born';
 
   return (
     <div className="app">
@@ -48,14 +49,14 @@ function AppContent() {
       </button>
       <header className="app-header">
         <span className="app-header__logo" aria-hidden="true">
-          🤰
+          {babyMode ? '👶' : '🤰'}
         </span>
         <span className="app-header__name">Bump Tracker</span>
       </header>
       <main id="main" className="app-main" tabIndex={-1}>
         {match ? match.route.render({ params: match.params, profile, today }) : <NotFoundPage />}
       </main>
-      <BottomNav active={match?.route.tab ?? null} />
+      <BottomNav active={match?.route.tab ?? null} babyMode={babyMode} />
     </div>
   );
 }

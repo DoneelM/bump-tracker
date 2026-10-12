@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   addDays,
+  addMonths,
+  diffMonths,
   daysInMonth,
   diffDays,
   formatDisplayDate,
@@ -142,5 +144,21 @@ describe('formatDisplayDate', () => {
     expect(text).toContain('2026');
     expect(formatDisplayDate('2026-01-01')).toContain('January');
     expect(formatDisplayDate('2025-12-31')).toContain('December');
+  });
+});
+
+describe('addMonths and diffMonths', () => {
+  it('adds months, clamping to the end of the month', () => {
+    expect(addMonths('2026-01-31', 1)).toBe('2026-02-28');
+    expect(addMonths('2028-01-31', 1)).toBe('2028-02-29');
+    expect(addMonths('2026-10-12', 3)).toBe('2027-01-12');
+    expect(addMonths('2026-10-12', 15)).toBe('2028-01-12');
+  });
+
+  it('counts whole calendar months', () => {
+    expect(diffMonths('2026-10-12', '2026-11-11')).toBe(0);
+    expect(diffMonths('2026-10-12', '2026-11-12')).toBe(1);
+    expect(diffMonths('2026-01-31', '2026-02-28')).toBe(1);
+    expect(diffMonths('2026-10-12', '2026-10-01')).toBe(0);
   });
 });
