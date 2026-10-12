@@ -1,3 +1,4 @@
+import { addDays, formatDisplayDate, type LocalDate } from '../../lib/dates';
 import {
   formatDuration,
   isOpen,
@@ -104,3 +105,15 @@ export function fromLocalInput(v: string): number | null {
   const ms = new Date(v).getTime();
   return Number.isFinite(ms) ? ms : null;
 }
+
+const shortFmt = new Intl.DateTimeFormat('en-NZ', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+
+/** "Today", "Yesterday" or the date ("Sun 11 Oct" when `short`, for tables on a phone). */
+export const dayOfLabel = (day: LocalDate, today: LocalDate, short = false) =>
+  day === today
+    ? 'Today'
+    : day === addDays(today, -1)
+      ? 'Yesterday'
+      : short
+        ? shortFmt.format(new Date(`${day}T00:00:00Z`)).replace(',', '')
+        : formatDisplayDate(day);

@@ -28,16 +28,17 @@ import {
   type EntryKind,
   type NappyKind,
 } from '../../lib/babyLog';
+import { dayOf, entriesOn } from '../../lib/babyLogDays';
 import { useCaregiver } from '../../lib/caregiver';
+import { addDays } from '../../lib/dates';
 import type { PregnancyProfile } from '../../lib/profile';
 import { STORAGE_KEYS } from '../../lib/storage';
 import { useStoredState } from '../../lib/useStoredState';
 import { newId } from '../../lib/validate';
 import { EntryForm } from './EntryForm';
-import { ACTIVITY_LABEL, clock, describe, hasRunning, KIND_LABEL, NAPPY_LABEL, statusLine } from './labels';
+import { ACTIVITY_LABEL, clock, dayOfLabel, describe, hasRunning, KIND_LABEL, NAPPY_LABEL, statusLine } from './labels';
 
 const NONE: BabyLogEntry[] = [];
-const DAY = 24 * 3_600_000;
 const MORE: readonly EntryKind[] = ['solids', 'medicine', 'temp', 'growth'];
 
 export function useBabyLog() {
@@ -71,6 +72,7 @@ export function BabyLogPage({ profile }: { profile: PregnancyProfile }) {
   const [form, setForm] = useState<FormState>(null);
   const [status, setStatus] = useState<{ text: string; undo?: BabyLogEntry[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [day, setDay] = useState<string | null>(null);
 
   useEffect(() => {
     const g = linkedGroup();
@@ -112,8 +114,11 @@ export function BabyLogPage({ profile }: { profile: PregnancyProfile }) {
     setForm(null);
   };
 
-  const day = last24h(log, now);
-  const recent = log.filter((e) => e.at >= now - DAY || isOpen(e));
+  const last = last24h(log, now);
+  const today = dayOf(now);
+  const shown = day ?? today;
+  const entries = entriesOn(log, shown, now);
+  const firstDay = log.length ? dayOf(log[log.length - 1]!.at) : today;
 
   return (
     <Page title="Baby log" icon="🍼" back={{ to: '/', label: 'Home' }}>
@@ -122,8 +127,8 @@ export function BabyLogPage({ profile }: { profile: PregnancyProfile }) {
           {statusLine(log, now)}
         </h2>
         <p className="muted">
-          Last 24 hours: {day.feeds} {day.feeds === 1 ? 'feed' : 'feeds'}, {day.nappies} {day.nappies === 1 ? 'nappy' : 'nappies'},{' '}
-          {formatDuration(day.sleepMinutes)} sleep
+          Last 24 hours: {last.feeds} {last.feeds === 1 ? 'feed' : 'feeds'}, {last.nappies} {last.nappies === 1 ? 'nappy' : 'nappies'},{' '}
+          {formatDuration(last.sleepMinutes)} sleep
         </p>
       </section>
 
@@ -297,16 +302,21 @@ export function BabyLogPage({ profile }: { profile: PregnancyProfile }) {
 
       <section aria-labelledby="log-today">
         <div className="log-list-head">
-          <h2 id="log-today">Last 24 hours</h2>
-          <button type="button" className="btn btn--ghost" onClick={() => setForm({ kind: 'feed' })}>
-            Add earlier entry
-          </button>
+          <h2 id="log-today">{dayOfLabel(shown, today)}</h2>
+          <div className="log-day-nav">
+            <button type="button" className="btn btn--ghost" disabled={shown <= firstDay} aria-label="Previous day" onClick={() => setDay(addDays(shown, -1))}>
+              ‹
+            </button>
+            <button type="button" className="btn btn--ghost" disabled={shown >= today} aria-label="Next day" onClick={() => setDay(addDays(shown, 1) >= today ? null : addDays(shown, 1))}>
+              ›
+            </button>
+          </div>
         </div>
-        {recent.length === 0 ? (
-          <p className="muted">Entries from the last day show here.</p>
+        {entries.length === 0 ? (
+          <p className="muted">Nothing logged {shown === today ? 'today yet' : 'this day'}.</p>
         ) : (
           <ul className="entry-list">
-            {recent.map((e) => (
+            {entries.map((e) => (
               <li key={e.id} className="card log-entry">
                 <span>
                   <span className="log-entry__time">{clock(e.at)}</span> {describe(e, now)}
@@ -332,6 +342,14 @@ export function BabyLogPage({ profile }: { profile: PregnancyProfile }) {
             ))}
           </ul>
         )}
+        <div className="button-row">
+          <button type="button" className="btn btn--ghost" onClick={() => setForm({ kind: 'feed' })}>
+            Add earlier entry
+          </button>
+          <Link to="/baby/trends" className="btn btn--ghost">
+            Trends and export
+          </Link>
+        </div>
       </section>
 
       <CallCard title="Help with your baby" lines={[PLUNKETLINE, HEALTHLINE, EMERGENCY]} />
