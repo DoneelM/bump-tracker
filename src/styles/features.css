@@ -690,3 +690,7 @@
   background: none;
   box-shadow: none;
 }
+
+.ending-section {
+  scroll-margin-top: var(--space-4);
+}

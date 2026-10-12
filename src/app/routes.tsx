@@ -103,6 +103,7 @@ export const ROUTES: readonly RouteDef[] = [
   { pattern: '/more/sources', tab: 'more', render: () => <SourcesPage /> },
   { pattern: '/more/about', tab: 'more', render: () => <AboutPage /> },
   { pattern: '/settings', tab: 'more', render: ({ today }) => <SettingsPage today={today} /> },
+  { pattern: '/settings/baby-arrived', tab: 'home', render: ({ today }) => <SettingsPage today={today} startBorn /> },
 ];
 
 export function resolveRoute(path: string): { route: RouteDef; params: RouteParams } | null {
