@@ -3,7 +3,7 @@ import { Page } from '../../components/Page';
 import { BAG_SECTIONS, bagDefaults, PLAN_SECTIONS, planDefaults } from '../../data/checklists';
 import { parseChecklist, progress, type ChecklistItem } from '../../lib/checklists';
 import { averagesLastHour, detect511, formatMmSs, parseContractionState, EMPTY_STATE, validSorted, type ContractionState } from '../../lib/contractions';
-import { formatDisplayDate, type LocalDate } from '../../lib/dates';
+import { formatDisplayDate, todayLocal, type LocalDate } from '../../lib/dates';
 import { flaggedEntries, MOODS, parseJournalEntries, type JournalEntry } from '../../lib/journal';
 import { formatDuration, parseKickSessions, sessionDurationMs, type KickSession } from '../../lib/kicks';
 import { formatWeeksDays, gestationalAge } from '../../lib/pregnancy';
@@ -15,6 +15,9 @@ import { openQuestions } from '../../lib/questions';
 import { useQuestions } from '../questions/QuestionsPage';
 import { glucoseContextLabel, newestFirst, parseBpReadings, parseGlucoseReadings, type BpReading, type GlucoseReading } from '../../lib/monitoring';
 import { useTargets } from '../monitoring/BpPage';
+import { useBabyLog } from '../babylog/BabyLogPage';
+import { formatDuration as formatMinutes, type GrowthEntry } from '../../lib/babyLog';
+import { dayTotals, lastDays } from '../../lib/babyLogDays';
 
 const NO_BP: BpReading[] = [];
 const NO_GLUCOSE: GlucoseReading[] = [];
@@ -54,6 +57,11 @@ export function PrintPage({ profile, today }: { profile: PregnancyProfile; today
   const [bag] = useStoredState<ChecklistItem[]>(STORAGE_KEYS.bagChecklist, bagFallback, parseBag);
   const [plan] = useStoredState<ChecklistItem[]>(STORAGE_KEYS.birthPlan, planFallback, parsePlan);
 
+  const [babyLog] = useBabyLog();
+  const born = profile.ending?.kind === 'born';
+  const babyDays = born && babyLog.length ? lastDays(today, 7).map((d) => dayTotals(babyLog, d, Date.now())).reverse() : [];
+  const lastGrowth = babyLog.find((e): e is GrowthEntry => e.kind === 'growth');
+
   const ga = gestationalAge(profile.dueDate, today);
   const recentWeights = sortByDate(weights).slice(-RECENT_WEIGHTS).reverse();
   const scansNewest = [...scans].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
@@ -77,7 +85,7 @@ export function PrintPage({ profile, today }: { profile: PregnancyProfile; today
       </div>
 
       <div className="print-sheet">
-        <h2 className="print-only">Pregnancy summary</h2>
+        <h2 className="print-only">{born ? 'Pregnancy and baby summary' : 'Pregnancy summary'}</h2>
         <p className="muted">Prepared {formatDisplayDate(today)}</p>
 
         <section className="card print-card" aria-labelledby="pr-profile">
@@ -108,6 +116,48 @@ export function PrintPage({ profile, today }: { profile: PregnancyProfile; today
             )}
           </dl>
         </section>
+
+        {babyDays.length > 0 && (
+          <section className="card print-card" aria-labelledby="pr-baby">
+            <h2 id="pr-baby">Baby log, last 7 days</h2>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th scope="col">Day</th>
+                  <th scope="col">Feeds</th>
+                  <th scope="col">Bottles</th>
+                  <th scope="col">Wet / dirty</th>
+                  <th scope="col">Sleep</th>
+                </tr>
+              </thead>
+              <tbody>
+                {babyDays.map((t) => (
+                  <tr key={t.day}>
+                    <th scope="row">{formatDisplayDate(t.day)}</th>
+                    <td>{t.feeds}</td>
+                    <td>{t.bottleMl ? `${t.bottleMl} ml` : '-'}</td>
+                    <td>
+                      {t.wet} / {t.dirty}
+                    </td>
+                    <td>{formatMinutes(t.sleepMinutes)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {lastGrowth && (
+              <p>
+                Last growth check {formatDisplayDate(todayLocal(new Date(lastGrowth.at)))}:{' '}
+                {[
+                  lastGrowth.weightG !== null && `${(lastGrowth.weightG / 1000).toFixed(2)} kg`,
+                  lastGrowth.lengthCm !== null && `${lastGrowth.lengthCm} cm long`,
+                  lastGrowth.headCm !== null && `head ${lastGrowth.headCm} cm`,
+                ]
+                  .filter(Boolean)
+                  .join(', ')}
+              </p>
+            )}
+          </section>
+        )}
 
         <section className="card print-card" aria-labelledby="pr-weight">
           <h2 id="pr-weight">Weight</h2>
