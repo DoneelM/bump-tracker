@@ -23,7 +23,8 @@ export function OnboardingPage() {
         <h1>Kia ora, welcome to Hey Baby</h1>
         <p>
           Let’s work out your estimated due date. Everything you enter stays private on this device. Nothing is sent
-          anywhere unless you turn on sync, and then only encrypted.
+          anywhere unless you turn on sync, and then only encrypted. The app does send an anonymous daily count (no
+          ID, nothing you enter), which you can turn off in Settings.
         </p>
       </div>
       {!isStorageAvailable() && (

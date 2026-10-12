@@ -1,6 +1,6 @@
 # Hey Baby
 
-A privacy-first pregnancy tracker demo for Aotearoa New Zealand (Vite + React + TypeScript, installable PWA). All data stays in your browser: no backend, no analytics, no third-party trackers. Optional sync stores an end-to-end encrypted copy in the user's own Google Drive; we store nothing.
+A privacy-first pregnancy tracker demo for Aotearoa New Zealand (Vite + React + TypeScript, installable PWA). All data stays in your browser: no backend for your data, no third-party trackers, only an anonymous daily count you can turn off. Optional sync stores an end-to-end encrypted copy in the user's own Google Drive; we store nothing.
 
 > General information only, not medical advice. Contact your midwife/LMC with any concerns, or call 111 in an emergency (NZ).
 
