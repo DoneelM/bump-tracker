@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { Page } from '../../components/Page';
+import { SourceNote } from '../../components/SourceNote';
 import { filterFish, filterFoods, FOOD_GROUPS, FOOD_SOURCE_ID, VERDICT_LABEL } from '../../data/foodSafety';
-import { SOURCES } from '../../data/sources';
 
-const source = SOURCES.find((s) => s.id === FOOD_SOURCE_ID);
 
 /** "Can I eat this?": New Zealand Food Safety's pregnancy table, searchable. Static, nothing stored. */
 export function FoodSafetyPage() {
@@ -68,15 +67,7 @@ export function FoodSafetyPage() {
           ))}
         </section>
       )}
-
-      {source && (
-        <p className="muted">
-          Source:{' '}
-          <a href={source.url} target="_blank" rel="noopener noreferrer">
-            {source.publisher}: {source.title}
-          </a>
-        </p>
-      )}
+      <SourceNote id={FOOD_SOURCE_ID} />
     </Page>
   );
 }

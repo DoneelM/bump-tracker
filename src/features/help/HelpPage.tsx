@@ -4,8 +4,9 @@ import { Page } from '../../components/Page';
 import {
   CHOKING,
   CHOKING_SOURCE_ID,
-  CPR,
+  CPR_LEARN,
   CPR_SOURCE_ID,
+  CPR_STEPS,
   CPR_VIDEO_URL,
   FIRST_AID_COURSES_URL,
   SICK_SOURCE_ID,
@@ -13,21 +14,8 @@ import {
   WHEN_TO_GET_HELP,
 } from '../../data/babyHelp';
 import { EMERGENCY, HEALTHLINE, PLUNKETLINE } from '../../data/helplines';
-import { SOURCES } from '../../data/sources';
+import { SourceNote as Source } from '../../components/SourceNote';
 import { RecoveryCard, SupportForYou } from '../support/ParentCards';
-
-function Source({ id }: { id: string }) {
-  const s = SOURCES.find((x) => x.id === id);
-  if (!s) return null;
-  return (
-    <p className="muted">
-      Source:{' '}
-      <a href={s.url} target="_blank" rel="noopener noreferrer">
-        {s.publisher}: {s.title}
-      </a>
-    </p>
-  );
-}
 
 const Steps = ({ items }: { items: readonly string[] }) => (
   <ol className="aid-steps">
@@ -39,7 +27,7 @@ const Steps = ({ items }: { items: readonly string[] }) => (
 
 /**
  * Baby-mode Help tab: emergency first aid first (works offline, word for word from Health NZ and
- * Hato Hone St John), then when to get help, then who to call.
+ * KidsHealth), then when to get help, then who to call.
  */
 export function HelpPage() {
   return (
@@ -60,15 +48,17 @@ export function HelpPage() {
 
       <section id="aid-cpr" className="card aid-card" aria-labelledby="aid-cpr-h" tabIndex={-1}>
         <h2 id="aid-cpr-h">Baby not breathing</h2>
-        <p>{CPR.intro}</p>
-        <Steps items={CPR.quick} />
-        <p className="aid-note">{CPR.quickNote}</p>
-        <h3>30 pushes</h3>
-        <Steps items={CPR.pushes} />
-        <h3>Then 2 breaths</h3>
-        <Steps items={CPR.breaths} />
-        <p className="aid-then">{CPR.then}</p>
-        <p>{CPR.alone}</p>
+        <p className="aid-note">{CPR_LEARN}</p>
+        <ol className="aid-steps aid-steps--titled">
+          {CPR_STEPS.map((step) => (
+            <li key={step.title}>
+              <strong>{step.title}</strong>
+              {step.lines.map((l) => (
+                <p key={l}>{l}</p>
+              ))}
+            </li>
+          ))}
+        </ol>
         <Source id={CPR_SOURCE_ID} />
       </section>
 
