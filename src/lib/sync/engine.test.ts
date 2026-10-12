@@ -149,6 +149,26 @@ describe('sync engine', () => {
     expect(a.local.data.profile).toEqual(profile('Sprout'));
   });
 
+  it('combines baby logs from two phones without asking, and keeps deletions', async () => {
+    const T = Date.UTC(2026, 9, 12);
+    const nappy = (id: string, h: number) => ({ id, kind: 'nappy', at: T + h * 3_600_000, nappy: 'wet' });
+    const p = new FakeProvider();
+    const { a, code } = await setUp(p, { profile: profile('Bean'), 'baby-log': [nappy('n1', 0), nappy('n2', 1)] });
+    const b = device(p);
+    await unlock(b.deps, code);
+
+    // Phone A logs one and deletes n2; phone B logs another before syncing.
+    a.local.data['baby-log'] = [nappy('a1', 3), nappy('n1', 0)];
+    a.local.data['baby-log-deleted'] = [{ id: 'n2', at: T + 4 * 3_600_000 }];
+    b.local.data['baby-log'] = [nappy('b1', 2), nappy('n2', 1), nappy('n1', 0)];
+    await sync(a.deps);
+
+    expect(await sync(b.deps)).toMatchObject({ status: 'synced', pushed: true });
+    expect((b.local.data['baby-log'] as { id: string }[]).map((e) => e.id)).toEqual(['a1', 'b1', 'n1']);
+    await sync(a.deps);
+    expect(a.local.data['baby-log']).toEqual(b.local.data['baby-log']);
+  });
+
   it('merges a new device that already has its own data', async () => {
     const p = new FakeProvider();
     const { code } = await setUp(p, { profile: profile('Bean'), 'weight-pre-pregnancy': pre(60) });

@@ -105,6 +105,12 @@
   cursor: pointer;
 }
 
+button.chip {
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
 .chip.is-selected {
   border-color: var(--color-primary);
   background: var(--color-peach-100);

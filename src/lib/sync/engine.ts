@@ -3,7 +3,8 @@
  *
  * The whole app state (every registered storage key, no photos) travels as one encrypted backup envelope.
  * For each key we compare this device's value (L), the synced copy (R) and the last value both agreed on
- * (the base, kept as a hash): only one side changed -> take it; both changed -> ask the user.
+ * (the base, kept as a hash): only one side changed -> take it; both changed -> combine them where we can
+ * (the baby log, so two caregivers can log on two phones), otherwise ask the user.
  * Dependencies are passed in, so this runs against fakes in tests and IndexedDB/localStorage/Drive in the app.
  */
 import { buildBackup, parseBackup } from '../backup';
@@ -18,7 +19,8 @@ import {
   unwrapDek,
   VaultTooLargeError,
 } from '../crypto';
-import { STORAGE_TABLE } from '../storage';
+import { mergeLogs, mergeTombstones, parseBabyLog, parseTombstones } from '../babyLog';
+import { STORAGE_KEYS, STORAGE_TABLE } from '../storage';
 import type { SyncState, SyncStateStore } from './keyStore';
 import type { SyncProvider } from './provider';
 
@@ -70,6 +72,21 @@ function canonical(values: Record<string, unknown>): Canon {
     out[e.key] = valid === null ? null : JSON.stringify(valid);
   }
   return out;
+}
+
+const LOG = STORAGE_KEYS.babyLog;
+const DELETED = STORAGE_KEYS.babyLogDeleted;
+const parsed = <T>(c: Canon | null, key: string, parse: (v: unknown) => T[] | null): T[] => (c?.[key] ? (parse(JSON.parse(c[key])) ?? []) : []);
+
+/**
+ * Both sides changed this key: the combined value (canonical JSON), or undefined if it can't be combined.
+ * The baby log keeps every entry from both, minus anything either side deleted.
+ */
+function combine(key: string, local: Canon, remote: Canon | null): string | undefined {
+  if (key !== LOG && key !== DELETED) return undefined;
+  const tombs = mergeTombstones(parsed(local, DELETED, parseTombstones), parsed(remote, DELETED, parseTombstones));
+  if (key === DELETED) return JSON.stringify(tombs);
+  return JSON.stringify(mergeLogs(parsed(local, LOG, parseBabyLog), parsed(remote, LOG, parseBabyLog), tombs));
 }
 
 function toValues(c: Canon): Record<string, unknown> {
@@ -183,6 +200,13 @@ export async function sync(deps: SyncDeps, resolutions: Resolutions = {}, retrie
     else if ((await hash(L)) === B) pick = 'remote';
     else if ((await hash(R)) === B) pick = 'local';
     else pick = null;
+    if (pick === null) {
+      const both = combine(e.key, localC, remoteC);
+      if (both !== undefined) {
+        merged[e.key] = both;
+        continue;
+      }
+    }
     pick ??= resolutions[e.key] ?? null;
     if (pick === null) conflicts.push({ key: e.key, label: e.label });
     else merged[e.key] = pick === 'local' ? L : R;

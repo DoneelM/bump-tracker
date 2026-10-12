@@ -6,6 +6,8 @@ import { EMERGENCY, HEALTHLINE, PLUNKETLINE } from '../../data/helplines';
 import {
   ACTIVITIES,
   addEntry,
+  addTombstones,
+  dropTombstones,
   endSleep,
   formatClock,
   formatDuration,
@@ -14,6 +16,7 @@ import {
   MAX_BY,
   openOf,
   parseBabyLog,
+  parseTombstones,
   pauseBreast,
   removeEntry,
   replaceEntry,
@@ -27,6 +30,7 @@ import {
   type BabyLogEntry,
   type EntryKind,
   type NappyKind,
+  type Tombstone,
 } from '../../lib/babyLog';
 import { dayOf, entriesOn } from '../../lib/babyLogDays';
 import { useCaregiver } from '../../lib/caregiver';
@@ -39,6 +43,7 @@ import { EntryForm } from './EntryForm';
 import { ACTIVITY_LABEL, clock, dayOfLabel, describe, hasRunning, KIND_LABEL, NAPPY_LABEL, statusLine } from './labels';
 
 const NONE: BabyLogEntry[] = [];
+const NO_TOMBS: Tombstone[] = [];
 const MORE: readonly EntryKind[] = ['solids', 'medicine', 'temp', 'growth'];
 
 export function useBabyLog() {
@@ -67,6 +72,7 @@ type FormState = { kind: EntryKind; initial?: BabyLogEntry } | null;
 /** After-birth log. Records only; no targets, no judging the numbers. */
 export function BabyLogPage({ profile }: { profile: PregnancyProfile }) {
   const [log, setLog] = useBabyLog();
+  const [, setTombs] = useStoredState<Tombstone[]>(STORAGE_KEYS.babyLogDeleted, NO_TOMBS, parseTombstones);
   const now = useNow(hasRunning(log));
   const [by, setBy] = useCaregiver();
   const [form, setForm] = useState<FormState>(null);
@@ -106,11 +112,15 @@ export function BabyLogPage({ profile }: { profile: PregnancyProfile }) {
   const asleep = openOf(log, 'sleep');
   const pumping = openOf(log, 'pump');
   const active = openOf(log, 'activity');
-  const updateFeed = (f: NonNullable<typeof feeding>, text: string) => save(replaceEntry(log, f), text);
+  const updateFeed = (f: NonNullable<typeof feeding>, text: string) => save(replaceEntry(log, f, Date.now()), text);
+  const remove = (id: string) => {
+    save(removeEntry(log, id), 'Deleted.');
+    setTombs((t) => addTombstones(t, [id], Date.now()));
+  };
 
   const saveForm = (e: BabyLogEntry) => {
     const editing = !!form?.initial;
-    save(editing ? replaceEntry(log, e) : addEntry(log, e), `${describe(e, Date.now())} ${editing ? 'saved' : 'added'}.`);
+    save(editing ? replaceEntry(log, e, Date.now()) : addEntry(log, e), `${describe(e, Date.now())} ${editing ? 'saved' : 'added'}.`);
     setForm(null);
   };
 
@@ -281,7 +291,9 @@ export function BabyLogPage({ profile }: { profile: PregnancyProfile }) {
                   type="button"
                   className="text-link log-undo"
                   onClick={() => {
-                    const r = setLog(status.undo!);
+                    const back = status.undo!;
+                    const r = setLog(back);
+                    if (r.ok) setTombs((t) => dropTombstones(t, new Set(back.map((x) => x.id))));
                     setStatus(r.ok ? { text: 'Undone.' } : null);
                   }}
                 >
@@ -333,7 +345,7 @@ export function BabyLogPage({ profile }: { profile: PregnancyProfile }) {
                     type="button"
                     className="btn btn--ghost"
                     aria-label={`Delete ${describe(e, now)} at ${clock(e.at)}`}
-                    onClick={() => save(removeEntry(log, e.id), 'Deleted.')}
+                    onClick={() => remove(e.id)}
                   >
                     Delete
                   </button>

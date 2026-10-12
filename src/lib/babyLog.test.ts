@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
   addEntry,
+  addTombstones,
+  mergeLogs,
+  mergeTombstones,
+  parseTombstones,
   endSleep,
   formatClock,
   formatDuration,
@@ -124,7 +128,8 @@ describe('new entry types', () => {
       { id: '1', kind: 'nappy', at: T + H, nappy: 'wet' },
       { id: '2', kind: 'nappy', at: T, nappy: 'dirty' },
     ];
-    log = replaceEntry(log, { id: '2', kind: 'nappy', at: T + 2 * H, nappy: 'both' });
+    log = replaceEntry(log, { id: '2', kind: 'nappy', at: T + 2 * H, nappy: 'both' }, T + 3 * H);
+    expect(log[0]).toMatchObject({ editedAt: T + 3 * H });
     expect(log.map((e) => e.id)).toEqual(['2', '1']);
     expect(removeEntry(log, '2').map((e) => e.id)).toEqual(['1']);
   });
@@ -160,5 +165,39 @@ describe('breast feed timer', () => {
   it('formats a running clock', () => {
     expect(formatClock(65_000)).toBe('1:05');
     expect(formatClock(3_725_000)).toBe('1:02:05');
+  });
+});
+
+describe('two caregivers', () => {
+  const a: BabyLogEntry = { id: 'a', kind: 'nappy', at: T, nappy: 'wet' };
+  const b: BabyLogEntry = { id: 'b', kind: 'nappy', at: T + H, nappy: 'dirty' };
+  const c: BabyLogEntry = { id: 'c', kind: 'feed', at: T + 2 * H, side: 'left', ml: null };
+
+  it('keeps entries from both phones', () => {
+    expect(mergeLogs([a, c], [a, b], []).map((e) => e.id)).toEqual(['c', 'b', 'a']);
+  });
+
+  it('keeps the newer copy of an edited entry, and a finished timer over a running one', () => {
+    const edited = { ...a, nappy: 'both' as const, editedAt: T + 5 * H };
+    expect(mergeLogs([a], [edited], [])[0]).toMatchObject({ nappy: 'both' });
+    expect(mergeLogs([edited], [a], [])[0]).toMatchObject({ nappy: 'both' });
+    const running: BabyLogEntry = { id: 's', kind: 'sleep', at: T, end: null };
+    const ended: BabyLogEntry = { id: 's', kind: 'sleep', at: T, end: T + H, editedAt: T + H };
+    expect(mergeLogs([running], [ended], [])[0]).toMatchObject({ end: T + H });
+  });
+
+  it("doesn't bring back an entry the other phone deleted", () => {
+    const tombs = addTombstones([], ['b'], T + 6 * H);
+    expect(mergeLogs([a, b], [a], tombs).map((e) => e.id)).toEqual(['a']);
+  });
+
+  it('keeps deletion records tidy: deduped, newest first, older than 60 days dropped', () => {
+    const old = { id: 'x', at: T - 61 * 24 * H };
+    const t = addTombstones([old, { id: 'y', at: T - H }], ['y', 'z'], T);
+    expect(t.map((x) => x.id).sort()).toEqual(['y', 'z']);
+    expect(t.some((x) => x.id === 'x')).toBe(false);
+    expect(new Set(t.map((x) => x.id)).size).toBe(t.length);
+    expect(mergeTombstones([{ id: 'p', at: T }], [{ id: 'p', at: T + 1 }, { id: 'q', at: T }]).map((x) => x.id).sort()).toEqual(['p', 'q']);
+    expect(parseTombstones('nope')).toBeNull();
   });
 });
