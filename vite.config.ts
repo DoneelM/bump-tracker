@@ -1,4 +1,5 @@
 import { defineConfig, type Plugin } from 'vitest/config';
+import pkg from './package.json';
 import react from '@vitejs/plugin-react';
 
 /**
@@ -35,6 +36,8 @@ function cspPlugin(): Plugin {
 export default defineConfig({
   // Relative base so the static build works from any sub-path (hash routing needs no server rewrites).
   base: './',
+  // Shown in the app info a user can choose to include in feedback.
+  define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   plugins: [react(), cspPlugin()],
   build: {
     target: 'es2022',

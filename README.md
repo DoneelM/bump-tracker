@@ -39,6 +39,7 @@ More screens are in [`docs/screenshots/`](docs/screenshots/) (390 px mobile view
 - **Immunisations**: due dates from the birth date and the vaccines at each visit (Health NZ National Immunisation Schedule), done ticks, and a calendar file of due dates.
 - **Baby log**: once "Baby's here" is set, log feeds (left, right, bottle with optional ml), nappies and sleep with one tap each, with Undo. Shows the last feed, a 24-hour summary and PlunketLine. Records only; no targets.
 - **When the pregnancy ends**: "Baby's here" turns Home into a keepsake page with birth details and PlunketLine. "My pregnancy has ended" stops all pregnancy updates and shows support (1737, Sands NZ, Miscarriage Support). Both keep your data and can be undone in Settings.
+- **Contact us** (More): feedback, feature requests or problems. Writes an email draft in your own mail app (to dons-bot@agentmail.to), with optional reply email and visible, removable app info. Nothing is sent by the app.
 - **Your data**: JSON backup export/import (optionally with photos) and "delete all my data".
 
 Content sources are listed in the app (More > Sources) and in [docs/SOURCES.md](docs/SOURCES.md).

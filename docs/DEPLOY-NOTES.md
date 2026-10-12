@@ -101,3 +101,9 @@ Users can sync their data between devices through the hidden app folder (`appDat
 - **Size:** the encrypted vault is capped at 1 MiB, details only. Typical data is far smaller. Past the cap, sync pauses with a message and the data stays on the device.
 - **Delete all my data** turns sync off on that device before wiping, so it never pushes an empty state. Deleting the Drive copy is a separate button on the Sync page.
 
+
+## Later: in-app feedback sending
+
+"Contact us" opens an email draft today, so the app stays backend-free. Sending from inside the app would need a Worker endpoint on the same origin:
+`main` script with `assets.binding: "ASSETS"` and `run_worker_first: ["/api/*"]`, a `send_email` binding locked to `destination_address: "dons-bot@agentmail.to"`, a `ratelimits` binding, and `env.EMAIL.send({ from, to, subject, text, replyTo })`.
+Cloudflare Email Sending needs the Workers paid plan (public beta since April 2026) and `aiagents.nz` onboarded as a sending domain. Only the form's send step in `src/features/feedback/FeedbackPage.tsx` would change; validation and the message body (`src/lib/feedback.ts`) stay.

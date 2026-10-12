@@ -694,3 +694,15 @@
 .ending-section {
   scroll-margin-top: var(--space-4);
 }
+
+/* Contact us: the app info shown exactly as it will appear in the email */
+.fb-info {
+  margin: var(--space-2) 0 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-peach-100);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  white-space: pre-wrap;
+}
