@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { copyText } from '../../lib/clipboard';
 import { Page } from '../../components/Page';
 import { BAG_SECTIONS, bagDefaults } from '../../data/checklists';
 import { parseChecklist, progress, type ChecklistItem } from '../../lib/checklists';
@@ -29,27 +30,6 @@ const OPTIONS: { key: keyof PartnerSections; label: string }[] = [
   { key: 'bag', label: 'Hospital bag progress' },
   { key: 'flagged', label: 'Number of journal items flagged for the midwife' },
 ];
-
-async function copyText(text: string): Promise<boolean> {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch {
-    // Fallback for browsers/contexts without the async clipboard API.
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    ta.setAttribute('readonly', '');
-    ta.style.position = 'fixed';
-    ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.select();
-    try {
-      return document.execCommand('copy');
-    } finally {
-      ta.remove();
-    }
-  }
-}
 
 export function PartnerPage({ profile, today }: { profile: PregnancyProfile; today: LocalDate }) {
   const [scans] = useStoredState<ScanEntry[]>(STORAGE_KEYS.scanEntries, NO_SCANS, parseScanEntries);

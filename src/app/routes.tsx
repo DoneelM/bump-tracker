@@ -22,6 +22,7 @@ import { BabyNamesPage } from '../features/names/BabyNamesPage';
 import { FoodSafetyPage } from '../features/food/FoodSafetyPage';
 import { SupplementsPage } from '../features/supplements/SupplementsPage';
 import { BabyLogPage } from '../features/babylog/BabyLogPage';
+import { FeedbackPage } from '../features/feedback/FeedbackPage';
 import { HelpPage } from '../features/help/HelpPage';
 import { ImmunisationsPage } from '../features/immunisations/ImmunisationsPage';
 import { BpPage } from '../features/monitoring/BpPage';
@@ -102,6 +103,7 @@ export const ROUTES: readonly RouteDef[] = [
   { pattern: '/more/sync', tab: 'more', render: () => <SyncPage /> },
   { pattern: '/more/sources', tab: 'more', render: () => <SourcesPage /> },
   { pattern: '/more/about', tab: 'more', render: () => <AboutPage /> },
+  { pattern: '/more/feedback', tab: 'more', render: ({ profile }) => <FeedbackPage profile={profile} /> },
   { pattern: '/settings', tab: 'more', render: ({ today }) => <SettingsPage today={today} /> },
   { pattern: '/settings/baby-arrived', tab: 'home', render: ({ today }) => <SettingsPage today={today} startBorn /> },
 ];
