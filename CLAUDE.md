@@ -1,4 +1,4 @@
-# Bump Tracker: notes for Claude
+# Hey Baby: notes for Claude
 
 A privacy-first pregnancy tracker for Aotearoa New Zealand. Vite + React 18 + TypeScript, installable PWA, hash routing, no backend. Data lives in the browser (localStorage + IndexedDB). Optional sync writes an end-to-end encrypted copy to the user's own Google Drive app folder. Deployed as static assets on Cloudflare Workers at `bump-tracker.aiagents.nz`.
 
