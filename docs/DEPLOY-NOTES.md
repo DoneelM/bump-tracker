@@ -21,8 +21,8 @@ The app deploys to Cloudflare Workers as static assets only (no Worker script). 
    | Root directory | leave empty |
 
    Add one build variable: `VITE_GOOGLE_CLIENT_ID` = `626836380740-79lmpemmqhe936isbhd9k2m75bbpjtj1.apps.googleusercontent.com` (see "Google Drive sync" below). Without it the app builds with sync turned off.
-4. **Custom domain.** `wrangler.jsonc` routes `bump-tracker.aiagents.nz` to the Worker as a Custom Domain. For that, `aiagents.nz` must be an **active zone in the same Cloudflare account** (its nameservers pointing to Cloudflare), and `bump-tracker.aiagents.nz` must not already have a CNAME record. Cloudflare then creates the DNS record and certificate. **Until the zone is active, `wrangler deploy` fails**, so set the zone up first, or remove `routes` from `wrangler.jsonc` to deploy on `workers.dev` only.
-5. **Save and Deploy.** The app is served at `https://bump-tracker.aiagents.nz`.
+4. **Custom domain.** `wrangler.jsonc` routes `heybaby.nz` to the Worker as a Custom Domain. For that, `heybaby.nz` must be an **active zone in the same Cloudflare account** (its nameservers pointing to Cloudflare), and the apex must not already have a DNS record. Add a redirect rule from `www.heybaby.nz` to `https://heybaby.nz` (a second origin would mean a second, separate copy of each user's data). Cloudflare then creates the DNS record and certificate. **Until the zone is active, `wrangler deploy` fails**, so set the zone up first, or remove `routes` from `wrangler.jsonc` to deploy on `workers.dev` only.
+5. **Save and Deploy.** The app is served at `https://heybaby.nz`.
 
 **Notes on the setup:**
 
@@ -37,7 +37,7 @@ The app deploys to Cloudflare Workers as static assets only (no Worker script). 
 
 ## Security: dedicated origin and headers (review item M3)
 
-1. **Dedicated origin: done.** `bump-tracker.aiagents.nz` is its own origin: other `*.aiagents.nz` sites can't read its storage or service worker. The app sets no cookies, so parent-domain cookies don't matter. Do **not** move the app to a shared origin such as `doneelm.github.io/bump-tracker/`. localStorage, IndexedDB and service worker scope are per-origin, not per-path. Every other page on a shared origin could read the health data and photos, or register an overlapping service worker.
+1. **Dedicated origin: done.** `heybaby.nz` is its own origin, used for nothing else, so no other site can read its storage or service worker. (Until October 2026 it was `heybaby.nz`; there were no users to move.) The app sets no cookies, so parent-domain cookies don't matter. Do **not** move the app to a shared origin such as `doneelm.github.io/bump-tracker/`. localStorage, IndexedDB and service worker scope are per-origin, not per-path. Every other page on a shared origin could read the health data and photos, or register an overlapping service worker.
 2. **Security headers: done**, in [`public/_headers`](../public/_headers) (Cloudflare syntax). Vite copies the file to `dist/`; Cloudflare applies it and doesn't serve it.
    - **CSP:** the header CSP matches the `<meta>` CSP in `vite.config.ts`, plus `frame-ancestors 'none'`, which a meta tag can't set. Keep the two in sync.
    - **Other headers:** HSTS, `X-Frame-Options`, `nosniff`, `Referrer-Policy`, `Permissions-Policy` and COOP.
@@ -75,13 +75,13 @@ Users can sync their data between devices through the hidden app folder (`appDat
 1. Create a Google Cloud project and enable the **Google Drive API**.
 2. Configure the **OAuth consent screen** (Google Auth Platform → Branding, Audience, Data Access):
    - User type: External. App name: Hey Baby.
-   - Homepage `https://bump-tracker.aiagents.nz`; privacy policy `https://bump-tracker.aiagents.nz/privacy.html`.
+   - Homepage `https://heybaby.nz`; privacy policy `https://heybaby.nz/privacy.html`.
    - Google's branding check needs the homepage to link to the privacy policy. A **Privacy policy** link sits at the bottom of the homepage: the welcome screen for new visitors, and Home once set up. Other screens don't carry it. `index.html` also carries a short description and the link inside `#root`, for checkers that don't run JavaScript; the app replaces it on start.
-   - Authorized domain: `aiagents.nz`. Verify it once in Google Search Console with a DNS TXT record. That covers the subdomain, and brand verification (app name and logo on the consent screen) needs it.
+   - Authorized domain: `heybaby.nz`. Verify it once in Google Search Console with a DNS TXT record. Brand verification (app name and logo on the consent screen) needs it.
    - Scope: only `https://www.googleapis.com/auth/drive.appdata`. Google classes it as non-sensitive, so full app verification isn't required.
    - **Publish the app to production.** In testing mode, only listed test users can sign in.
 3. Create an **OAuth client ID** of type **Web application**. Authorized JavaScript origins:
-   - `https://bump-tracker.aiagents.nz`
+   - `https://heybaby.nz`
    - `http://localhost:4173`, for `npm run preview`
    - `http://localhost:5173` if you want sync in `npm run dev`
 4. Put the client ID in `VITE_GOOGLE_CLIENT_ID`. Locally that's `.env.local`, which is ignored by git; copy `.env.example`. On Cloudflare it's the Workers Builds build variable. The ID is public, not a secret.
@@ -111,7 +111,7 @@ The form's field IDs live in `FEEDBACK_FORM` in `src/lib/feedback.ts`. If you ed
 
 Sending from inside the app (instead of the Google Form) would need a Worker endpoint on the same origin:
 `main` script with `assets.binding: "ASSETS"` and `run_worker_first: ["/api/*"]`, a `send_email` binding locked to `destination_address: "dons-bot@agentmail.to"`, a `ratelimits` binding, and `env.EMAIL.send({ from, to, subject, text, replyTo })`.
-Cloudflare Email Sending needs the Workers paid plan (public beta since April 2026) and `aiagents.nz` onboarded as a sending domain. Only the form's send step in `src/features/feedback/FeedbackPage.tsx` would change; validation and the message body (`src/lib/feedback.ts`) stay.
+Cloudflare Email Sending needs the Workers paid plan (public beta since April 2026) and `heybaby.nz` onboarded as a sending domain. Only the form's send step in `src/features/feedback/FeedbackPage.tsx` would change; validation and the message body (`src/lib/feedback.ts`) stay.
 
 ## Before charging for the app
 

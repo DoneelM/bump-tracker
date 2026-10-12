@@ -4,9 +4,10 @@
   "name": "bump-tracker",
   "compatibility_date": "2026-09-25",
   "send_metrics": false,
-  // Served at a subdomain of a domain we own: Google brand verification needs a verified domain, and it's the
-  // app's own origin. aiagents.nz must be an active zone in the same Cloudflare account.
-  "routes": [{ "pattern": "bump-tracker.aiagents.nz", "custom_domain": true }],
+  // Served at the app's own domain: Google brand verification needs a verified domain, and it's the app's own
+  // origin. heybaby.nz must be an active zone in the same Cloudflare account. www redirects to it (a Cloudflare
+  // redirect rule), so there is only one origin and one copy of each user's data.
+  "routes": [{ "pattern": "heybaby.nz", "custom_domain": true }],
   // Keep branch preview URLs on. With routes set, Wrangler defaults workers.dev off, and a main deploy can then
   // switch preview URLs off too. workers_dev stays at its default (off): production lives only on the domain above.
   "preview_urls": true,
