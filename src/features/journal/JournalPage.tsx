@@ -89,10 +89,15 @@ export function JournalPage() {
 
       <section aria-labelledby="j-list">
         <h2 id="j-list">Entries</h2>
-        <label className="chip">
-          <input type="checkbox" checked={onlyFlagged} onChange={(e) => setOnlyFlagged(e.target.checked)} />
-          Flagged for midwife only
-        </label>
+        <div className="inline-inputs">
+          <label className="chip">
+            <input type="checkbox" checked={onlyFlagged} onChange={(e) => setOnlyFlagged(e.target.checked)} />
+            Flagged for midwife only
+          </label>
+          <Link to="/journal/share" className="btn btn--ghost">
+            Share with my midwife
+          </Link>
+        </div>
         {shown.length === 0 ? (
           <p className="muted">{onlyFlagged ? 'No flagged entries.' : 'No entries yet.'}</p>
         ) : (

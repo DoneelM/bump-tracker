@@ -800,3 +800,15 @@ button.chip {
 .aid-steps--titled p {
   margin: var(--space-1) 0 0;
 }
+
+/* Share with my midwife: the exact text that will be sent, readable size, plain on paper. */
+.care-text {
+  font-size: var(--font-size-base);
+}
+
+@media print {
+  .care-text {
+    background: #fff;
+    color: #000;
+  }
+}
