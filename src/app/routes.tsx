@@ -24,6 +24,7 @@ import { SupplementsPage } from '../features/supplements/SupplementsPage';
 import { BabyLogPage } from '../features/babylog/BabyLogPage';
 import { TrendsPage } from '../features/babylog/TrendsPage';
 import { FirstsPage } from '../features/firsts/FirstsPage';
+import { CareSharePage } from '../features/careshare/CareSharePage';
 import { FeedbackPage } from '../features/feedback/FeedbackPage';
 import { HelpPage } from '../features/help/HelpPage';
 import { ImmunisationsPage } from '../features/immunisations/ImmunisationsPage';
@@ -98,6 +99,7 @@ export const ROUTES: readonly RouteDef[] = [
   { pattern: '/tools/glucose', tab: 'tools', render: ({ today }) => <GlucosePage today={today} /> },
   { pattern: '/tools/timeline', tab: 'tools', render: ({ profile, today }) => <TimelinePage profile={profile} today={today} /> },
   { pattern: '/journal', tab: 'journal', render: () => <JournalPage /> },
+  { pattern: '/journal/share', tab: 'journal', render: ({ profile, today }) => <CareSharePage profile={profile} today={today} /> },
   { pattern: '/journal/questions', tab: 'journal', render: ({ today }) => <QuestionsPage today={today} /> },
   { pattern: '/more', tab: 'more', render: ({ profile }) => <MorePage babyMode={profile.ending?.kind === 'born'} /> },
   { pattern: '/more/partner', tab: 'more', render: ({ profile, today }) => <PartnerPage profile={profile} today={today} /> },
