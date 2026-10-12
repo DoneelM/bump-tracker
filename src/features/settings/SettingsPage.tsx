@@ -5,6 +5,7 @@ import { useProfile } from '../../lib/useProfile';
 import { PregnancyForm } from '../onboarding/PregnancyForm';
 import { CareTeamSection } from './CareTeamSection';
 import { EndingSection } from './EndingSection';
+import { CountSection } from './CountSection';
 import { ThemeSection } from './ThemeSection';
 
 export function SettingsPage({ today, startBorn = false }: { today: LocalDate; startBorn?: boolean }) {
@@ -68,6 +69,7 @@ export function SettingsPage({ today, startBorn = false }: { today: LocalDate; s
         </section>
       )}
       {!editing && <ThemeSection />}
+      {!editing && <CountSection />}
       {!editing && <CareTeamSection />}
       {!editing && profile && <EndingSection key={profile.ending?.kind ?? 'none'} profile={profile} today={today} startBorn={startBorn} />}
     </Page>

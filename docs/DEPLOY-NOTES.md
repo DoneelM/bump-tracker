@@ -145,3 +145,18 @@ The app is shown as "Hey Baby". Internal names stay `bump-tracker` on purpose: t
 Outside the code, rename these by hand:
 - Google Cloud OAuth consent screen: app name "Hey Baby" (the privacy policy tells people to look for "Hey Baby" under Manage apps).
 - The feedback Google Form title.
+
+## Anonymous count
+
+`worker/index.js` is the only server code. `run_worker_first: ["/api/*"]` sends just `/api/*` to it; everything else is served as static assets. Each device sends `POST /api/ping?p=day|month&m=pregnancy|baby|ended&v=<version>` at most once a day and once a month (`src/lib/ping.ts`), only from the production hosts. The Worker writes `blobs: [period, mode, version]` to the Analytics Engine dataset `heybaby_pings` (free plan: 100,000 writes a day) and records nothing else.
+
+Reading the numbers: Cloudflare dashboard → Workers & Pages → Analytics Engine, or the SQL API, for example:
+
+```sql
+SELECT blob1 AS period, blob2 AS mode, SUM(_sample_interval) AS devices
+FROM heybaby_pings
+WHERE timestamp > NOW() - INTERVAL '1' DAY AND blob1 = 'day'
+GROUP BY period, mode
+```
+
+Daily active devices = `day` pings per day; monthly active devices = `month` pings per calendar month. Analytics Engine keeps data for about 3 months (check the current limit), so export monthly totals for a longer history.

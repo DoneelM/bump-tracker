@@ -1,5 +1,5 @@
-// Cloudflare Workers (static assets only, no Worker script). Workers Builds runs `npm test && npm run build`,
-// then `npm run deploy` on every push to main. See docs/DEPLOY-NOTES.md.
+// Cloudflare Workers: static assets, plus a tiny Worker (worker/index.js) for /api/* only (the anonymous
+// count). Workers Builds runs `npm test && npm run build`, then `npm run deploy` on every push to main. See docs/DEPLOY-NOTES.md.
 {
   "name": "bump-tracker",
   "compatibility_date": "2026-09-25",
@@ -10,9 +10,14 @@
   // Keep branch preview URLs on. With routes set, Wrangler defaults workers.dev off, and a main deploy can then
   // switch preview URLs off too. workers_dev stays at its default (off): production lives only on the domain above.
   "preview_urls": true,
+  "main": "worker/index.js",
   "assets": {
-    "directory": "./dist"
+    "directory": "./dist",
+    // Only the count endpoint runs code; every other request is served straight from the assets.
+    "run_worker_first": ["/api/*"]
   },
+  // Anonymous daily and monthly counts (src/lib/ping.ts). Free plan: 100,000 writes a day.
+  "analytics_engine_datasets": [{ "binding": "PINGS", "dataset": "heybaby_pings" }],
   // Required by `wrangler preview`, which Workers Builds runs for non-main branches. Empty: previews use the
   // top-level settings (assets only; no vars or bindings). Preview URLs are their own origins, so Google sync
   // sign-in won't work there unless that origin is added to the OAuth client.

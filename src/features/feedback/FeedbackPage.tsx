@@ -16,6 +16,7 @@ import {
   validateFeedback,
   type FeedbackType,
 } from '../../lib/feedback';
+import { appMode } from '../../lib/ping';
 import type { PregnancyProfile } from '../../lib/profile';
 import { readTheme } from '../../lib/theme';
 
@@ -36,7 +37,7 @@ export function FeedbackPage({ profile }: { profile: PregnancyProfile }) {
     () =>
       buildAppInfo({
         version: __APP_VERSION__,
-        mode: profile.ending?.kind === 'born' ? 'baby' : profile.ending ? 'ended' : 'pregnancy',
+        mode: appMode(profile),
         theme: readTheme(),
         width: window.innerWidth,
         height: window.innerHeight,

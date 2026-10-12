@@ -56,7 +56,7 @@ This is general information, not medical advice, and it hasn't been clinically r
 
 - Persist with `useStoredState(name, default, validator)` and register the key in the storage registry (`STORAGE_KEYS`, keys look like `bt:v1:<name>`). Every stored or imported value goes through a validator in `src/lib`.
 - No `dangerouslySetInnerHTML`.
-- No analytics, trackers or third-party requests. The only external origins are Google Identity Services and the Drive API, loaded only when the user turns on sync. A new origin means a CSP change in `vite.config.ts` and a reason.
+- No analytics beyond the anonymous daily count (`src/lib/ping.ts`, `worker/index.js`: version, mode and period only; never add fields that could identify someone). No trackers or third-party requests. The only external origins are Google Identity Services and the Drive API, loaded only when the user turns on sync. A new origin means a CSP change in `vite.config.ts` and a reason.
 - Dates use `LocalDate` (`YYYY-MM-DD`) from `src/lib/dates.ts`, never raw `Date` arithmetic, because of DST.
 
 ## Writing style (UI copy, docs, commits, PRs)

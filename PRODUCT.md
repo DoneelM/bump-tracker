@@ -20,7 +20,7 @@ Success: the household uses it through the whole pregnancy and trusts it with th
 
 ## Positioning
 
-- **Private by default.** No account, no backend, no analytics, no ads. Data stays in the browser. Optional sync is end-to-end encrypted to the user's own Google Drive, and the operator stores nothing.
+- **Private by default.** No account, no backend for user data, no tracking, no ads. One anonymous daily count (version and mode only) that users can turn off. Data stays in the browser. Optional sync is end-to-end encrypted to the user's own Google Drive, and the operator stores nothing.
 - **Built for the NZ system.** Midwife/LMC, Health NZ antenatal timeline, Healthline, PlunketLine, 111. Not an overseas app with NZ numbers bolted on.
 - **Calm, not a content farm.** No feed, no upsell, no daily push articles. A tool you open when you need it.
 

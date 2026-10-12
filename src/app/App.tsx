@@ -5,6 +5,9 @@ import { OnboardingPage } from '../features/onboarding/OnboardingPage';
 import { NotFoundPage } from '../features/notfound/NotFoundPage';
 import { PartnerViewPage } from '../features/partner/PartnerViewPage';
 import { RestorePage } from '../features/data/RestorePage';
+import { appMode, usePing } from '../lib/ping';
+import type { LocalDate } from '../lib/dates';
+import type { PregnancyProfile } from '../lib/profile';
 import { useProfile } from '../lib/useProfile';
 import { useToday } from '../lib/useToday';
 import { useRoutePath } from './router';
@@ -57,6 +60,13 @@ function AppContent() {
         {match ? match.route.render({ params: match.params, profile, today }) : <NotFoundPage />}
       </main>
       <BottomNav active={match?.route.tab ?? null} babyMode={babyMode} />
+      <Ping today={today} profile={profile} />
     </div>
   );
+}
+
+/** Anonymous daily count (src/lib/ping.ts). Renders nothing. */
+function Ping({ today, profile }: { today: LocalDate; profile: PregnancyProfile }) {
+  usePing(today, appMode(profile));
+  return null;
 }
