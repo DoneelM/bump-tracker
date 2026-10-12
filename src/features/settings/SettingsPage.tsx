@@ -7,7 +7,7 @@ import { CareTeamSection } from './CareTeamSection';
 import { EndingSection } from './EndingSection';
 import { ThemeSection } from './ThemeSection';
 
-export function SettingsPage({ today }: { today: LocalDate }) {
+export function SettingsPage({ today, startBorn = false }: { today: LocalDate; startBorn?: boolean }) {
   const [profile, setProfile] = useProfile();
   const [editing, setEditing] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -69,7 +69,7 @@ export function SettingsPage({ today }: { today: LocalDate }) {
       )}
       {!editing && <ThemeSection />}
       {!editing && <CareTeamSection />}
-      {!editing && profile && <EndingSection key={profile.ending?.kind ?? 'none'} profile={profile} today={today} />}
+      {!editing && profile && <EndingSection key={profile.ending?.kind ?? 'none'} profile={profile} today={today} startBorn={startBorn} />}
     </Page>
   );
 }

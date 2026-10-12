@@ -1,4 +1,5 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { navigate } from '../../app/router';
 import { FormField } from '../../components/FormField';
 import { formatDisplayDate, type LocalDate } from '../../lib/dates';
 import {
@@ -12,9 +13,29 @@ import {
 import { useProfile } from '../../lib/useProfile';
 
 /** Marks the pregnancy as ended (baby born, or pregnancy ended) so the app stops pregnancy updates; can be undone. */
-export function EndingSection({ profile, today }: { profile: PregnancyProfile; today: LocalDate }) {
+export function EndingSection({
+  profile,
+  today,
+  startBorn = false,
+}: {
+  profile: PregnancyProfile;
+  today: LocalDate;
+  /** Opened from Home's "Has your baby arrived?": show the birth form straight away, then go Home on save. */
+  startBorn?: boolean;
+}) {
   const [, setProfile] = useProfile();
-  const [form, setForm] = useState<'born' | 'ended' | null>(null);
+  const [form, setForm] = useState<'born' | 'ended' | null>(startBorn && !profile.ending ? 'born' : null);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  // Page scrolls to the top and focuses its heading after its children mount, so do this just after.
+  useEffect(() => {
+    if (!startBorn) return;
+    const id = window.setTimeout(() => {
+      sectionRef.current?.scrollIntoView({ block: 'start' });
+      sectionRef.current?.querySelector<HTMLInputElement>('input')?.focus({ preventScroll: true });
+    }, 0);
+    return () => window.clearTimeout(id);
+  }, [startBorn]);
   const [date, setDate] = useState<string>(today);
   const [name, setName] = useState(profile.nickname);
   const [weight, setWeight] = useState('');
@@ -26,6 +47,7 @@ export function EndingSection({ profile, today }: { profile: PregnancyProfile; t
     else delete next.ending;
     const r = setProfile(next);
     if (!r.ok) setErrors({ save: r.error });
+    else if (startBorn && ending?.kind === 'born') navigate('/');
     else setForm(null);
   };
 
@@ -84,8 +106,8 @@ export function EndingSection({ profile, today }: { profile: PregnancyProfile; t
   }
 
   return (
-    <section className="card" aria-labelledby="ending-heading">
-      <h2 id="ending-heading">When your pregnancy ends</h2>
+    <section ref={sectionRef} className="card ending-section" aria-labelledby="ending-heading">
+      <h2 id="ending-heading">{startBorn ? 'Your baby’s birth' : 'When your pregnancy ends'}</h2>
       {!form ? (
         <>
           <p className="muted">Bump Tracker stops showing pregnancy updates. Everything you’ve logged stays, and you can undo this.</p>
