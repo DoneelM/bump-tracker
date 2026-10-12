@@ -382,6 +382,12 @@
   cursor: pointer;
 }
 
+/* Disabled controls are exempt from WCAG contrast; fading them shows they can't be used right now. */
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .btn--primary {
   background: var(--color-primary);
   color: var(--color-on-primary);

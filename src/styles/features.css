@@ -557,6 +557,79 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Nappy has four choices: two per row on a phone reads better than four squeezed. */
+.log-buttons--4 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* Running timers sit above Add, in the primary colour, so a running feed is never lost. */
+.log-timer {
+  border: 2px solid var(--color-primary);
+}
+
+.log-timer__sides {
+  display: flex;
+  gap: var(--space-4);
+  font-size: var(--font-size-xl);
+  font-variant-numeric: tabular-nums;
+}
+
+.log-timer__sides .is-current {
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.log-timer__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.log-timer__row + .log-timer__row {
+  margin-top: var(--space-3);
+}
+
+.log-entry__note {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.log-entry {
+  flex-wrap: wrap;
+}
+
+/* The text gets the room; Edit and Delete drop below it on a phone rather than squeezing it. */
+.log-entry > span:first-child {
+  flex: 1 1 14rem;
+}
+
+.log-entry__actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.log-list-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.log-list-head h2 {
+  margin: 0;
+}
+
+.log-by {
+  margin: var(--space-4) 0;
+}
+
 /* A lone button (sleep) takes the whole row. */
 .log-buttons > .btn:only-child {
   grid-column: 1 / -1;

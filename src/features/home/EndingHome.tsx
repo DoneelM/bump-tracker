@@ -4,6 +4,7 @@ import { HubList, type HubItem } from '../../components/HubList';
 import { Page } from '../../components/Page';
 import { EMERGENCY, HEALTHLINE, MISCARRIAGE_SUPPORT, NEED_TO_TALK, PLUNKETLINE, SANDS } from '../../data/helplines';
 import { VISITS } from '../../data/immunisations';
+import { BabyLogCard } from '../babylog/BabyLogCard';
 import { useImmunisationsDone } from '../immunisations/ImmunisationsPage';
 import { CheckInCard, SafeSleepCard } from '../support/ParentCards';
 import { nextVisit } from '../../lib/immunisations';
@@ -21,7 +22,7 @@ const footer = (
 );
 
 const BABY_TOOLS: readonly HubItem[] = [
-  { to: '/baby', title: 'Baby log', description: 'Feeds, nappies and sleep', icon: '🍼' },
+  { to: '/baby', title: 'Baby log', description: 'Feeds, nappies, sleep, solids, growth and more', icon: '🍼' },
 ];
 
 const KEEPSAKES: readonly HubItem[] = [
@@ -85,6 +86,7 @@ export function BornHome({
           </Link>
         </div>
       </section>
+      <BabyLogCard />
       {nextJab && (
         <Link to="/baby/immunisations" className="card card--link imm-home">
           <span className="hub__icon" aria-hidden="true">
